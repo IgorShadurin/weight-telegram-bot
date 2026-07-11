@@ -24,6 +24,10 @@ function telegramLanguage(languageCode: string | undefined): Language | null {
   return isLanguage(primary) ? primary : null;
 }
 
+function docsUrl(config: AppConfig, language: Language): string {
+  return `${config.docsBaseUrl}/${language}/`;
+}
+
 function userName(ctx: Context): string {
   const user = ctx.from!;
   return [user.first_name, user.last_name].filter(Boolean).join(' ');
@@ -86,7 +90,18 @@ export function configureBot(service: TelegramService, store: Store, config: App
     if (action === 'lang' && isLanguage(value)) {
       store.setLanguage(userId, value, now.toISO()!);
       await ctx.answerCallbackQuery();
-      await ctx.editMessageText(t(value, 'languageSet'));
+      if (ctx.chat?.type === 'private') {
+        await ctx.editMessageText(`${t(value, 'languageSet')}\n\n${t(value, 'privateOnly', {
+          bot: ctx.me.username,
+          docs: docsUrl(config, value),
+        })}`, {
+          parse_mode: 'HTML',
+          link_preview_options: { is_disabled: true },
+          reply_markup: service.languageKeyboard(userId),
+        });
+      } else {
+        await ctx.editMessageText(t(value, 'languageSet'));
+      }
       return;
     }
 
@@ -155,7 +170,21 @@ export function configureBot(service: TelegramService, store: Store, config: App
 
     if (ctx.chat.type === 'private') {
       const language = store.getUser(userId)?.language ?? telegramLanguage(ctx.from.language_code) ?? config.defaultLanguage;
-      await ctx.reply(t(language, 'privateOnly', { bot: ctx.me.username }));
+      const user = store.upsertUser({
+        telegramUserId: userId,
+        username: ctx.from.username ?? null,
+        displayName: userName(ctx),
+        defaultLanguage: language,
+        now: now.toISO()!,
+      });
+      await ctx.reply(t(user.language, 'privateOnly', {
+        bot: ctx.me.username,
+        docs: docsUrl(config, user.language),
+      }), {
+        parse_mode: 'HTML',
+        link_preview_options: { is_disabled: true },
+        reply_markup: service.languageKeyboard(userId),
+      });
       return;
     }
 

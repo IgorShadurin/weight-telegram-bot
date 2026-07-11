@@ -4,7 +4,7 @@
 
 A nine-language Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful feedback, and a 53-week capybara achievement series. The complete interface supports English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 
-[Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [Production health check](https://weight-bot.copymyui.com/healthz)
+[Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [User instructions](https://igorshadurin.github.io/weight-telegram-bot/) · [Production health check](https://weight-bot.copymyui.com/healthz)
 
 ## Achievement progression
 
@@ -134,6 +134,7 @@ npm run assets:validate
 | `TELEGRAM_BOT_TOKEN` | required | Rotated BotFather token |
 | `TELEGRAM_WEBHOOK_SECRET` | required | Secret checked on every webhook request |
 | `PUBLIC_BASE_URL` | `http://localhost:3000` | Public HTTPS origin in production |
+| `DOCS_BASE_URL` | `https://igorshadurin.github.io/weight-telegram-bot` | Localized GitHub Pages instructions linked from private chat |
 | `DATABASE_PATH` | `./data/bot.sqlite` | SQLite file path |
 | `DEFAULT_LANGUAGE` | `ru` | First-contact fallback (`ru`, `en`, `zh`, `es`, `pt`, `de`, `fr`, `ja`, or `id`) |
 | `APP_TIMEZONE` | `Europe/Minsk` | Calendar and reminder timezone |

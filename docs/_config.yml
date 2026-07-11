@@ -1,0 +1,7 @@
+title: Weight Goal Bot
+description: Instructions and commands for the multilingual Telegram weight-goal bot
+theme: jekyll-theme-cayman
+markdown: kramdown
+url: https://igorshadurin.github.io
+baseurl: /weight-telegram-bot
+

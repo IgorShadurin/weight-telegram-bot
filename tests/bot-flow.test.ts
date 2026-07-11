@@ -85,6 +85,35 @@ describe('Telegram group behavior', () => {
       text: '/start',
     });
     expect(calls.at(-1)?.payload.text).toContain('グループに追加');
+    expect(calls.at(-1)?.payload.text).toContain('/ja/');
+    expect(calls.at(-1)?.payload.parse_mode).toBe('HTML');
+    expect(calls.at(-1)?.payload.reply_markup.inline_keyboard.flat()).toHaveLength(9);
+  });
+
+  it('changes language from the private-chat button and keeps instructions visible', async () => {
+    await update(31, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'en' },
+      text: '/start',
+    });
+    await telegram.bot.handleUpdate({
+      update_id: 32,
+      callback_query: {
+        id: 'callback-32', chat_instance: 'private-test', data: 'lang:es:1',
+        from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'en' },
+        message: {
+          message_id: 101, date: 1_783_700_000,
+          chat: { id: 1, type: 'private', first_name: 'Alice' },
+          from: telegram.bot.botInfo,
+        },
+      },
+    } as any);
+
+    expect(store.getUser('1')?.language).toBe('es');
+    expect(calls.at(-1)?.method).toBe('editMessageText');
+    expect(calls.at(-1)?.payload.text).toContain('Solo funciono en chats de grupo');
+    expect(calls.at(-1)?.payload.text).toContain('/es/');
+    expect(calls.at(-1)?.payload.reply_markup.inline_keyboard.flat()).toHaveLength(9);
   });
 
   it('requires a mentioned photo caption and offers all supported languages', async () => {

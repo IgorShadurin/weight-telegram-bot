@@ -49,9 +49,12 @@ describe('graphics and fixed catalogs', () => {
       ru: 'групп', en: 'group', zh: '群', es: 'grupo', pt: 'grupo', de: 'Gruppe', fr: 'groupe', ja: 'グループ', id: 'grup',
     } as const;
     for (const language of LANGUAGES) {
-      const message = t(language, 'privateOnly', { bot: 'my_weight_goal_bot' });
+      const message = t(language, 'privateOnly', {
+        bot: 'my_weight_goal_bot', docs: `https://example.com/${language}/`,
+      });
       expect(message).toContain(groupWords[language]);
       expect(message).toContain('@my_weight_goal_bot');
+      expect(message).toContain(`https://example.com/${language}/`);
       expect(message).not.toContain('{{');
     }
   });

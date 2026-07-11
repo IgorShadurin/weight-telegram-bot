@@ -12,6 +12,7 @@ export interface AppConfig {
   botToken: string;
   webhookSecret: string;
   publicBaseUrl: string;
+  docsBaseUrl: string;
   databasePath: string;
   defaultLanguage: Language;
   timezone: string;
@@ -33,6 +34,22 @@ function integer(name: string, fallback: number, min: number, max: number): numb
   return value;
 }
 
+function httpUrl(name: string, fallback: string): string {
+  const raw = process.env[name] ?? fallback;
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error(`${name} must be a valid HTTP(S) URL`);
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(`${name} must use HTTP or HTTPS`);
+  }
+  parsed.search = '';
+  parsed.hash = '';
+  return parsed.toString().replace(/\/$/, '');
+}
+
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const language = process.env.DEFAULT_LANGUAGE ?? 'ru';
   if (!isLanguage(language)) {
@@ -43,6 +60,7 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     botToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
     webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET ?? randomBytes(24).toString('base64url'),
     publicBaseUrl: (process.env.PUBLIC_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, ''),
+    docsBaseUrl: httpUrl('DOCS_BASE_URL', 'https://igorshadurin.github.io/weight-telegram-bot'),
     databasePath: path.resolve(process.env.DATABASE_PATH ?? './data/bot.sqlite'),
     defaultLanguage: language,
     timezone: process.env.APP_TIMEZONE ?? 'Europe/Minsk',

@@ -4,15 +4,15 @@ type Copy = Record<Language, string>;
 
 const copy: Record<string, Copy> = {
   privateOnly: {
-    ru: 'Я работаю только в групповых чатах. Добавь меня в группу и упомяни @{{bot}} в сообщении.',
-    en: 'I work only in group chats. Add me to a group and mention @{{bot}} in a message.',
-    zh: '我只在群聊中工作。请把我添加到群里，然后在消息中 @{{bot}}。',
-    es: 'Solo funciono en chats de grupo. Añádeme a un grupo y menciona a @{{bot}} en un mensaje.',
-    pt: 'Eu só funciono em conversas de grupo. Adicione-me a um grupo e marque @{{bot}} em uma mensagem.',
-    de: 'Ich funktioniere nur in Gruppenchats. Füge mich einer Gruppe hinzu und erwähne @{{bot}} in einer Nachricht.',
-    fr: 'Je fonctionne uniquement dans les discussions de groupe. Ajoute-moi à un groupe et mentionne @{{bot}} dans un message.',
-    ja: 'このボットはグループチャット専用です。グループに追加し、メッセージ内で @{{bot}} をメンションしてください。',
-    id: 'Aku hanya berfungsi di chat grup. Tambahkan aku ke grup, lalu mention @{{bot}} dalam pesan.',
+    ru: 'Я работаю только в групповых чатах. Добавь меня в группу и упомяни @{{bot}} в сообщении. <a href="{{docs}}">Инструкция и список команд</a>. Язык можно сменить кнопкой ниже.',
+    en: 'I work only in group chats. Add me to a group and mention @{{bot}} in a message. Read the <a href="{{docs}}">instructions and command list</a>. You can change the language below.',
+    zh: '我只在群聊中工作。请把我添加到群里，然后在消息中 @{{bot}}。查看<a href="{{docs}}">使用说明和命令列表</a>。你也可以用下方按钮切换语言。',
+    es: 'Solo funciono en chats de grupo. Añádeme a un grupo y menciona a @{{bot}} en un mensaje. Consulta las <a href="{{docs}}">instrucciones y comandos</a>. Puedes cambiar el idioma abajo.',
+    pt: 'Eu só funciono em conversas de grupo. Adicione-me a um grupo e marque @{{bot}} em uma mensagem. Veja as <a href="{{docs}}">instruções e os comandos</a>. Você pode trocar o idioma abaixo.',
+    de: 'Ich funktioniere nur in Gruppenchats. Füge mich einer Gruppe hinzu und erwähne @{{bot}} in einer Nachricht. Hier findest du <a href="{{docs}}">Anleitung und Befehle</a>. Die Sprache kannst du unten ändern.',
+    fr: 'Je fonctionne uniquement dans les discussions de groupe. Ajoute-moi à un groupe et mentionne @{{bot}} dans un message. Consulte le <a href="{{docs}}">mode d’emploi et les commandes</a>. Tu peux changer de langue ci-dessous.',
+    ja: 'このボットはグループチャット専用です。グループに追加し、メッセージ内で @{{bot}} をメンションしてください。<a href="{{docs}}">使い方とコマンド一覧</a>を確認できます。言語は下のボタンで変更できます。',
+    id: 'Aku hanya berfungsi di chat grup. Tambahkan aku ke grup, lalu mention @{{bot}} dalam pesan. Baca <a href="{{docs}}">petunjuk dan daftar perintah</a>. Bahasa bisa diganti lewat tombol di bawah.',
   },
   welcome: {
     ru: 'Привет! Я веду цель по весу прямо в группе. Выбери язык ниже, затем пришли фото с подписью <code>@{{bot}} 92 кг</code>.',

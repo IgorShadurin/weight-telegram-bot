@@ -1,0 +1,51 @@
+---
+layout: default
+title: Weight Goal Bot — Petunjuk
+---
+
+# Petunjuk Weight Goal Bot
+
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) membantu melacak target berat badan di dalam grup Telegram. Di chat pribadi, kamu bisa membuka petunjuk ini dan mengganti bahasa; pembuatan target dan check-in hanya dilakukan di grup.
+
+## Cara memulai
+
+1. Tambahkan bot ke grup.
+2. Kirim foto terbaru dengan caption `@my_weight_goal_bot 93,05 kg`.
+3. Balas dengan target berat, misalnya `80 kg`.
+4. Balas dengan tanggal akhir, misalnya `31 Desember 2026`.
+5. Periksa datanya lalu tekan “Buat”.
+
+Bot akan mengirim rencana mingguan berisi tanggal, target berat, dan jumlah gram untuk setiap pos.
+
+## Check-in mingguan
+
+Kirim foto baru, mention bot di caption, lalu tulis berat saat ini: `@my_weight_goal_bot 88,3 kg`. Bot menyimpan hasilnya, menilai target minggu ini, dan mengirim grafik progres. Check-in bisa kapan saja, tetapi disarankan setidaknya sekali seminggu.
+
+## Perintah
+
+| Perintah | Fungsi |
+|---|---|
+| `/goal` | Buat target baru atau ganti target aktif; target lama tetap ada di riwayat. |
+| `/status` | Tampilkan target, pos minggu ini, dan grafik progres. |
+| `/schedule` | Tampilkan lagi rencana mingguan yang sudah diperbaiki. |
+| `/settings` | Pilih bahasa. |
+| `/help` | Tampilkan daftar perintah singkat. |
+
+Di grup, mention bot bersama perintah atau gunakan `/command@my_weight_goal_bot`.
+
+## Rencana, grafik, dan pencapaian
+
+- Minggu penuh dibagi serata mungkin dalam langkah 50 g; minggu parsial pertama dan terakhir bisa lebih kecil.
+- Target berat dan tanggal akhir selalu tetap tepat.
+- Setiap pengguna dapat menerima satu gambar per menit.
+- Pada hari Kamis, bot mengingatkan jika target minggu berjalan belum tercapai.
+- Setiap minggu yang berhasil membuka pencapaian kapibara berikutnya.
+
+Bot ini adalah alat motivasi, bukan saran medis.
+
+[Buka bot](https://t.me/my_weight_goal_bot) · [Kode sumber](https://github.com/IgorShadurin/weight-telegram-bot)
+
+---
+
+[Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
+
