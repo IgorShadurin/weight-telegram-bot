@@ -1,5 +1,7 @@
 # Weight Goal Telegram Bot
 
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 A bilingual Russian/English Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful roasts, and a 53-week capybara achievement series.
 
 [Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [Production health check](https://weight-bot.copymyui.com/healthz)
@@ -121,3 +123,7 @@ SQLite stores Telegram user/chat identifiers, language preference, goals, weekly
 Webhook requests require Telegram's secret-token header, duplicate update IDs are ignored, SQL uses bound parameters, and the production container runs as an unprivileged user. Goal duration is bounded to prevent unbounded database allocation. GitHub secret scanning, push protection, Dependabot, pinned CI actions, npm auditing, and CodeQL provide ongoing repository checks. See [SECURITY.md](SECURITY.md) for private reporting.
 
 This bot is motivational software, not medical advice.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
