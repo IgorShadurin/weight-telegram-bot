@@ -237,6 +237,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
           target: formatKg(draft.targetWeightGrams),
           date: targetDate,
           periods: periodCount,
+          grams: Math.round((draft.initialWeightGrams! - draft.targetWeightGrams) / periodCount),
         }), keyboard);
         store.saveDraft(draft);
         return;

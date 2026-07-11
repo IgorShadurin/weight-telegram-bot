@@ -133,6 +133,7 @@ describe('Telegram group behavior', () => {
     expect(store.getDraft('1', new Date().toISOString())?.targetDate).toBe('2026-12-31');
     expect(calls.at(-1)?.method).toBe('editMessageText');
     expect(calls.at(-1)?.payload.text).toContain('Создать эту цель?');
+    expect(calls.at(-1)?.payload.text).toMatch(/≈ \d+ г\/нед\./u);
   });
 
   it('deduplicates repeated Telegram update IDs', async () => {

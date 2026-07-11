@@ -40,9 +40,9 @@ const copy: Record<string, Copy> = {
     zh: '无法识别日期。请输入未来日期，例如 <code>2026年12月31日</code>、<code>2026-12-31</code> 或 <code>31.12.2026</code>。',
   },
   confirmGoal: {
-    ru: '{{replace}}Старт: <b>{{start}} кг</b>\nЦель: <b>{{target}} кг</b>\nДата: <b>{{date}}</b>\nПериодов: <b>{{periods}}</b>\n\nСоздать эту цель?',
-    en: '{{replace}}Start: <b>{{start}} kg</b>\nTarget: <b>{{target}} kg</b>\nDate: <b>{{date}}</b>\nPeriods: <b>{{periods}}</b>\n\nCreate this goal?',
-    zh: '{{replace}}起始：<b>{{start}} 公斤</b>\n目标：<b>{{target}} 公斤</b>\n日期：<b>{{date}}</b>\n周期数：<b>{{periods}}</b>\n\n创建这个目标吗？',
+    ru: '{{replace}}Старт: <b>{{start}} кг</b>\nЦель: <b>{{target}} кг</b>\nДата: <b>{{date}}</b>\nПериодов: <b>{{periods}}</b>\nОбычно: <b>≈ {{grams}} г/нед.</b>\n\nСоздать эту цель?',
+    en: '{{replace}}Start: <b>{{start}} kg</b>\nTarget: <b>{{target}} kg</b>\nDate: <b>{{date}}</b>\nPeriods: <b>{{periods}}</b>\nTypical week: <b>≈ {{grams}} g to lose</b>\n\nCreate this goal?',
+    zh: '{{replace}}起始：<b>{{start}} 公斤</b>\n目标：<b>{{target}} 公斤</b>\n日期：<b>{{date}}</b>\n周期数：<b>{{periods}}</b>\n通常每周：<b>约减 {{grams}} 克</b>\n\n创建这个目标吗？',
   },
   replacing: {
     ru: '⚠️ Активная цель будет заменена, но останется в истории.\n\n',
