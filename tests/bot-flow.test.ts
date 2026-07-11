@@ -198,6 +198,23 @@ describe('Telegram group behavior', () => {
     expect(calls.at(-1)?.payload.parse_mode).toBe('HTML');
   });
 
+  it.each([
+    ['/goal@my_weight_goal_bot', 'Пришли фото'],
+    ['/status@my_weight_goal_bot', 'Активной цели пока нет'],
+    ['/schedule@my_weight_goal_bot', 'Активной цели пока нет'],
+    ['/settings@my_weight_goal_bot', 'Выбери язык'],
+    ['/help@my_weight_goal_bot', 'Доступные команды'],
+  ])('accepts the group command %s addressed to this bot', async (command, expected) => {
+    await update(70 + calls.length, { text: command });
+    expect(calls.at(-1)?.payload.text).toContain(expected);
+  });
+
+  it('ignores a command addressed to another bot', async () => {
+    await update(80, { text: '/status@some_other_bot' });
+    expect(calls).toHaveLength(0);
+    expect(store.getUser('1')).toBeNull();
+  });
+
   it('sends a weekly roadmap image immediately after goal confirmation', async () => {
     await update(10, {
       caption: '@my_weight_goal_bot 92 kg',

@@ -41,6 +41,11 @@ function mentioned(text: string, username: string): boolean {
   return new RegExp(`(^|\\s)@${username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|\\s|[,.!?])`, 'iu').test(text);
 }
 
+function commandAddressedToBot(text: string, username: string): boolean {
+  const match = text.match(/^\/(?:goal|status|schedule|settings|help)@([a-z0-9_]+)(?=$|\s)/iu);
+  return match?.[1]?.toLowerCase() === username.toLowerCase();
+}
+
 function threadId(ctx: Context): number | undefined {
   return ctx.message?.message_thread_id;
 }
@@ -189,8 +194,9 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     const isMentioned = mentioned(text, ctx.me.username);
+    const isAddressedCommand = commandAddressedToBot(text, ctx.me.username);
     const isReply = ctx.message.reply_to_message?.from?.id === ctx.me.id;
-    if (!isMentioned && !isReply) return;
+    if (!isMentioned && !isAddressedCommand && !isReply) return;
 
     const wasKnown = store.getUser(userId) !== null;
     const user = store.upsertUser({
@@ -328,7 +334,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     const photo = ctx.message.photo?.at(-1);
-    if (!photo || !isMentioned) {
+    if (!photo || (!isMentioned && !isAddressedCommand)) {
       await ctx.reply(t(user.language, 'needPhotoWeight', { bot: ctx.me.username }), { parse_mode: 'HTML' });
       return;
     }
