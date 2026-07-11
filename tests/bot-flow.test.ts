@@ -267,6 +267,7 @@ describe('Telegram group behavior', () => {
       return previous - period.targetWeightGrams;
     });
     expect(new Set(losses.slice(1, -1))).toEqual(new Set([500, 550]));
+    expect(losses.slice(1, -1)).toEqual(losses.slice(1, -1).toSorted((left, right) => right - left));
     expect(calls.at(-1)?.method).toBe('sendPhoto');
     expect(calls.at(-1)?.payload.caption).toContain('План по неделям');
 

@@ -41,9 +41,11 @@ function distributeLossGrams(totalLossGrams: number, durations: number[]): numbe
     const extraUnits = remainingUnits % interiorCount;
 
     for (let offset = 0; offset < interiorCount; offset += 1) {
-      const receivesExtra = Math.floor(((offset + 1) * extraUnits) / interiorCount)
-        > Math.floor((offset * extraUnits) / interiorCount);
-      units[offset + 1] = baseUnits + (receivesExtra ? 1 : 0);
+      // Keep the plan visually steady instead of alternating (for example,
+      // 500/550/500/550). The slightly larger full-week checkpoints form one
+      // block followed by the smaller checkpoints, so there is at most one
+      // change in the weekly amount.
+      units[offset + 1] = baseUnits + (offset < extraUnits ? 1 : 0);
     }
   } else {
     units[units.length - 1] = totalUnits - units[0]!;

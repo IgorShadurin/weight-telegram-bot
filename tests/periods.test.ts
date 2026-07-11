@@ -54,10 +54,25 @@ describe('weekly periods', () => {
     expect(new Set(fullWeekLosses)).toEqual(new Set([500, 550]));
     expect(fullWeekLosses.every((loss) => loss % 50 === 0)).toBe(true);
     expect(Math.max(...fullWeekLosses) - Math.min(...fullWeekLosses)).toBeLessThanOrEqual(50);
+    expect(fullWeekLosses).toEqual(fullWeekLosses.toSorted((left, right) => right - left));
     expect(losses[0]).toBeLessThanOrEqual(Math.min(...fullWeekLosses));
     expect(losses.at(-1)).toBeLessThanOrEqual(Math.min(...fullWeekLosses));
     expect(losses.reduce((sum, loss) => sum + loss, 0)).toBe(startWeightGrams - targetWeightGrams);
     expect(periods.at(-1)?.targetWeightGrams).toBe(targetWeightGrams);
+  });
+
+  it('uses stable weekly blocks instead of alternating the 50-gram remainder', () => {
+    const startWeightGrams = 93_050;
+    const periods = buildPeriods({
+      startDate: '2026-07-11', targetDate: '2026-12-31',
+      startWeightGrams, targetWeightGrams: 80_000, timezone: 'Europe/Minsk',
+    });
+    const losses = periods.map((period, index) => {
+      const previous = index === 0 ? startWeightGrams : periods[index - 1]!.targetWeightGrams;
+      return previous - period.targetWeightGrams;
+    });
+
+    expect(losses).toEqual([100, ...Array(13).fill(550), ...Array(11).fill(500), 300]);
   });
 
   it.each([
@@ -75,6 +90,7 @@ describe('weekly periods', () => {
     expect(losses.every((loss) => loss >= 0)).toBe(true);
     expect(interior.every((loss) => loss % 50 === 0)).toBe(true);
     expect(Math.max(...interior) - Math.min(...interior)).toBeLessThanOrEqual(50);
+    expect(interior).toEqual(interior.toSorted((left, right) => right - left));
     expect(losses.reduce((sum, loss) => sum + loss, 0)).toBe(startWeightGrams - targetWeightGrams);
     expect(periods.at(-1)?.targetWeightGrams).toBe(targetWeightGrams);
   });

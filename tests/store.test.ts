@@ -71,6 +71,7 @@ describe('Store', () => {
     expect(normalized.map((period) => period.id)).toEqual(originalIds);
     expect(interior.every((loss) => loss % 50 === 0)).toBe(true);
     expect(Math.max(...interior) - Math.min(...interior)).toBeLessThanOrEqual(50);
+    expect(interior).toEqual(interior.toSorted((left, right) => right - left));
     expect(normalized.at(-1)?.targetWeightGrams).toBe(goal.targetWeightGrams);
   });
 
