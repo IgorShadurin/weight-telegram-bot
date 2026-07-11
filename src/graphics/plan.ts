@@ -96,7 +96,7 @@ async function renderPage(input: {
   context.fillStyle = colors.ink;
   context.font = `700 52px ${FONT_FAMILY}`;
   context.fillText(localized(input.language, {
-    ru: 'Маршрут по неделям', en: 'Weekly roadmap', zh: '每周闯关地图', es: 'Ruta semana a semana', pt: 'Rota semana a semana',
+    ru: 'План по неделям', en: 'Weekly roadmap', zh: '每周闯关地图', es: 'Ruta semana a semana', pt: 'Rota semana a semana',
     de: 'Wochenfahrplan', fr: 'Feuille de route', ja: '週ごとのロードマップ', id: 'Peta jalan mingguan',
   }), 70, 78);
   context.fillStyle = colors.muted;

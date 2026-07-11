@@ -30,7 +30,7 @@ const scheduler = new Scheduler(store, config, (now: DateTime) => telegram.proce
 const localizedCommands: Record<Language, Array<{ command: string; description: string }>> = {
   ru: [
     { command: 'goal', description: 'Создать или заменить цель по весу' }, { command: 'status', description: 'Цель и график прогресса' },
-    { command: 'schedule', description: 'Маршрут по неделям' },
+    { command: 'schedule', description: 'План по неделям' },
     { command: 'settings', description: 'Выбрать язык' }, { command: 'help', description: 'Как работает бот' },
   ],
   en: [

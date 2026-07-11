@@ -215,7 +215,7 @@ describe('Telegram group behavior', () => {
     });
     expect(new Set(losses.slice(1, -1))).toEqual(new Set([500, 550]));
     expect(calls.at(-1)?.method).toBe('sendPhoto');
-    expect(calls.at(-1)?.payload.caption).toContain('Маршрут по неделям');
+    expect(calls.at(-1)?.payload.caption).toContain('План по неделям');
 
     await update(42, { text: '@my_weight_goal_bot /schedule' });
     expect(calls.at(-1)?.method).toBe('sendMessage');

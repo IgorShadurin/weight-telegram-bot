@@ -4,15 +4,15 @@ type Copy = Record<Language, string>;
 
 const copy: Record<string, Copy> = {
   privateOnly: {
-    ru: 'В личке мне не хватает команды 😅 Добавь меня в группу и упомяни @{{bot}}.',
-    en: 'I need a group and a little peer pressure to do my best 😅 Add me to a group and mention @{{bot}}.',
-    zh: '这里是私聊，我施展不开 😅 把我拉进群里，再 @{{bot}} 叫我一声吧。',
-    es: 'Por aquí, en privado, no tengo mucho que hacer 😅 Añádeme a un grupo y menciona a @{{bot}}.',
-    pt: 'No privado eu fico sem plateia 😅 Me adicione a um grupo e marque @{{bot}}.',
-    de: 'Im Privat-Chat fehlt mir die Mannschaft 😅 Hol mich in eine Gruppe und erwähne @{{bot}}.',
-    fr: 'En privé, il me manque toute l’équipe 😅 Ajoute-moi à un groupe et mentionne @{{bot}}.',
-    ja: '個別チャットでは出番がありません 😅 グループに追加して、@{{bot}} と呼んでください。',
-    id: 'Di chat pribadi aku kurang ramai 😅 Tambahkan aku ke grup, lalu mention @{{bot}}.',
+    ru: 'Я работаю только в групповых чатах. Добавь меня в группу и упомяни @{{bot}} в сообщении.',
+    en: 'I work only in group chats. Add me to a group and mention @{{bot}} in a message.',
+    zh: '我只在群聊中工作。请把我添加到群里，然后在消息中 @{{bot}}。',
+    es: 'Solo funciono en chats de grupo. Añádeme a un grupo y menciona a @{{bot}} en un mensaje.',
+    pt: 'Eu só funciono em conversas de grupo. Adicione-me a um grupo e marque @{{bot}} em uma mensagem.',
+    de: 'Ich funktioniere nur in Gruppenchats. Füge mich einer Gruppe hinzu und erwähne @{{bot}} in einer Nachricht.',
+    fr: 'Je fonctionne uniquement dans les discussions de groupe. Ajoute-moi à un groupe et mentionne @{{bot}} dans un message.',
+    ja: 'このボットはグループチャット専用です。グループに追加し、メッセージ内で @{{bot}} をメンションしてください。',
+    id: 'Aku hanya berfungsi di chat grup. Tambahkan aku ke grup, lalu mention @{{bot}} dalam pesan.',
   },
   welcome: {
     ru: 'Привет! Я веду цель по весу прямо в группе. Выбери язык ниже, затем пришли фото с подписью <code>@{{bot}} 92 кг</code>.',
@@ -119,7 +119,7 @@ const copy: Record<string, Copy> = {
     id: '🎯 Mulai! Pos pertama: <b>{{target}} kg</b> sebelum <b>{{date}}</b>. Taklukkan minggu ini dulu, baru lanjut.',
   },
   planReady: {
-    ru: '🗺 Маршрут по неделям',
+    ru: '🗺 План по неделям',
     en: '🗺 Weekly roadmap',
     zh: '🗺 你的每周闯关地图',
     es: '🗺 Tu ruta, semana a semana', pt: '🗺 Seu caminho, semana a semana', de: '🗺 Dein Wochenfahrplan',
@@ -185,7 +185,7 @@ const copy: Record<string, Copy> = {
     ja: '期限を迎えたため、今回は未達成で終了です。記録は残るので、次の挑戦にちゃんと活かせます。', id: 'Tenggat akhir tiba dan ronde ini belum selesai. Riwayatnya tetap ada buat percobaan berikutnya.',
   },
   help: {
-    ru: 'Упомяни меня с фото и весом для старта или отметки. Напиши «статус» для цели и графика, «расписание» для маршрута по неделям, «язык» для настроек.',
+    ru: 'Упомяни меня с фото и весом для старта или отметки. Напиши «статус» для цели и графика, «план» для плана по неделям, «язык» для настроек.',
     en: 'Mention me with a photo and weight to start or check in. Say “status” for your goal and chart, “schedule” for the weekly roadmap, or “language” for settings.',
     zh: '开始或打卡：发照片，配文里 @我并写体重。想看目标和曲线就发“状态”，看每周路线就发“计划表”，切语言就发“语言”。',
     es: 'Para empezar o fichar: envía una foto, mencióname y añade el peso. Di “estado” para la meta y la gráfica, “calendario” para la ruta semanal o “idioma” para cambiar de lengua.',

@@ -44,6 +44,23 @@ describe('graphics and fixed catalogs', () => {
     expect(t('en', 'help')).not.toContain('used once');
   });
 
+  it('clearly explains the group-only behavior in every language', () => {
+    const groupWords = {
+      ru: 'групп', en: 'group', zh: '群', es: 'grupo', pt: 'grupo', de: 'Gruppe', fr: 'groupe', ja: 'グループ', id: 'grup',
+    } as const;
+    for (const language of LANGUAGES) {
+      const message = t(language, 'privateOnly', { bot: 'my_weight_goal_bot' });
+      expect(message).toContain(groupWords[language]);
+      expect(message).toContain('@my_weight_goal_bot');
+      expect(message).not.toContain('{{');
+    }
+  });
+
+  it('uses plan instead of route in visible Russian copy', () => {
+    expect(t('ru', 'planReady')).toBe('🗺 План по неделям');
+    expect(t('ru', 'help')).not.toContain('маршрут');
+  });
+
   it('keeps every weight in the chart model and highlights two periods', () => {
     const model = createChartModel(goal, periods, weighIns, 'Europe/Minsk');
     expect(model.points).toHaveLength(30);
