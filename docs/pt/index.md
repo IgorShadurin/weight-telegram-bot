@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — Instruções
+lang: pt
+description: Instruções e comandos do bot multilíngue do Telegram para metas de peso
 ---
 
 # Instruções do Weight Goal Bot
@@ -48,4 +50,3 @@ Esta é uma ferramenta de motivação, não uma orientação médica.
 ---
 
 [Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
-

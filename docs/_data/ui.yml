@@ -1,0 +1,45 @@
+en:
+  skip: Skip to the content
+  view_github: View on GitHub
+  download_zip: Download .zip
+  download_tar: Download .tar.gz
+ru:
+  skip: Перейти к содержанию
+  view_github: Открыть на GitHub
+  download_zip: Скачать .zip
+  download_tar: Скачать .tar.gz
+zh:
+  skip: 跳到正文
+  view_github: 在 GitHub 上查看
+  download_zip: 下载 .zip
+  download_tar: 下载 .tar.gz
+es:
+  skip: Saltar al contenido
+  view_github: Ver en GitHub
+  download_zip: Descargar .zip
+  download_tar: Descargar .tar.gz
+pt:
+  skip: Ir para o conteúdo
+  view_github: Ver no GitHub
+  download_zip: Baixar .zip
+  download_tar: Baixar .tar.gz
+de:
+  skip: Zum Inhalt springen
+  view_github: Auf GitHub ansehen
+  download_zip: .zip herunterladen
+  download_tar: .tar.gz herunterladen
+fr:
+  skip: Aller au contenu
+  view_github: Voir sur GitHub
+  download_zip: Télécharger le .zip
+  download_tar: Télécharger le .tar.gz
+ja:
+  skip: 本文へ移動
+  view_github: GitHubで見る
+  download_zip: .zipをダウンロード
+  download_tar: .tar.gzをダウンロード
+id:
+  skip: Langsung ke isi
+  view_github: Lihat di GitHub
+  download_zip: Unduh .zip
+  download_tar: Unduh .tar.gz

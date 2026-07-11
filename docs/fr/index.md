@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — Mode d’emploi
+lang: fr
+description: Mode d’emploi et commandes du bot Telegram multilingue pour les objectifs de poids
 ---
 
 # Mode d’emploi de Weight Goal Bot
@@ -48,4 +50,3 @@ Cet outil sert à la motivation et ne remplace pas un avis médical.
 ---
 
 [Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
-

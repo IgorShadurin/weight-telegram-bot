@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — Petunjuk
+lang: id
+description: Petunjuk dan perintah bot Telegram multibahasa untuk target berat badan
 ---
 
 # Petunjuk Weight Goal Bot
@@ -48,4 +50,3 @@ Bot ini adalah alat motivasi, bukan saran medis.
 ---
 
 [Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
-

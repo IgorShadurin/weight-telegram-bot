@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — 使用说明
+lang: zh
+description: 多语言 Telegram 体重目标机器人的使用说明与命令
 ---
 
 # Weight Goal Bot 使用说明
@@ -48,4 +50,3 @@ title: Weight Goal Bot — 使用说明
 ---
 
 [Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
-

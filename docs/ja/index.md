@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — 使い方
+lang: ja
+description: 多言語対応のTelegram体重目標ボットの使い方とコマンド
 ---
 
 # Weight Goal Bot の使い方
@@ -48,4 +50,3 @@ title: Weight Goal Bot — 使い方
 ---
 
 [Русский](../ru/) · [English](../en/) · [中文](../zh/) · [Español](../es/) · [Português](../pt/) · [Deutsch](../de/) · [Français](../fr/) · [日本語](../ja/) · [Bahasa Indonesia](../id/)
-

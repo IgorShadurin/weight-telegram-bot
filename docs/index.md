@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Weight Goal Bot — Instructions
+lang: en
+description: Instructions and commands for the multilingual Telegram weight-goal bot
 ---
 
 # Weight Goal Bot
@@ -24,4 +26,3 @@ Choose your language:
 ---
 
 [Русский](./ru/) · [English](./en/) · [中文](./zh/) · [Español](./es/) · [Português](./pt/) · [Deutsch](./de/) · [Français](./fr/) · [日本語](./ja/) · [Bahasa Indonesia](./id/)
-
