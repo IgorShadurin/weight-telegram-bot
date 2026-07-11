@@ -77,7 +77,7 @@ Health checks use `GET /healthz`.
 - Mount persistent storage at `/app/data` and set `DATABASE_PATH=/app/data/bot.sqlite`.
 - Configure the runtime environment variables above; do not expose secrets as build arguments.
 - Run one replica because SQLite and the embedded durable scheduler are single-writer components.
-- Enable automatic GitHub deployments.
+- Enable automatic GitHub deployments. This installation uses Coolify's signed manual GitHub push webhook for the public repository.
 
 ## Achievement assets
 
