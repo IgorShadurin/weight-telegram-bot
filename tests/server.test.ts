@@ -32,4 +32,20 @@ describe('HTTP server', () => {
     });
     expect(response.statusCode).toBe(401);
   });
+
+  it('rejects a missing webhook secret', async () => {
+    const response = await server.inject({
+      method: 'POST', url: '/telegram/webhook', payload: { update_id: 1 },
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('accepts the configured secret and validates the update body', async () => {
+    const response = await server.inject({
+      method: 'POST', url: '/telegram/webhook',
+      headers: { 'x-telegram-bot-api-secret-token': 'secret' },
+      payload: {},
+    });
+    expect(response.statusCode).toBe(400);
+  });
 });

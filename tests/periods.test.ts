@@ -47,4 +47,11 @@ describe('weekly periods', () => {
       startWeightGrams: 80_000, targetWeightGrams: 90_000, timezone: 'UTC',
     })).toThrow();
   });
+
+  it('rejects goals whose duration could create excessive database rows', () => {
+    expect(() => buildPeriods({
+      startDate: '2026-01-01', targetDate: '2037-01-01',
+      startWeightGrams: 90_000, targetWeightGrams: 80_000, timezone: 'UTC',
+    })).toThrow('too far');
+  });
 });

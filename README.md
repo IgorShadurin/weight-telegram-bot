@@ -2,7 +2,26 @@
 
 A bilingual Russian/English Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful roasts, and a 53-week capybara achievement series.
 
-Production URL: `https://weight-bot.copymyui.com`
+[Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [Production health check](https://weight-bot.copymyui.com/healthz)
+
+## Achievement progression
+
+The same original teal capybara becomes fitter across 53 fixed weekly achievements. Telegram receives optimized JPEGs; the lossless source artwork remains versioned in the repository.
+
+<p align="center">
+  <img src="assets/achievements/optimized/week-01.jpg" width="160" alt="Week 1 capybara achievement">
+  <img src="assets/achievements/optimized/week-13.jpg" width="160" alt="Week 13 capybara achievement">
+  <img src="assets/achievements/optimized/week-26.jpg" width="160" alt="Week 26 capybara achievement">
+  <img src="assets/achievements/optimized/week-39.jpg" width="160" alt="Week 39 capybara achievement">
+  <img src="assets/achievements/optimized/week-53.jpg" width="160" alt="Week 53 capybara achievement">
+</p>
+
+## Start a goal
+
+1. Add [@my_weight_goal_bot](https://t.me/my_weight_goal_bot) to a group.
+2. Attach a current photo with the caption `@my_weight_goal_bot 92 kg`.
+3. Reply to the bot with the target weight, then the target date, and confirm.
+4. For each check-in, attach a new photo with the bot mention and current weight. Mention it with `status` at any time for the current checkpoint and chart.
 
 ## Behavior
 
@@ -83,6 +102,8 @@ Health checks use `GET /healthz`.
 
 Generated source PNG files live in `assets/achievements/originals`; Telegram-ready 1080×1350 JPEG files live in `assets/achievements/optimized`. The prompt manifest and progressive identity anchors are versioned with the project.
 
+The square Telegram profile crop is versioned at `assets/mascot/avatar.jpg` and is derived from the canonical mascot anchor.
+
 Regenerate derivative JPEGs and validate the collection with:
 
 ```bash
@@ -96,5 +117,7 @@ Achievement text is not rendered into the artwork. Exact localized names are sen
 ## Data and privacy
 
 SQLite stores Telegram user/chat identifiers, language preference, goals, weekly periods, weights, non-reusable photo fingerprints, wizard state, deduplication IDs, rate-limit timestamps, and durable scheduled jobs. It does not store user photos or generated progress charts. Application logs intentionally omit message captions, weights, tokens, and photo fingerprints.
+
+Webhook requests require Telegram's secret-token header, duplicate update IDs are ignored, SQL uses bound parameters, and the production container runs as an unprivileged user. Goal duration is bounded to prevent unbounded database allocation. GitHub secret scanning, push protection, Dependabot, pinned CI actions, npm auditing, and CodeQL provide ongoing repository checks. See [SECURITY.md](SECURITY.md) for private reporting.
 
 This bot is motivational software, not medical advice.

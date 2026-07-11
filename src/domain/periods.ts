@@ -1,6 +1,10 @@
 import { DateTime } from 'luxon';
 import type { GoalPeriodRecord, PeriodDefinition } from './types.js';
 
+// A hard upper bound prevents one crafted goal from creating an unbounded
+// number of SQLite rows while still allowing long-term goals.
+export const MAX_GOAL_DAYS = 3_660;
+
 function date(value: string, zone: string): DateTime {
   const parsed = DateTime.fromISO(value, { zone }).startOf('day');
   if (!parsed.isValid) throw new Error(`Invalid date: ${value}`);
@@ -22,6 +26,7 @@ export function buildPeriods(input: {
   const target = date(input.targetDate, input.timezone);
   const totalDays = target.diff(start, 'days').days;
   if (totalDays <= 0) throw new Error('Target date must be after the start date');
+  if (totalDays > MAX_GOAL_DAYS) throw new Error('Target date is too far in the future');
   if (input.targetWeightGrams >= input.startWeightGrams) {
     throw new Error('Target weight must be lower than the start weight');
   }

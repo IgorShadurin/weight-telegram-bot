@@ -1,7 +1,15 @@
+import { timingSafeEqual } from 'node:crypto';
 import Fastify from 'fastify';
 import type { AppConfig } from './config.js';
 import { Store } from './db/store.js';
 import { TelegramService } from './telegram/service.js';
+
+function secretMatches(received: unknown, expected: string): boolean {
+  if (typeof received !== 'string') return false;
+  const receivedBytes = Buffer.from(received);
+  const expectedBytes = Buffer.from(expected);
+  return receivedBytes.length === expectedBytes.length && timingSafeEqual(receivedBytes, expectedBytes);
+}
 
 export function createServer(input: {
   config: AppConfig;
@@ -20,7 +28,7 @@ export function createServer(input: {
 
   server.post('/telegram/webhook', async (request, reply) => {
     const secret = request.headers['x-telegram-bot-api-secret-token'];
-    if (secret !== input.config.webhookSecret) {
+    if (!secretMatches(secret, input.config.webhookSecret)) {
       return reply.code(401).send({ error: 'unauthorized' });
     }
     const update = request.body as { update_id?: unknown };
