@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
-import type { Language } from '../config.js';
+import { LANGUAGES, type Language } from '../config.js';
 import { buildPeriods, periodForDate } from '../domain/periods.js';
 import type {
   GoalDraft,
@@ -92,7 +92,7 @@ export class Store {
   private migrateLanguageConstraint(): void {
     const row = this.db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'")
       .get() as { sql?: string } | undefined;
-    if (row?.sql?.includes("'zh'")) return;
+    if (row?.sql && LANGUAGES.every((language) => row.sql!.includes(`'${language}'`))) return;
 
     this.db.pragma('foreign_keys = OFF');
     try {
@@ -102,7 +102,7 @@ export class Store {
           telegram_user_id TEXT PRIMARY KEY,
           username TEXT,
           display_name TEXT NOT NULL,
-          language TEXT NOT NULL CHECK(language IN ('ru', 'en', 'zh')),
+          language TEXT NOT NULL CHECK(language IN ('ru', 'en', 'zh', 'es', 'pt', 'de', 'fr', 'ja', 'id')),
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL
         );

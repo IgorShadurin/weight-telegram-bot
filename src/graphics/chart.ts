@@ -20,7 +20,7 @@ export interface ChartModel {
   endAt: number;
 }
 
-const FONT_FAMILY = '"Noto Sans CJK SC", "Arial Unicode MS", sans-serif';
+const FONT_FAMILY = '"Noto Sans CJK SC", "Noto Sans CJK JP", "Arial Unicode MS", sans-serif';
 
 function localized(language: Language, values: Record<Language, string>): string {
   return values[language];
@@ -74,13 +74,18 @@ export async function renderGoalChart(input: {
     ink: '#17322f', muted: '#6f827f', grid: '#dceae6', teal: '#10a58b', orange: '#ff9b42',
     lime: '#9de65c', paper: '#f5fbf9', panel: '#ffffff', red: '#ef6262',
   };
-  const unit = localized(input.language, { ru: 'кг', en: 'kg', zh: '公斤' });
+  const unit = localized(input.language, {
+    ru: 'кг', en: 'kg', zh: '公斤', es: 'kg', pt: 'kg', de: 'kg', fr: 'kg', ja: 'kg', id: 'kg',
+  });
 
   context.fillStyle = colors.paper;
   context.fillRect(0, 0, 1600, 1000);
   context.fillStyle = colors.ink;
   context.font = `700 48px ${FONT_FAMILY}`;
-  context.fillText(localized(input.language, { ru: 'Траектория веса', en: 'Weight trajectory', zh: '体重轨迹' }), 76, 78);
+  context.fillText(localized(input.language, {
+    ru: 'Траектория веса', en: 'Weight trajectory', zh: '体重闯关曲线', es: 'Ruta del peso', pt: 'Trajetória do peso',
+    de: 'Gewichtsverlauf', fr: 'Trajectoire du poids', ja: '体重の軌跡', id: 'Jejak berat badan',
+  }), 76, 78);
   context.fillStyle = colors.muted;
   context.font = `28px ${FONT_FAMILY}`;
   context.fillText(`${formatKg(input.goal.startWeightGrams)} → ${formatKg(input.goal.targetWeightGrams)} ${unit}`, 76, 120);
@@ -98,6 +103,12 @@ export async function renderGoalChart(input: {
       ru: `Неделя ${period.periodIndex}`,
       en: `Week ${period.periodIndex}`,
       zh: `第 ${period.periodIndex} 周`,
+      es: `Semana ${period.periodIndex}`,
+      pt: `Semana ${period.periodIndex}`,
+      de: `Woche ${period.periodIndex}`,
+      fr: `Semaine ${period.periodIndex}`,
+      ja: `第 ${period.periodIndex} 週`,
+      id: `Minggu ${period.periodIndex}`,
     }), x + 24, 76);
     context.fillStyle = colors.ink;
     context.font = `700 34px ${FONT_FAMILY}`;
@@ -189,10 +200,16 @@ export async function renderGoalChart(input: {
   context.lineWidth = 8;
   context.beginPath(); context.moveTo(76, 960); context.lineTo(126, 960); context.stroke();
   context.fillStyle = colors.ink; context.font = `22px ${FONT_FAMILY}`;
-  context.fillText(localized(input.language, { ru: 'Фактический вес', en: 'Actual weight', zh: '实际体重' }), 142, 968);
+  context.fillText(localized(input.language, {
+    ru: 'Фактический вес', en: 'Actual weight', zh: '实际体重', es: 'Peso real', pt: 'Peso real',
+    de: 'Tatsächliches Gewicht', fr: 'Poids réel', ja: '実測体重', id: 'Berat aktual',
+  }), 142, 968);
   context.setLineDash([12, 10]); context.strokeStyle = colors.orange;
   context.beginPath(); context.moveTo(410, 960); context.lineTo(460, 960); context.stroke(); context.setLineDash([]);
-  context.fillText(localized(input.language, { ru: 'Линия цели', en: 'Goal line', zh: '目标线' }), 476, 968);
+  context.fillText(localized(input.language, {
+    ru: 'Линия цели', en: 'Goal line', zh: '目标线', es: 'Línea objetivo', pt: 'Linha da meta',
+    de: 'Ziellinie', fr: 'Ligne objectif', ja: '目標ライン', id: 'Garis target',
+  }), 476, 968);
 
   return canvas.encode('jpeg', 88);
 }

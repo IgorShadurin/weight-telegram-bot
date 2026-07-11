@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { InlineKeyboard } from 'grammy';
 import type { Context } from 'grammy';
-import type { AppConfig, Language } from '../config.js';
+import { isLanguage, type AppConfig, type Language } from '../config.js';
 import { Store } from '../db/store.js';
 import { buildPeriods, formatKg } from '../domain/periods.js';
 import { parseLocalizedDate, parseWeightGrams } from '../domain/parsers.js';
@@ -9,13 +9,18 @@ import type { GoalDraft } from '../domain/types.js';
 import { t, variant } from '../i18n/catalog.js';
 import { TelegramService } from './service.js';
 
-const NEW_GOAL = /(?:^|\s)\/goal(?:@\w+)?\b|\b(new\s+goal|replace\s+goal|нов(?:ая|ую)\s+цел|смен(?:ить|а)\s+цел)|新目标|更换目标|减重目标/iu;
-const STATUS = /\b(status|progress|chart|goal\s+info|статус|прогресс|график|моя\s+цель)\b|状态|进度|图表|我的目标/iu;
-const SETTINGS = /\b(settings|language|lang|настройки|язык)\b|设置|语言/iu;
-const HELP = /\b(help|помощь|что\s+ты\s+умеешь)\b|帮助|你会做什么/iu;
+const NEW_GOAL = /(?:^|\s)\/goal(?:@\w+)?\b|\b(new\s+goal|replace\s+goal|нов(?:ая|ую)\s+цел|смен(?:ить|а)\s+цел|nueva\s+meta|cambiar\s+meta|nova\s+meta|trocar\s+meta|neues\s+ziel|ziel\s+ändern|nouvel\s+objectif|changer\s+(?:d['’])?objectif|target\s+baru|ganti\s+target)\b|新目标|更换目标|减重目标|新しい目標|目標変更/iu;
+const STATUS = /\b(status|progress|chart|goal\s+info|статус|прогресс|график|моя\s+цель|estado|progreso|gráfico|mi\s+meta|progresso|gráfico|minha\s+meta|fortschritt|diagramm|mein\s+ziel|statut|progrès|graphique|mon\s+objectif|progres|grafik|target\s+saya)\b|状态|进度|图表|我的目标|進捗|グラフ|私の目標/iu;
+const SETTINGS = /\b(settings|language|lang|настройки|язык|ajustes|idioma|configurações|einstellungen|sprache|paramètres|langue|pengaturan|bahasa)\b|设置|语言|設定|言語/iu;
+const HELP = /\b(help|помощь|что\s+ты\s+умеешь|ayuda|qué\s+puedes\s+hacer|ajuda|o\s+que\s+você\s+faz|hilfe|was\s+kannst\s+du|aide|que\s+peux-tu\s+faire|bantuan|apa\s+yang\s+bisa\s+kamu\s+lakukan)\b|帮助|你会做什么|ヘルプ|できること/iu;
 
 function localized(language: Language, values: Record<Language, string>): string {
   return values[language];
+}
+
+function telegramLanguage(languageCode: string | undefined): Language | null {
+  const primary = languageCode?.toLowerCase().split('-')[0];
+  return isLanguage(primary) ? primary : null;
 }
 
 function userName(ctx: Context): string {
@@ -77,7 +82,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       now: now.toISO()!,
     });
 
-    if (action === 'lang' && (value === 'ru' || value === 'en' || value === 'zh')) {
+    if (action === 'lang' && isLanguage(value)) {
       store.setLanguage(userId, value, now.toISO()!);
       await ctx.answerCallbackQuery();
       await ctx.editMessageText(t(value, 'languageSet'));
@@ -148,7 +153,8 @@ export function configureBot(service: TelegramService, store: Store, config: App
     const text = messageText(ctx);
 
     if (ctx.chat.type === 'private') {
-      await ctx.reply(t(config.defaultLanguage, 'privateOnly', { bot: ctx.me.username }));
+      const language = store.getUser(userId)?.language ?? telegramLanguage(ctx.from.language_code) ?? config.defaultLanguage;
+      await ctx.reply(t(language, 'privateOnly', { bot: ctx.me.username }));
       return;
     }
 
@@ -199,7 +205,10 @@ export function configureBot(service: TelegramService, store: Store, config: App
           reply_markup: {
             force_reply: true,
             selective: true,
-            input_field_placeholder: localized(user.language, { ru: '31 дек 2026', en: '31 Dec 2026', zh: '2026年12月31日' }),
+            input_field_placeholder: localized(user.language, {
+              ru: '31 дек 2026', en: '31 Dec 2026', zh: '2026年12月31日', es: '31 dic 2026',
+              pt: '31 dez 2026', de: '31. Dez 2026', fr: '31 déc 2026', ja: '2026年12月31日', id: '31 Des 2026',
+            }),
           },
         });
         draft.promptMessageId = prompt.message_id;
@@ -229,8 +238,14 @@ export function configureBot(service: TelegramService, store: Store, config: App
         draft.targetDate = targetDate;
         const replace = store.getActiveGoal(userId) ? t(user.language, 'replacing') : '';
         const keyboard = new InlineKeyboard()
-          .text(localized(user.language, { ru: 'Создать ✅', en: 'Create ✅', zh: '创建 ✅' }), `goal:confirm:${userId}`)
-          .text(localized(user.language, { ru: 'Отмена', en: 'Cancel', zh: '取消' }), `goal:cancel:${userId}`);
+          .text(localized(user.language, {
+            ru: 'Создать ✅', en: 'Create ✅', zh: '就这么定 ✅', es: 'Crear ✅', pt: 'Criar ✅',
+            de: 'Erstellen ✅', fr: 'Créer ✅', ja: '作成する ✅', id: 'Buat ✅',
+          }), `goal:confirm:${userId}`)
+          .text(localized(user.language, {
+            ru: 'Отмена', en: 'Cancel', zh: '先不了', es: 'Cancelar', pt: 'Cancelar', de: 'Abbrechen',
+            fr: 'Annuler', ja: 'キャンセル', id: 'Batal',
+          }), `goal:cancel:${userId}`);
         draft.promptMessageId = await editOrReply(ctx, draft, t(user.language, 'confirmGoal', {
           replace,
           start: formatKg(draft.initialWeightGrams!),
@@ -280,7 +295,14 @@ export function configureBot(service: TelegramService, store: Store, config: App
       const expiresAt = now.plus({ minutes: 20 }).toISO()!;
       const message = await ctx.reply(t(user.language, 'needTarget', { weight: formatKg(weight) }), {
         parse_mode: 'HTML',
-        reply_markup: { force_reply: true, selective: true, input_field_placeholder: localized(user.language, { ru: '80 кг', en: '80 kg', zh: '80 公斤' }) },
+        reply_markup: {
+          force_reply: true,
+          selective: true,
+          input_field_placeholder: localized(user.language, {
+            ru: '80 кг', en: '80 kg', zh: '80 公斤', es: '80 kg', pt: '80 kg', de: '80 kg',
+            fr: '80 kg', ja: '80 kg', id: '80 kg',
+          }),
+        },
       });
       store.saveDraft({
         telegramUserId: userId,

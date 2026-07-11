@@ -1,7 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 
-export type Language = 'ru' | 'en' | 'zh';
+export const LANGUAGES = ['ru', 'en', 'zh', 'es', 'pt', 'de', 'fr', 'ja', 'id'] as const;
+export type Language = typeof LANGUAGES[number];
+
+export function isLanguage(value: string | undefined): value is Language {
+  return LANGUAGES.includes(value as Language);
+}
 
 export interface AppConfig {
   botToken: string;
@@ -30,8 +35,8 @@ function integer(name: string, fallback: number, min: number, max: number): numb
 
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const language = process.env.DEFAULT_LANGUAGE ?? 'ru';
-  if (language !== 'ru' && language !== 'en' && language !== 'zh') {
-    throw new Error('DEFAULT_LANGUAGE must be ru, en, or zh');
+  if (!isLanguage(language)) {
+    throw new Error(`DEFAULT_LANGUAGE must be one of: ${LANGUAGES.join(', ')}`);
   }
 
   const config: AppConfig = {

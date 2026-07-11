@@ -191,6 +191,14 @@ export class TelegramService {
     return new InlineKeyboard()
       .text('Русский 🇷🇺', `lang:ru:${userId}`)
       .text('English 🇬🇧', `lang:en:${userId}`)
-      .text('中文 🇨🇳', `lang:zh:${userId}`);
+      .text('中文 🇨🇳', `lang:zh:${userId}`)
+      .row()
+      .text('Español 🇪🇸', `lang:es:${userId}`)
+      .text('Português 🇧🇷', `lang:pt:${userId}`)
+      .text('Deutsch 🇩🇪', `lang:de:${userId}`)
+      .row()
+      .text('Français 🇫🇷', `lang:fr:${userId}`)
+      .text('日本語 🇯🇵', `lang:ja:${userId}`)
+      .text('Indonesia 🇮🇩', `lang:id:${userId}`);
   }
 }

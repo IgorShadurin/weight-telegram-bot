@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { LANGUAGES } from '../src/config.js';
 import { Store } from '../src/db/store.js';
 
 describe('Store', () => {
@@ -72,7 +73,7 @@ describe('Store', () => {
 });
 
 describe('Store migrations', () => {
-  it('adds Chinese to the language constraint without losing legacy users', () => {
+  it('adds every supported language to the constraint without losing legacy users', () => {
     const directory = mkdtempSync(join(tmpdir(), 'weight-bot-'));
     const filename = join(directory, 'legacy.sqlite');
     const legacy = new Database(filename);
@@ -92,8 +93,10 @@ describe('Store migrations', () => {
     const migrated = new Store(filename);
     try {
       expect(migrated.getUser('legacy')?.displayName).toBe('Legacy User');
-      migrated.setLanguage('legacy', 'zh', '2026-07-11T10:00:00Z');
-      expect(migrated.getUser('legacy')?.language).toBe('zh');
+      for (const language of LANGUAGES) {
+        migrated.setLanguage('legacy', language, '2026-07-11T10:00:00Z');
+        expect(migrated.getUser('legacy')?.language).toBe(language);
+      }
     } finally {
       migrated.close();
       rmSync(directory, { recursive: true, force: true });

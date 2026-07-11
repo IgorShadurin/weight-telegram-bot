@@ -78,21 +78,40 @@ describe('Telegram group behavior', () => {
     expect(store.getUser('1')).toBeNull();
   });
 
-  it('requires a mentioned photo caption and sends trilingual first contact', async () => {
+  it('uses the Telegram profile language for private-chat guidance', async () => {
+    await update(30, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'ja' },
+      text: '/start',
+    });
+    expect(calls.at(-1)?.payload.text).toContain('グループに追加');
+  });
+
+  it('requires a mentioned photo caption and offers all supported languages', async () => {
     await update(2, { text: '@my_weight_goal_bot create goal' });
     expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(2);
-    expect(calls[0]?.payload.text).toContain('Choose a language');
-    expect(calls[0]?.payload.text).toContain('选择语言');
+    expect(calls[0]?.payload.text).toContain('Выбери язык');
+    const keyboard = calls[0]?.payload.reply_markup.inline_keyboard;
+    expect(keyboard).toHaveLength(3);
+    expect(keyboard.flat()).toHaveLength(9);
     expect(calls[1]?.payload.text).toContain('Пришли фото');
     expect(calls[1]?.payload.text).not.toContain('скачива');
   });
 
-  it('stores Chinese language selection and answers Chinese commands', async () => {
-    await update(20, { text: '@my_weight_goal_bot 设置' });
-    await callback(21, 'lang:zh:1', 101);
-    expect(store.getUser('1')?.language).toBe('zh');
-    await update(22, { text: '@my_weight_goal_bot 帮助' });
-    expect(calls.at(-1)?.payload.text).toContain('提及我');
+  it.each([
+    ['zh', '设置', '帮助', '开始或打卡'],
+    ['es', 'ajustes', 'ayuda', 'Para empezar'],
+    ['pt', 'configurações', 'ajuda', 'Para começar'],
+    ['de', 'Einstellungen', 'Hilfe', 'Zum Starten'],
+    ['fr', 'paramètres', 'aide', 'Pour démarrer'],
+    ['ja', '設定', 'ヘルプ', '開始・記録'],
+    ['id', 'pengaturan', 'bantuan', 'Untuk mulai'],
+  ] as const)('stores %s selection and answers localized commands', async (language, settings, help, expected) => {
+    await update(20, { text: `@my_weight_goal_bot ${settings}` });
+    await callback(21, `lang:${language}:1`, 101);
+    expect(store.getUser('1')?.language).toBe(language);
+    await update(22, { text: `@my_weight_goal_bot ${help}` });
+    expect(calls.at(-1)?.payload.text).toContain(expected);
   });
 
   it('starts a goal wizard and sends a fresh ForceReply for every input step', async () => {

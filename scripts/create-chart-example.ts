@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { LANGUAGES } from '../src/config.js';
 import { buildPeriods } from '../src/domain/periods.js';
 import type { GoalPeriodRecord, GoalRecord, WeighInRecord } from '../src/domain/types.js';
 import { renderGoalChart } from '../src/graphics/chart.js';
@@ -56,15 +57,18 @@ const weighIns: WeighInRecord[] = points.map(([date, weightGrams], index) => {
   };
 });
 
+const filenames = {
+  en: 'progress-chart-example.jpg', ru: 'progress-chart-example-ru.jpg', zh: 'progress-chart-example-zh.jpg',
+  es: 'progress-chart-example-es.jpg', pt: 'progress-chart-example-pt.jpg', de: 'progress-chart-example-de.jpg',
+  fr: 'progress-chart-example-fr.jpg', ja: 'progress-chart-example-ja.jpg', id: 'progress-chart-example-id.jpg',
+} as const;
+
 await mkdir('assets/readme', { recursive: true });
-const [englishImage, russianImage, chineseImage] = await Promise.all([
-  renderGoalChart({ goal, periods, weighIns, language: 'en', timezone: 'Europe/Minsk' }),
-  renderGoalChart({ goal, periods, weighIns, language: 'ru', timezone: 'Europe/Minsk' }),
-  renderGoalChart({ goal, periods, weighIns, language: 'zh', timezone: 'Europe/Minsk' }),
-]);
-await Promise.all([
-  writeFile('assets/readme/progress-chart-example.jpg', englishImage),
-  writeFile('assets/readme/progress-chart-example-ru.jpg', russianImage),
-  writeFile('assets/readme/progress-chart-example-zh.jpg', chineseImage),
-]);
-console.log('Saved English, Russian, and Chinese progress chart examples in assets/readme.');
+const images = await Promise.all(LANGUAGES.map(async (language) => ({
+  language,
+  image: await renderGoalChart({ goal, periods, weighIns, language, timezone: 'Europe/Minsk' }),
+})));
+await Promise.all(images.map(({ language, image }) => (
+  writeFile(`assets/readme/${filenames[language]}`, image)
+)));
+console.log('Saved progress chart examples in all supported languages in assets/readme.');

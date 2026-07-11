@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   telegram_user_id TEXT PRIMARY KEY,
   username TEXT,
   display_name TEXT NOT NULL,
-  language TEXT NOT NULL CHECK(language IN ('ru', 'en', 'zh')),
+  language TEXT NOT NULL CHECK(language IN ('ru', 'en', 'zh', 'es', 'pt', 'de', 'fr', 'ja', 'id')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { LANGUAGES } from '../src/config.js';
 import { achievements } from '../src/i18n/achievements.js';
 import { t, variants } from '../src/i18n/catalog.js';
 import { createChartModel, renderGoalChart } from '../src/graphics/chart.js';
@@ -24,15 +25,14 @@ const weighIns: WeighInRecord[] = Array.from({ length: 30 }, (_, index) => ({
 }));
 
 describe('graphics and fixed catalogs', () => {
-  it('contains 53 unique trilingual achievements and 10 copy variants', () => {
+  it('contains 53 unique achievements and 10 copy variants in every supported language', () => {
     expect(achievements).toHaveLength(53);
-    expect(new Set(achievements.map((item) => item.title.en)).size).toBe(53);
-    expect(new Set(achievements.map((item) => item.title.ru)).size).toBe(53);
-    expect(new Set(achievements.map((item) => item.title.zh)).size).toBe(53);
+    for (const language of LANGUAGES) {
+      expect(achievements.every((item) => typeof item.title[language] === 'string' && item.title[language].length > 0)).toBe(true);
+      expect(new Set(achievements.map((item) => item.title[language])).size).toBe(53);
+    }
     for (const category of Object.values(variants)) {
-      expect(category.en).toHaveLength(10);
-      expect(category.ru).toHaveLength(10);
-      expect(category.zh).toHaveLength(10);
+      for (const language of LANGUAGES) expect(category[language]).toHaveLength(10);
     }
   });
 
@@ -51,7 +51,7 @@ describe('graphics and fixed catalogs', () => {
   });
 
   it('renders a Telegram-safe JPEG without writing it to disk', async () => {
-    const images = await Promise.all((['en', 'ru', 'zh'] as const).map((language) => (
+    const images = await Promise.all(LANGUAGES.map((language) => (
       renderGoalChart({ goal, periods, weighIns, language, timezone: 'Europe/Minsk' })
     )));
     for (const image of images) {
@@ -65,7 +65,7 @@ describe('graphics and fixed catalogs', () => {
     expect(model.rows).toHaveLength(periods.length);
     expect(model.rows.map((row) => row.lossGrams)).toEqual([500, 500, 500]);
     expect(model.totalLossGrams).toBe(12_000);
-    for (const language of ['en', 'ru', 'zh'] as const) {
+    for (const language of LANGUAGES) {
       const pages = await renderGoalPlanPages({ goal, periods, language });
       expect(pages).toHaveLength(1);
       expect(pages[0]!.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));

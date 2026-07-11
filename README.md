@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-A trilingual English/Russian/Chinese Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful roasts, and a 53-week capybara achievement series.
+A nine-language Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful feedback, and a 53-week capybara achievement series. The complete interface supports English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 
 [Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [Production health check](https://weight-bot.copymyui.com/healthz)
 
@@ -41,6 +41,30 @@ Every check-in produces a compact chart with the complete weight history, the pl
 
 ![中文体重变化图表示例](assets/readme/progress-chart-example-zh.jpg)
 
+### Español
+
+![Ejemplo de gráfica de progreso de peso](assets/readme/progress-chart-example-es.jpg)
+
+### Português
+
+![Exemplo de gráfico de progresso de peso](assets/readme/progress-chart-example-pt.jpg)
+
+### Deutsch
+
+![Beispiel für einen Gewichtsverlauf](assets/readme/progress-chart-example-de.jpg)
+
+### Français
+
+![Exemple de courbe de progression du poids](assets/readme/progress-chart-example-fr.jpg)
+
+### 日本語
+
+![体重推移グラフの例](assets/readme/progress-chart-example-ja.jpg)
+
+### Bahasa Indonesia
+
+![Contoh grafik progres berat badan](assets/readme/progress-chart-example-id.jpg)
+
 ## Weekly roadmap after goal creation
 
 Immediately after confirmation, the bot sends every weekly checkpoint with its date, target weight, and required loss in grams. Longer goals are split into a Telegram album without omitting any period.
@@ -71,6 +95,7 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 
 ## Behavior
 
+- Provides complete, naturally adapted interfaces in English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.
 - Stores one active goal per Telegram user and preserves replaced/completed goal history.
 - Requires each recorded weight to be attached to a new Telegram photo whose caption mentions the bot.
@@ -110,7 +135,7 @@ npm run assets:validate
 | `TELEGRAM_WEBHOOK_SECRET` | required | Secret checked on every webhook request |
 | `PUBLIC_BASE_URL` | `http://localhost:3000` | Public HTTPS origin in production |
 | `DATABASE_PATH` | `./data/bot.sqlite` | SQLite file path |
-| `DEFAULT_LANGUAGE` | `ru` | First-contact fallback (`ru`, `en`, or `zh`) |
+| `DEFAULT_LANGUAGE` | `ru` | First-contact fallback (`ru`, `en`, `zh`, `es`, `pt`, `de`, `fr`, `ja`, or `id`) |
 | `APP_TIMEZONE` | `Europe/Minsk` | Calendar and reminder timezone |
 | `REMINDER_WEEKDAY` | `4` | Luxon weekday (Thursday is 4) |
 | `REMINDER_HOUR` | `10` | Local reminder hour |
