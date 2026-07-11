@@ -33,6 +33,8 @@ function validDate(year: number, month: number, day: number, zone: string): stri
 
 export function parseLocalizedDate(text: string, zone: string): string | null {
   const normalized = text.trim().toLowerCase().replace(/[,]/g, ' ').replace(/\s+/g, ' ');
+  const chinese = normalized.match(/\b(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?\b/u);
+  if (chinese) return validDate(Number(chinese[1]), Number(chinese[2]), Number(chinese[3]), zone);
   let match = normalized.match(/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/);
   if (match) return validDate(Number(match[1]), Number(match[2]), Number(match[3]), zone);
 

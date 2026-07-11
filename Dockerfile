@@ -14,7 +14,7 @@ COPY --from=build /app/dist ./dist
 COPY package.json ./package.json
 COPY assets/achievements/optimized ./assets/achievements/optimized
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /app/data \
     && chown -R node:node /app

@@ -1,3 +1,7 @@
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Store } from '../src/db/store.js';
 
@@ -64,5 +68,35 @@ describe('Store', () => {
     });
     expect(result.goalAchieved).toBe(true);
     expect(store.getGoal(goal.id)?.status).toBe('achieved');
+  });
+});
+
+describe('Store migrations', () => {
+  it('adds Chinese to the language constraint without losing legacy users', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'weight-bot-'));
+    const filename = join(directory, 'legacy.sqlite');
+    const legacy = new Database(filename);
+    legacy.exec(`
+      CREATE TABLE users (
+        telegram_user_id TEXT PRIMARY KEY,
+        username TEXT,
+        display_name TEXT NOT NULL,
+        language TEXT NOT NULL CHECK(language IN ('ru', 'en')),
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      INSERT INTO users VALUES ('legacy', NULL, 'Legacy User', 'ru', '2026-01-01', '2026-01-01');
+    `);
+    legacy.close();
+
+    const migrated = new Store(filename);
+    try {
+      expect(migrated.getUser('legacy')?.displayName).toBe('Legacy User');
+      migrated.setLanguage('legacy', 'zh', '2026-07-11T10:00:00Z');
+      expect(migrated.getUser('legacy')?.language).toBe('zh');
+    } finally {
+      migrated.close();
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });

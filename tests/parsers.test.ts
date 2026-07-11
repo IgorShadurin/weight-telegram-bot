@@ -18,6 +18,7 @@ describe('localized input parsers', () => {
     ['31.12.2026', '2026-12-31'],
     ['31 Dec 2026', '2026-12-31'],
     ['31 декабря 2026', '2026-12-31'],
+    ['2026年12月31日', '2026-12-31'],
   ])('parses date %s', (text, expected) => {
     expect(parseLocalizedDate(text, 'Europe/Minsk')).toBe(expected);
   });

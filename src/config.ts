@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 
-export type Language = 'ru' | 'en';
+export type Language = 'ru' | 'en' | 'zh';
 
 export interface AppConfig {
   botToken: string;
@@ -30,7 +30,9 @@ function integer(name: string, fallback: number, min: number, max: number): numb
 
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const language = process.env.DEFAULT_LANGUAGE ?? 'ru';
-  if (language !== 'ru' && language !== 'en') throw new Error('DEFAULT_LANGUAGE must be ru or en');
+  if (language !== 'ru' && language !== 'en' && language !== 'zh') {
+    throw new Error('DEFAULT_LANGUAGE must be ru, en, or zh');
+  }
 
   const config: AppConfig = {
     botToken: process.env.TELEGRAM_BOT_TOKEN ?? '',

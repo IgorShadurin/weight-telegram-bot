@@ -78,12 +78,21 @@ describe('Telegram group behavior', () => {
     expect(store.getUser('1')).toBeNull();
   });
 
-  it('requires a mentioned photo caption and sends bilingual first contact', async () => {
+  it('requires a mentioned photo caption and sends trilingual first contact', async () => {
     await update(2, { text: '@my_weight_goal_bot create goal' });
     expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(2);
     expect(calls[0]?.payload.text).toContain('Choose a language');
+    expect(calls[0]?.payload.text).toContain('选择语言');
     expect(calls[1]?.payload.text).toContain('Пришли фото');
     expect(calls[1]?.payload.text).not.toContain('скачива');
+  });
+
+  it('stores Chinese language selection and answers Chinese commands', async () => {
+    await update(20, { text: '@my_weight_goal_bot 设置' });
+    await callback(21, 'lang:zh:1', 101);
+    expect(store.getUser('1')?.language).toBe('zh');
+    await update(22, { text: '@my_weight_goal_bot 帮助' });
+    expect(calls.at(-1)?.payload.text).toContain('提及我');
   });
 
   it('starts a goal wizard from a mentioned photo and accepts a ForceReply target', async () => {

@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-A bilingual Russian/English Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful roasts, and a 53-week capybara achievement series.
+A trilingual English/Russian/Chinese Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful roasts, and a 53-week capybara achievement series.
 
 [Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [Production health check](https://weight-bot.copymyui.com/healthz)
 
@@ -37,6 +37,10 @@ Every check-in produces a compact chart with the complete weight history, the pl
 
 ![Пример графика изменения веса](assets/readme/progress-chart-example-ru.jpg)
 
+### 中文
+
+![中文体重变化图表示例](assets/readme/progress-chart-example-zh.jpg)
+
 ## Weekly roadmap after goal creation
 
 Immediately after confirmation, the bot sends every weekly checkpoint with its date, target weight, and required loss in grams. Longer goals are split into a Telegram album without omitting any period.
@@ -49,6 +53,10 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 
 ![План снижения веса на шесть месяцев](assets/readme/weekly-roadmap-6-months-ru.jpg)
 
+### 6 个月计划 — 中文
+
+![中文六个月每周减重路线图](assets/readme/weekly-roadmap-6-months-zh.jpg)
+
 ### 12-month plan — English
 
 ![Twelve-month weekly weight roadmap in English](assets/readme/weekly-roadmap-12-months-en.jpg)
@@ -56,6 +64,10 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 ### План на 12 месяцев — Русский
 
 ![План снижения веса на двенадцать месяцев](assets/readme/weekly-roadmap-12-months-ru.jpg)
+
+### 12 个月计划 — 中文
+
+![中文十二个月每周减重路线图](assets/readme/weekly-roadmap-12-months-zh.jpg)
 
 ## Behavior
 
@@ -98,7 +110,7 @@ npm run assets:validate
 | `TELEGRAM_WEBHOOK_SECRET` | required | Secret checked on every webhook request |
 | `PUBLIC_BASE_URL` | `http://localhost:3000` | Public HTTPS origin in production |
 | `DATABASE_PATH` | `./data/bot.sqlite` | SQLite file path |
-| `DEFAULT_LANGUAGE` | `ru` | First-contact fallback (`ru` or `en`) |
+| `DEFAULT_LANGUAGE` | `ru` | First-contact fallback (`ru`, `en`, or `zh`) |
 | `APP_TIMEZONE` | `Europe/Minsk` | Calendar and reminder timezone |
 | `REMINDER_WEEKDAY` | `4` | Luxon weekday (Thursday is 4) |
 | `REMINDER_HOUR` | `10` | Local reminder hour |

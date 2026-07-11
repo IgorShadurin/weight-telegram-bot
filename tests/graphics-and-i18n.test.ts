@@ -24,19 +24,22 @@ const weighIns: WeighInRecord[] = Array.from({ length: 30 }, (_, index) => ({
 }));
 
 describe('graphics and fixed catalogs', () => {
-  it('contains 53 unique bilingual achievements and 10 copy variants', () => {
+  it('contains 53 unique trilingual achievements and 10 copy variants', () => {
     expect(achievements).toHaveLength(53);
     expect(new Set(achievements.map((item) => item.title.en)).size).toBe(53);
     expect(new Set(achievements.map((item) => item.title.ru)).size).toBe(53);
+    expect(new Set(achievements.map((item) => item.title.zh)).size).toBe(53);
     for (const category of Object.values(variants)) {
       expect(category.en).toHaveLength(10);
       expect(category.ru).toHaveLength(10);
+      expect(category.zh).toHaveLength(10);
     }
   });
 
   it('keeps user instructions concise and omits internal photo handling details', () => {
     expect(t('ru', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).not.toMatch(/скачив|хран/iu);
     expect(t('en', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).not.toMatch(/download|store/iu);
+    expect(t('zh', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).not.toMatch(/下载|存储/u);
     expect(t('ru', 'help')).not.toContain('используется');
     expect(t('en', 'help')).not.toContain('used once');
   });
@@ -48,9 +51,13 @@ describe('graphics and fixed catalogs', () => {
   });
 
   it('renders a Telegram-safe JPEG without writing it to disk', async () => {
-    const image = await renderGoalChart({ goal, periods, weighIns, language: 'en', timezone: 'Europe/Minsk' });
-    expect(image.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
-    expect(image.byteLength).toBeLessThan(10 * 1024 * 1024);
+    const images = await Promise.all((['en', 'ru', 'zh'] as const).map((language) => (
+      renderGoalChart({ goal, periods, weighIns, language, timezone: 'Europe/Minsk' })
+    )));
+    for (const image of images) {
+      expect(image.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
+      expect(image.byteLength).toBeLessThan(10 * 1024 * 1024);
+    }
   });
 
   it('builds every weekly roadmap row with its required gram loss', async () => {
@@ -58,8 +65,10 @@ describe('graphics and fixed catalogs', () => {
     expect(model.rows).toHaveLength(periods.length);
     expect(model.rows.map((row) => row.lossGrams)).toEqual([500, 500, 500]);
     expect(model.totalLossGrams).toBe(12_000);
-    const pages = await renderGoalPlanPages({ goal, periods, language: 'ru' });
-    expect(pages).toHaveLength(1);
-    expect(pages[0]!.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
+    for (const language of ['en', 'ru', 'zh'] as const) {
+      const pages = await renderGoalPlanPages({ goal, periods, language });
+      expect(pages).toHaveLength(1);
+      expect(pages[0]!.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
+    }
   });
 });

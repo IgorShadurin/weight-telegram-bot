@@ -86,6 +86,39 @@ export class Store {
     if (filename !== ':memory:') fs.mkdirSync(path.dirname(filename), { recursive: true });
     this.db = new Database(filename);
     this.db.exec(SCHEMA_SQL);
+    this.migrateLanguageConstraint();
+  }
+
+  private migrateLanguageConstraint(): void {
+    const row = this.db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'")
+      .get() as { sql?: string } | undefined;
+    if (row?.sql?.includes("'zh'")) return;
+
+    this.db.pragma('foreign_keys = OFF');
+    try {
+      this.db.exec(`
+        BEGIN;
+        CREATE TABLE users_new (
+          telegram_user_id TEXT PRIMARY KEY,
+          username TEXT,
+          display_name TEXT NOT NULL,
+          language TEXT NOT NULL CHECK(language IN ('ru', 'en', 'zh')),
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        INSERT INTO users_new SELECT * FROM users;
+        DROP TABLE users;
+        ALTER TABLE users_new RENAME TO users;
+        COMMIT;
+      `);
+    } catch (error) {
+      if (this.db.inTransaction) this.db.exec('ROLLBACK');
+      throw error;
+    } finally {
+      this.db.pragma('foreign_keys = ON');
+    }
+    const violations = this.db.pragma('foreign_key_check') as unknown[];
+    if (violations.length > 0) throw new Error('Foreign key violation after language migration');
   }
 
   close(): void {

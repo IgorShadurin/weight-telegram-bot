@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "A bilingual Telegram group bot for weekly weight goals.",
+  "description": "A trilingual Telegram group bot for weekly weight goals in English, Russian, and Chinese.",
   "type": "module",
   "engines": {
     "node": ">=22"

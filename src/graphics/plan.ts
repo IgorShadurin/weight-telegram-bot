@@ -5,6 +5,11 @@ import { formatKg } from '../domain/periods.js';
 import type { GoalPeriodRecord, GoalRecord } from '../domain/types.js';
 
 const PERIODS_PER_PAGE = 54;
+const FONT_FAMILY = '"Noto Sans CJK SC", "Arial Unicode MS", sans-serif';
+
+function localized(language: Language, values: Record<Language, string>): string {
+  return values[language];
+}
 
 export interface GoalPlanRow {
   periodIndex: number;
@@ -42,8 +47,9 @@ export function createGoalPlanModel(goal: GoalRecord, periods: GoalPeriodRecord[
 }
 
 function shortDate(value: string, language: Language): string {
-  const locale = language === 'ru' ? 'ru' : 'en';
-  return DateTime.fromISO(value, { zone: 'UTC' }).setLocale(locale).toFormat('dd LLL');
+  const locale = localized(language, { ru: 'ru', en: 'en', zh: 'zh-CN' });
+  const format = language === 'zh' ? 'MM月dd日' : 'dd LLL';
+  return DateTime.fromISO(value, { zone: 'UTC' }).setLocale(locale).toFormat(format);
 }
 
 function dateRange(row: GoalPlanRow, language: Language): string {
@@ -71,18 +77,19 @@ async function renderPage(input: {
     paper: '#f4fbf8', panel: '#ffffff', ink: '#17322f', muted: '#6f827f',
     teal: '#10a58b', orange: '#ff9b42', line: '#dceae6', paleTeal: '#e6f7f2',
   };
-  const unit = input.language === 'ru' ? 'кг' : 'kg';
-  const gramUnit = input.language === 'ru' ? 'г' : 'g';
+  const unit = localized(input.language, { ru: 'кг', en: 'kg', zh: '公斤' });
+  const gramUnit = localized(input.language, { ru: 'г', en: 'g', zh: '克' });
+  const numberLocale = localized(input.language, { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN' });
   const totalLoss = Math.max(0, input.goal.startWeightGrams - input.goal.targetWeightGrams);
 
   context.fillStyle = colors.paper;
   context.fillRect(0, 0, width, height);
 
   context.fillStyle = colors.ink;
-  context.font = '700 52px sans-serif';
-  context.fillText(input.language === 'ru' ? 'Маршрут по неделям' : 'Weekly roadmap', 70, 78);
+  context.font = `700 52px ${FONT_FAMILY}`;
+  context.fillText(localized(input.language, { ru: 'Маршрут по неделям', en: 'Weekly roadmap', zh: '每周路线图' }), 70, 78);
   context.fillStyle = colors.muted;
-  context.font = '28px sans-serif';
+  context.font = `28px ${FONT_FAMILY}`;
   context.fillText(
     `${formatKg(input.goal.startWeightGrams)} → ${formatKg(input.goal.targetWeightGrams)} ${unit}  •  ${input.goal.startDate} → ${input.goal.targetDate}`,
     70,
@@ -91,9 +98,11 @@ async function renderPage(input: {
   if (input.pageCount > 1) {
     context.textAlign = 'right';
     context.fillText(
-      input.language === 'ru'
-        ? `Страница ${input.pageIndex + 1} из ${input.pageCount}`
-        : `Page ${input.pageIndex + 1} of ${input.pageCount}`,
+      localized(input.language, {
+        ru: `Страница ${input.pageIndex + 1} из ${input.pageCount}`,
+        en: `Page ${input.pageIndex + 1} of ${input.pageCount}`,
+        zh: `第 ${input.pageIndex + 1} / ${input.pageCount} 页`,
+      }),
       width - 70,
       78,
     );
@@ -102,12 +111,12 @@ async function renderPage(input: {
 
   const summaryCards = [
     {
-      label: input.language === 'ru' ? 'ВСЕГО СБРОСИТЬ' : 'TOTAL TO LOSE',
-      value: `${totalLoss.toLocaleString(input.language === 'ru' ? 'ru-RU' : 'en-US')} ${gramUnit}`,
+      label: localized(input.language, { ru: 'ВСЕГО СБРОСИТЬ', en: 'TOTAL TO LOSE', zh: '总共需要减重' }),
+      value: `${totalLoss.toLocaleString(numberLocale)} ${gramUnit}`,
     },
     {
-      label: input.language === 'ru' ? 'В СРЕДНЕМ ЗА НЕДЕЛЮ' : 'AVERAGE PER WEEK',
-      value: `${Math.round(totalLoss / Math.max(1, input.totalPeriodCount)).toLocaleString(input.language === 'ru' ? 'ru-RU' : 'en-US')} ${gramUnit}`,
+      label: localized(input.language, { ru: 'В СРЕДНЕМ ЗА НЕДЕЛЮ', en: 'AVERAGE PER WEEK', zh: '平均每周' }),
+      value: `${Math.round(totalLoss / Math.max(1, input.totalPeriodCount)).toLocaleString(numberLocale)} ${gramUnit}`,
     },
   ];
   summaryCards.forEach((card, index) => {
@@ -117,19 +126,21 @@ async function renderPage(input: {
     context.roundRect(x, 166, 400, 126, 22);
     context.fill();
     context.fillStyle = index === 0 ? colors.orange : colors.teal;
-    context.font = '700 19px sans-serif';
+    context.font = `700 19px ${FONT_FAMILY}`;
     context.fillText(card.label, x + 24, 205);
     context.fillStyle = colors.ink;
-    context.font = '700 38px sans-serif';
+    context.font = `700 38px ${FONT_FAMILY}`;
     context.fillText(card.value, x + 24, 260);
   });
 
   context.fillStyle = colors.muted;
-  context.font = '23px sans-serif';
+  context.font = `23px ${FONT_FAMILY}`;
   context.fillText(
-    input.language === 'ru'
-      ? 'Каждая строка: срок • целевой вес • сколько сбросить от прошлого рубежа'
-      : 'Each row: deadline • target weight • loss from the previous checkpoint',
+    localized(input.language, {
+      ru: 'Каждая строка: срок • целевой вес • сколько сбросить от прошлого рубежа',
+      en: 'Each row: deadline • target weight • loss from the previous checkpoint',
+      zh: '每行：截止日期 • 目标体重 • 较上个目标需减重',
+    }),
     70,
     340,
   );
@@ -140,11 +151,11 @@ async function renderPage(input: {
   for (let column = 0; column < columns; column += 1) {
     const columnX = margin + column * (columnWidth + gap);
     context.fillStyle = colors.muted;
-    context.font = '700 17px sans-serif';
-    context.fillText(input.language === 'ru' ? 'НЕД.' : 'WK', columnX + 18, tableTop - 18);
-    context.fillText(input.language === 'ru' ? 'ДАТЫ' : 'DATES', columnX + 76, tableTop - 18);
-    context.fillText(input.language === 'ru' ? 'ЦЕЛЬ' : 'TARGET', columnX + columnWidth - 205, tableTop - 18);
-    context.fillText(input.language === 'ru' ? 'СБРОСИТЬ' : 'TO LOSE', columnX + columnWidth - 100, tableTop - 18);
+    context.font = `700 17px ${FONT_FAMILY}`;
+    context.fillText(localized(input.language, { ru: 'НЕД.', en: 'WK', zh: '周' }), columnX + 18, tableTop - 18);
+    context.fillText(localized(input.language, { ru: 'ДАТЫ', en: 'DATES', zh: '日期' }), columnX + 76, tableTop - 18);
+    context.fillText(localized(input.language, { ru: 'ЦЕЛЬ', en: 'TARGET', zh: '目标' }), columnX + columnWidth - 205, tableTop - 18);
+    context.fillText(localized(input.language, { ru: 'СБРОСИТЬ', en: 'TO LOSE', zh: '需减' }), columnX + columnWidth - 100, tableTop - 18);
   }
 
   input.rows.forEach((row, index) => {
@@ -158,17 +169,17 @@ async function renderPage(input: {
     context.fill();
 
     context.fillStyle = colors.teal;
-    context.font = '700 21px sans-serif';
+    context.font = `700 21px ${FONT_FAMILY}`;
     context.fillText(String(row.periodIndex).padStart(2, '0'), x + 18, y + 42);
     context.fillStyle = colors.ink;
-    context.font = '20px sans-serif';
+    context.font = `20px ${FONT_FAMILY}`;
     context.fillText(dateRange(row, input.language), x + 76, y + 42);
 
     context.textAlign = 'right';
-    context.font = '700 23px sans-serif';
+    context.font = `700 23px ${FONT_FAMILY}`;
     context.fillText(`≤ ${formatKg(row.targetWeightGrams)}`, x + columnWidth - 112, y + 42);
     context.fillStyle = colors.orange;
-    context.font = '700 20px sans-serif';
+    context.font = `700 20px ${FONT_FAMILY}`;
     context.fillText(`-${row.lossGrams} ${gramUnit}`, x + columnWidth - 18, y + 42);
     context.textAlign = 'left';
   });
@@ -180,11 +191,13 @@ async function renderPage(input: {
   context.lineTo(width - margin, height - 65);
   context.stroke();
   context.fillStyle = colors.muted;
-  context.font = '20px sans-serif';
+  context.font = `20px ${FONT_FAMILY}`;
   context.fillText(
-    input.language === 'ru'
-      ? `Целевой вес указан в ${unit}; недельное изменение — в ${gramUnit}.`
-      : `Target weight is shown in ${unit}; weekly change is shown in ${gramUnit}.`,
+    localized(input.language, {
+      ru: `Целевой вес указан в ${unit}; недельное изменение — в ${gramUnit}.`,
+      en: `Target weight is shown in ${unit}; weekly change is shown in ${gramUnit}.`,
+      zh: `目标体重单位为${unit}；每周变化单位为${gramUnit}。`,
+    }),
     margin,
     height - 28,
   );

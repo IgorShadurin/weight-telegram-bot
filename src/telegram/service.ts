@@ -145,7 +145,7 @@ export class TelegramService {
           )}`, { parse_mode: 'HTML', ...thread });
         } else if (job.type === 'missed') {
           const suffix = job.payload.final
-            ? (job.payload.language === 'ru' ? '\nФинальная дата прошла — цель закрыта как невыполненная.' : '\nThe final date passed, so the goal is closed as failed.')
+            ? `\n${t(job.payload.language, 'finalFailed')}`
             : '';
           await this.bot.api.sendMessage(job.payload.chatId, `${mention(user.telegramUserId, user.displayName)}, ${variant(
             job.payload.language, job.payload.hadSubmission ? 'fail' : 'missing', `${job.payload.goalId}:${job.payload.periodId}`,
@@ -190,6 +190,7 @@ export class TelegramService {
   languageKeyboard(userId: string): InlineKeyboard {
     return new InlineKeyboard()
       .text('Русский 🇷🇺', `lang:ru:${userId}`)
-      .text('English 🇬🇧', `lang:en:${userId}`);
+      .text('English 🇬🇧', `lang:en:${userId}`)
+      .text('中文 🇨🇳', `lang:zh:${userId}`);
   }
 }
