@@ -55,6 +55,7 @@ describe('graphics and fixed catalogs', () => {
       expect(message).toContain(groupWords[language]);
       expect(message).toContain('/status');
       expect(message).toContain('/schedule');
+      expect(message).not.toMatch(/<code>\/(?:status|schedule)<\/code>/u);
       expect(message).toContain('@my_weight_goal_bot');
       expect(message).toContain(`https://example.com/${language}/`);
       expect(message).not.toContain('{{');
