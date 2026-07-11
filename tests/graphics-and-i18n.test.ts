@@ -76,6 +76,14 @@ describe('graphics and fixed catalogs', () => {
     }
   });
 
+  it('uses request-specific cooldown messages in every language', () => {
+    for (const language of LANGUAGES) {
+      expect(t(language, 'planQueued', { seconds: 42 })).toContain('42');
+      expect(t(language, 'chartCooldown', { seconds: 42 })).toContain('42');
+      expect(t(language, 'planQueued', { seconds: 42 })).not.toMatch(/weight saved|вес записан/iu);
+    }
+  });
+
   it('keeps every weight in the chart model and highlights two periods', () => {
     const model = createChartModel(goal, periods, weighIns, 'Europe/Minsk');
     expect(model.points).toHaveLength(30);

@@ -161,6 +161,16 @@ const copy: Record<string, Copy> = {
     de: 'Gewicht gespeichert. Die Grafik holt kurz Luft – in {{seconds}} Sek. geht’s wieder.', fr: 'Poids enregistré. Le graphique reprend son souffle : encore {{seconds}} s.',
     ja: '体重を記録しました。グラフは小休憩中です。あと {{seconds}} 秒で再作成できます。', id: 'Berat tersimpan. Grafiknya lagi ambil napas; coba lagi dalam {{seconds}} detik.',
   },
+  chartCooldown: {
+    ru: 'Обновлённый график можно отправить через {{seconds}} сек.', en: 'An updated chart can be sent in {{seconds}} sec.', zh: '再等 {{seconds}} 秒就能发送更新后的进度图。',
+    es: 'La gráfica actualizada se podrá enviar en {{seconds}} s.', pt: 'O gráfico atualizado poderá ser enviado em {{seconds}} s.', de: 'Die aktualisierte Kurve kann in {{seconds}} Sek. gesendet werden.',
+    fr: 'La courbe actualisée pourra être envoyée dans {{seconds}} s.', ja: '更新したグラフはあと {{seconds}} 秒で送信できます。', id: 'Grafik terbaru bisa dikirim dalam {{seconds}} detik.',
+  },
+  planQueued: {
+    ru: 'План по неделям отправлю через {{seconds}} сек. Повторять команду не нужно.', en: 'I’ll send the weekly plan in {{seconds}} sec. No need to repeat the command.', zh: '我会在 {{seconds}} 秒后发送每周计划，不用重复输入命令。',
+    es: 'Enviaré el plan semanal en {{seconds}} s. No hace falta repetir el comando.', pt: 'Vou enviar o plano semanal em {{seconds}} s. Não precisa repetir o comando.', de: 'Ich sende den Wochenplan in {{seconds}} Sek. Du musst den Befehl nicht wiederholen.',
+    fr: 'J’enverrai le plan hebdomadaire dans {{seconds}} s. Inutile de répéter la commande.', ja: '週間計画はあと {{seconds}} 秒で送信します。コマンドをもう一度送る必要はありません。', id: 'Rencana mingguan akan kukirim dalam {{seconds}} detik. Tidak perlu mengulang perintah.',
+  },
   status: {
     ru: '🎯 <b>{{start}} → {{target}} кг</b> к {{goalDate}}\nСейчас: <b>{{current}} кг</b>\nРубеж недели: <b>{{weekTarget}} кг</b> до {{weekDate}}',
     en: '🎯 <b>{{start}} → {{target}} kg</b> by {{goalDate}}\nCurrent: <b>{{current}} kg</b>\nWeekly checkpoint: <b>{{weekTarget}} kg</b> by {{weekDate}}',

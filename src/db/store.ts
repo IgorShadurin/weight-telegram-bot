@@ -395,6 +395,12 @@ export class Store {
     return Math.max(0, Math.ceil(cooldownSeconds - elapsed));
   }
 
+  lastGraphicSentAt(telegramUserId: string): string | null {
+    const row = this.db.prepare('SELECT last_sent_at FROM graphic_limits WHERE telegram_user_id = ?')
+      .get(telegramUserId) as { last_sent_at: string } | undefined;
+    return row?.last_sent_at ?? null;
+  }
+
   markGraphicSent(telegramUserId: string, now: string): void {
     this.db.prepare(`
       INSERT INTO graphic_limits (telegram_user_id, last_sent_at) VALUES (?, ?)

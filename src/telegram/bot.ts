@@ -89,6 +89,31 @@ export function configureBot(service: TelegramService, store: Store, config: App
     return result;
   }
 
+  function enqueueRequestedGoalPlan(input: {
+    telegramUserId: string;
+    chatId: string;
+    threadId: number | null;
+    language: Language;
+    goalId: string;
+    waitSeconds: number;
+    now: DateTime;
+  }): void {
+    const cooldownStartedAt = store.lastGraphicSentAt(input.telegramUserId) ?? input.now.toISO()!;
+    store.enqueue({
+      dedupeKey: `requested-goal-plan:${input.goalId}:${input.chatId}:${cooldownStartedAt}`,
+      type: 'goal-plan',
+      payload: {
+        telegramUserId: input.telegramUserId,
+        chatId: input.chatId,
+        threadId: input.threadId,
+        language: input.language,
+        goalId: input.goalId,
+      },
+      dueAt: input.now.plus({ seconds: input.waitSeconds }).toISO()!,
+      now: input.now.toISO()!,
+    });
+  }
+
   bot.use(async (ctx, next) => {
     const now = DateTime.utc().toISO()!;
     if (!store.claimUpdate(ctx.update.update_id, now)) return;
@@ -219,7 +244,18 @@ export function configureBot(service: TelegramService, store: Store, config: App
           language: user.language,
           goal: activeGoal,
         });
-        if (result !== 'sent') await ctx.reply(t(user.language, 'cooldown', { seconds: result }));
+        if (result !== 'sent') {
+          enqueueRequestedGoalPlan({
+            telegramUserId: userId,
+            chatId: String(ctx.chat.id),
+            threadId: null,
+            language: user.language,
+            goalId: activeGoal.id,
+            waitSeconds: result,
+            now,
+          });
+          await ctx.reply(t(user.language, 'planQueued', { seconds: result }));
+        }
         return;
       }
       if (STATUS.test(text)) {
@@ -238,7 +274,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
         });
         if (result !== 'sent') {
           await ctx.reply(`${service.goalStatusText({ language: user.language, goal: activeGoal, period })}\n\n${
-            t(user.language, 'cooldown', { seconds: result })
+            t(user.language, 'chartCooldown', { seconds: result })
           }`, { parse_mode: 'HTML' });
         }
         return;
@@ -364,7 +400,18 @@ export function configureBot(service: TelegramService, store: Store, config: App
         language: user.language,
         goal: activeGoal,
       });
-      if (result !== 'sent') await ctx.reply(t(user.language, 'cooldown', { seconds: result }));
+      if (result !== 'sent') {
+        enqueueRequestedGoalPlan({
+          telegramUserId: userId,
+          chatId: String(ctx.chat.id),
+          threadId: currentThreadId ?? null,
+          language: user.language,
+          goalId: activeGoal.id,
+          waitSeconds: result,
+          now,
+        });
+        await ctx.reply(t(user.language, 'planQueued', { seconds: result }));
+      }
       return;
     }
     if (STATUS.test(text)) {
@@ -385,7 +432,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       });
       if (result !== 'sent') {
         await ctx.reply(`${service.goalStatusText({ language: user.language, goal: activeGoal, period })}\n\n${
-          t(user.language, 'cooldown', { seconds: result })
+          t(user.language, 'chartCooldown', { seconds: result })
         }`, { parse_mode: 'HTML' });
       }
       return;
