@@ -3,7 +3,7 @@ import { LANGUAGES } from '../src/config.js';
 import { achievements } from '../src/i18n/achievements.js';
 import { t, variants } from '../src/i18n/catalog.js';
 import { createChartModel, renderGoalChart } from '../src/graphics/chart.js';
-import { createGoalPlanModel, renderGoalPlanPages } from '../src/graphics/plan.js';
+import { createGoalPlanModel, formatPlanLossAmount, renderGoalPlanPages } from '../src/graphics/plan.js';
 import type { GoalPeriodRecord, GoalRecord, WeighInRecord } from '../src/domain/types.js';
 
 const goal: GoalRecord = {
@@ -111,5 +111,12 @@ describe('graphics and fixed catalogs', () => {
       expect(pages).toHaveLength(1);
       expect(pages[0]!.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
     }
+  });
+
+  it('uses kilograms for loss amounts of at least one kilogram', () => {
+    expect(formatPlanLossAmount(950, 'en')).toBe('950 g');
+    expect(formatPlanLossAmount(1_000, 'en')).toBe('1 kg');
+    expect(formatPlanLossAmount(1_300, 'en')).toBe('1.3 kg');
+    expect(formatPlanLossAmount(13_050, 'ru')).toBe('13.05 кг');
   });
 });

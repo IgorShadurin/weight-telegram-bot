@@ -25,6 +25,21 @@ export interface GoalPlanModel {
   typicalLossGrams: number;
 }
 
+export function formatPlanLossAmount(grams: number, language: Language): string {
+  const kilogramUnit = localized(language, {
+    ru: 'кг', en: 'kg', zh: '公斤', es: 'kg', pt: 'kg', de: 'kg', fr: 'kg', ja: 'kg', id: 'kg',
+  });
+  if (grams >= 1_000) return `${formatKg(grams)} ${kilogramUnit}`;
+
+  const gramUnit = localized(language, {
+    ru: 'г', en: 'g', zh: '克', es: 'g', pt: 'g', de: 'g', fr: 'g', ja: 'g', id: 'g',
+  });
+  const numberLocale = localized(language, {
+    ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', es: 'es-ES', pt: 'pt-BR', de: 'de-DE', fr: 'fr-FR', ja: 'ja-JP', id: 'id-ID',
+  });
+  return `${grams.toLocaleString(numberLocale)} ${gramUnit}`;
+}
+
 export function createGoalPlanModel(goal: GoalRecord, periods: GoalPeriodRecord[]): GoalPlanModel {
   let previousTarget = goal.startWeightGrams;
   const rows = periods.map((period) => {
@@ -82,12 +97,6 @@ async function renderPage(input: {
   const unit = localized(input.language, {
     ru: 'кг', en: 'kg', zh: '公斤', es: 'kg', pt: 'kg', de: 'kg', fr: 'kg', ja: 'kg', id: 'kg',
   });
-  const gramUnit = localized(input.language, {
-    ru: 'г', en: 'g', zh: '克', es: 'g', pt: 'g', de: 'g', fr: 'g', ja: 'g', id: 'g',
-  });
-  const numberLocale = localized(input.language, {
-    ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', es: 'es-ES', pt: 'pt-BR', de: 'de-DE', fr: 'fr-FR', ja: 'ja-JP', id: 'id-ID',
-  });
   const totalLoss = Math.max(0, input.goal.startWeightGrams - input.goal.targetWeightGrams);
 
   context.fillStyle = colors.paper;
@@ -132,14 +141,14 @@ async function renderPage(input: {
         ru: 'ВСЕГО СБРОСИТЬ', en: 'TOTAL TO LOSE', zh: '总共要减', es: 'TOTAL A PERDER', pt: 'TOTAL A PERDER',
         de: 'GESAMT ABNEHMEN', fr: 'TOTAL À PERDRE', ja: '減量合計', id: 'TOTAL TURUN',
       }),
-      value: `${totalLoss.toLocaleString(numberLocale)} ${gramUnit}`,
+      value: formatPlanLossAmount(totalLoss, input.language),
     },
     {
       label: localized(input.language, {
         ru: 'В СРЕДНЕМ ЗА НЕДЕЛЮ', en: 'AVERAGE PER WEEK', zh: '平均每周', es: 'MEDIA POR SEMANA', pt: 'MÉDIA POR SEMANA',
         de: 'Ø PRO WOCHE', fr: 'MOYENNE / SEMAINE', ja: '週平均', id: 'RATA-RATA / MINGGU',
       }),
-      value: `${input.typicalLossGrams.toLocaleString(numberLocale)} ${gramUnit}`,
+      value: formatPlanLossAmount(input.typicalLossGrams, input.language),
     },
   ];
   summaryCards.forEach((card, index) => {
@@ -210,7 +219,7 @@ async function renderPage(input: {
     context.fillStyle = colors.orange;
     context.font = `700 20px ${FONT_FAMILY}`;
     context.textAlign = 'right';
-    context.fillText(`-${row.lossGrams} ${gramUnit}`, x + columnWidth - 18, y + 42);
+    context.fillText(`-${formatPlanLossAmount(row.lossGrams, input.language)}`, x + columnWidth - 18, y + 42);
     context.textAlign = 'left';
   });
 
@@ -224,15 +233,15 @@ async function renderPage(input: {
   context.font = `20px ${FONT_FAMILY}`;
   context.fillText(
     localized(input.language, {
-      ru: `Целевой вес указан в ${unit}; недельное изменение — в ${gramUnit}.`,
-      en: `Target weight is shown in ${unit}; weekly change is shown in ${gramUnit}.`,
-      zh: `目标体重单位为${unit}；每周变化单位为${gramUnit}。`,
-      es: `El peso objetivo está en ${unit}; el cambio semanal, en ${gramUnit}.`,
-      pt: `O peso-alvo está em ${unit}; a mudança semanal, em ${gramUnit}.`,
-      de: `Zielgewicht in ${unit}; wöchentliche Änderung in ${gramUnit}.`,
-      fr: `Poids cible en ${unit} ; variation hebdomadaire en ${gramUnit}.`,
-      ja: `目標体重は${unit}、週ごとの変化は${gramUnit}で表示。`,
-      id: `Target berat dalam ${unit}; perubahan mingguan dalam ${gramUnit}.`,
+      ru: `Целевой вес указан в ${unit}; изменение — в г или кг.`,
+      en: `Target weight is shown in ${unit}; change is shown in g or kg.`,
+      zh: `目标体重单位为${unit}；减重数值使用克或公斤。`,
+      es: `El peso objetivo está en ${unit}; el cambio se muestra en g o kg.`,
+      pt: `O peso-alvo está em ${unit}; a mudança aparece em g ou kg.`,
+      de: `Zielgewicht in ${unit}; die Änderung wird in g oder kg angezeigt.`,
+      fr: `Poids cible en ${unit} ; variation affichée en g ou kg.`,
+      ja: `目標体重は${unit}、減量幅はgまたはkgで表示。`,
+      id: `Target berat dalam ${unit}; perubahan ditampilkan dalam g atau kg.`,
     }),
     margin,
     height - 28,
