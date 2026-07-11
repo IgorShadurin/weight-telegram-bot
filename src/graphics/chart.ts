@@ -68,6 +68,7 @@ export async function renderGoalChart(input: {
     ink: '#17322f', muted: '#6f827f', grid: '#dceae6', teal: '#10a58b', orange: '#ff9b42',
     lime: '#9de65c', paper: '#f5fbf9', panel: '#ffffff', red: '#ef6262',
   };
+  const unit = input.language === 'ru' ? 'кг' : 'kg';
 
   context.fillStyle = colors.paper;
   context.fillRect(0, 0, 1600, 1000);
@@ -76,7 +77,7 @@ export async function renderGoalChart(input: {
   context.fillText(input.language === 'ru' ? 'Траектория веса' : 'Weight trajectory', 76, 78);
   context.fillStyle = colors.muted;
   context.font = '28px sans-serif';
-  context.fillText(`${formatKg(input.goal.startWeightGrams)} → ${formatKg(input.goal.targetWeightGrams)} kg`, 76, 120);
+  context.fillText(`${formatKg(input.goal.startWeightGrams)} → ${formatKg(input.goal.targetWeightGrams)} ${unit}`, 76, 120);
 
   const lastTwo = model.highlightedPeriods;
   lastTwo.forEach((period, index) => {
@@ -90,7 +91,7 @@ export async function renderGoalChart(input: {
     context.fillText(`${input.language === 'ru' ? 'Неделя' : 'Week'} ${period.periodIndex}`, x + 24, 76);
     context.fillStyle = colors.ink;
     context.font = '700 34px sans-serif';
-    context.fillText(`≤ ${formatKg(period.targetWeightGrams)} kg`, x + 24, 122);
+    context.fillText(`≤ ${formatKg(period.targetWeightGrams)} ${unit}`, x + 24, 122);
   });
 
   const plot = { left: 120, top: 210, width: 1390, height: 650 };

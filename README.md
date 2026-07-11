@@ -29,7 +29,13 @@ The same original teal capybara becomes fitter across 53 fixed weekly achievemen
 
 Every check-in produces a compact chart with the complete weight history, the planned goal line, and a visual comparison of the final two weekly periods.
 
+### English
+
 ![Example weight progress chart](assets/readme/progress-chart-example.jpg)
+
+### Русский
+
+![Пример графика изменения веса](assets/readme/progress-chart-example-ru.jpg)
 
 ## Behavior
 

@@ -56,14 +56,13 @@ const weighIns: WeighInRecord[] = points.map(([date, weightGrams], index) => {
   };
 });
 
-const image = await renderGoalChart({
-  goal,
-  periods,
-  weighIns,
-  language: 'en',
-  timezone: 'Europe/Minsk',
-});
-
 await mkdir('assets/readme', { recursive: true });
-await writeFile('assets/readme/progress-chart-example.jpg', image);
-console.log('Saved assets/readme/progress-chart-example.jpg');
+const [englishImage, russianImage] = await Promise.all([
+  renderGoalChart({ goal, periods, weighIns, language: 'en', timezone: 'Europe/Minsk' }),
+  renderGoalChart({ goal, periods, weighIns, language: 'ru', timezone: 'Europe/Minsk' }),
+]);
+await Promise.all([
+  writeFile('assets/readme/progress-chart-example.jpg', englishImage),
+  writeFile('assets/readme/progress-chart-example-ru.jpg', russianImage),
+]);
+console.log('Saved English and Russian progress chart examples in assets/readme.');
