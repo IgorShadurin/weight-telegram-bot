@@ -95,7 +95,7 @@ describe('Telegram group behavior', () => {
     expect(calls.at(-1)?.payload.text).toContain('提及我');
   });
 
-  it('starts a goal wizard from a mentioned photo and accepts a ForceReply target', async () => {
+  it('starts a goal wizard and sends a fresh ForceReply for every input step', async () => {
     await update(3, {
       caption: '@my_weight_goal_bot 92 kg',
       photo: [{ file_id: 'downloadable', file_unique_id: 'unique-start', width: 1000, height: 1000 }],
@@ -113,14 +113,32 @@ describe('Telegram group behavior', () => {
         from: telegram.bot.botInfo,
       },
     });
-    expect(store.getDraft('1', new Date().toISOString())?.targetWeightGrams).toBe(80_000);
-    expect(calls.some((call) => call.method === 'editMessageText')).toBe(true);
+    const dateDraft = store.getDraft('1', new Date().toISOString())!;
+    expect(dateDraft.targetWeightGrams).toBe(80_000);
+    expect(dateDraft.promptMessageId).not.toBe(draft!.promptMessageId);
+    const datePrompt = calls.at(-1)!;
+    expect(datePrompt.method).toBe('sendMessage');
+    expect(datePrompt.payload.reply_markup.force_reply).toBe(true);
+    expect(datePrompt.payload.text).toContain('31 дек 2026');
+
+    await update(5, {
+      text: '31 дек 2026',
+      reply_to_message: {
+        message_id: dateDraft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    expect(store.getDraft('1', new Date().toISOString())?.targetDate).toBe('2026-12-31');
+    expect(calls.at(-1)?.method).toBe('editMessageText');
+    expect(calls.at(-1)?.payload.text).toContain('Создать эту цель?');
   });
 
   it('deduplicates repeated Telegram update IDs', async () => {
-    await update(5, { text: '@my_weight_goal_bot help' });
+    await update(6, { text: '@my_weight_goal_bot help' });
     const count = calls.length;
-    await update(5, { text: '@my_weight_goal_bot help' });
+    await update(6, { text: '@my_weight_goal_bot help' });
     expect(calls).toHaveLength(count);
   });
 

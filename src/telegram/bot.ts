@@ -192,12 +192,17 @@ export function configureBot(service: TelegramService, store: Store, config: App
           return;
         }
         draft.targetWeightGrams = target;
-        draft.promptMessageId = await editOrReply(
-          ctx,
-          draft,
-          t(user.language, 'needDate', { weight: formatKg(target) }),
-          { force_reply: true, selective: true, input_field_placeholder: localized(user.language, { ru: '31 дек 2026', en: '31 Dec 2026', zh: '2026年12月31日' }) },
-        );
+        // A ForceReply is consumed after one answer. Editing the old prompt does not
+        // reopen Telegram's reply composer, so every wizard input step needs a new message.
+        const prompt = await ctx.reply(t(user.language, 'needDate', { weight: formatKg(target) }), {
+          parse_mode: 'HTML',
+          reply_markup: {
+            force_reply: true,
+            selective: true,
+            input_field_placeholder: localized(user.language, { ru: '31 дек 2026', en: '31 Dec 2026', zh: '2026年12月31日' }),
+          },
+        });
+        draft.promptMessageId = prompt.message_id;
         store.saveDraft(draft);
         return;
       }
