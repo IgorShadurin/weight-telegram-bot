@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — Instructions
 lang: en
-description: Instructions and commands for the multilingual Telegram weight-goal bot
+description: Weekly weight goals, check-ins, progress charts, and reminders in Telegram groups
 ---
 
 # Weight Goal Bot instructions
@@ -42,6 +42,7 @@ In a group, mention the bot with the command or use `/command@my_weight_goal_bot
 - Graphic responses are limited to one image per user per minute.
 - On Thursdays, the bot reminds you about an unfinished current checkpoint.
 - Completed weeks unlock the capybara achievement sequence.
+- Change the language at any time with `/settings` or the buttons in a private chat with the bot.
 
 This is a motivational tool, not medical advice.
 

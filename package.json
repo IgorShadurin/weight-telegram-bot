@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "A nine-language Telegram group bot for weekly weight goals, charts, reminders, and achievements.",
+  "description": "A Telegram group bot for weekly weight goals, charts, reminders, and achievements.",
   "type": "module",
   "engines": {
     "node": ">=22"

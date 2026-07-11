@@ -10,10 +10,9 @@ describe('GitHub Pages instructions', () => {
       expect(page).toContain('https://t.me/my_weight_goal_bot');
       expect(page).toContain(`lang: ${language}`);
       expect(page).toMatch(/^description: .+$/mu);
-      if (language !== 'en') {
-        expect(page).not.toContain('description: Instructions and commands for the multilingual Telegram weight-goal bot');
-      }
+      expect(page.match(/^description: (.+)$/mu)?.[1]).not.toMatch(/multilingual|многоязыч|multiling|mehrsprach|多语言|多言語|multibahasa/iu);
       for (const command of commands) expect(page).toContain(command);
+      expect(page.match(/\/settings/gu)?.length).toBeGreaterThanOrEqual(2);
       for (const linkedLanguage of LANGUAGES) expect(page).toContain(`../${linkedLanguage}/`);
     }
   });

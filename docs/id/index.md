@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — Petunjuk
 lang: id
-description: Petunjuk dan perintah bot Telegram multibahasa untuk target berat badan
+description: Target berat mingguan, check-in, grafik progres, dan pengingat di grup Telegram
 ---
 
 # Petunjuk Weight Goal Bot
@@ -42,6 +42,7 @@ Di grup, mention bot bersama perintah atau gunakan `/command@my_weight_goal_bot`
 - Setiap pengguna dapat menerima satu gambar per menit.
 - Pada hari Kamis, bot mengingatkan jika target minggu berjalan belum tercapai.
 - Setiap minggu yang berhasil membuka pencapaian kapibara berikutnya.
+- Ganti bahasa kapan saja lewat `/settings` atau tombol di chat pribadi dengan bot.
 
 Bot ini adalah alat motivasi, bukan saran medis.
 

@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — Anleitung
 lang: de
-description: Anleitung und Befehle für den mehrsprachigen Telegram-Bot für Gewichtsziele
+description: Wöchentliche Gewichtsziele, Check-ins, Fortschrittskurven und Erinnerungen in Telegram-Gruppen
 ---
 
 # Anleitung für Weight Goal Bot
@@ -42,6 +42,7 @@ Erwähne den Bot in der Gruppe zusammen mit dem Befehl oder nutze `/command@my_w
 - Pro Nutzer wird höchstens ein Bild pro Minute erzeugt.
 - Donnerstags erinnert der Bot an eine noch offene Wochenetappe.
 - Abgeschlossene Wochen schalten nacheinander die Capybara-Erfolge frei.
+- Die Sprache lässt sich jederzeit mit `/settings` oder über die Schaltflächen im Privat-Chat mit dem Bot ändern.
 
 Dieses Tool dient der Motivation und ersetzt keine medizinische Beratung.
 

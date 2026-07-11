@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — Instructions
 lang: en
-description: Instructions and commands for the multilingual Telegram weight-goal bot
+description: Weekly weight goals, check-ins, progress charts, and reminders in Telegram groups
 ---
 
 # Weight Goal Bot

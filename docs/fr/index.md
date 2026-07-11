@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — Mode d’emploi
 lang: fr
-description: Mode d’emploi et commandes du bot Telegram multilingue pour les objectifs de poids
+description: Objectifs de poids hebdomadaires, relevés, courbes de progression et rappels dans les groupes Telegram
 ---
 
 # Mode d’emploi de Weight Goal Bot
@@ -42,6 +42,7 @@ Dans le groupe, mentionne le bot avec la commande ou utilise `/command@my_weight
 - Chaque utilisateur peut recevoir une image par minute.
 - Le jeudi, le bot rappelle le palier de la semaine s’il reste à atteindre.
 - Chaque semaine réussie débloque le succès capybara suivant.
+- Change de langue à tout moment avec `/settings` ou avec les boutons du chat privé avec le bot.
 
 Cet outil sert à la motivation et ne remplace pas un avis médical.
 

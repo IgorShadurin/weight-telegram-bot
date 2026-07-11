@@ -2,7 +2,7 @@
 layout: default
 title: Weight Goal Bot — 使用说明
 lang: zh
-description: 多语言 Telegram 体重目标机器人的使用说明与命令
+description: 在 Telegram 群聊中设定每周体重目标、记录打卡、查看进度图并接收提醒
 ---
 
 # Weight Goal Bot 使用说明
@@ -42,6 +42,7 @@ description: 多语言 Telegram 体重目标机器人的使用说明与命令
 - 每位用户每分钟最多生成一次图片。
 - 如果本周目标尚未完成，机器人会在周四提醒。
 - 完成每周目标可依次解锁水豚成就。
+- 随时可以用 `/settings`，或在与机器人的私聊中点击按钮切换语言。
 
 本机器人用于激励和记录，不构成医疗建议。
 

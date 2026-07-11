@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-A nine-language Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful feedback, and a 53-week capybara achievement series. The complete interface supports English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
+A Telegram group bot that turns a weight-loss goal into weekly checkpoints, progress charts, reminders, playful feedback, and a 53-week capybara achievement series. Users can switch the interface between English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 
 [Open @my_weight_goal_bot in Telegram](https://t.me/my_weight_goal_bot) · [User instructions](https://igorshadurin.github.io/weight-telegram-bot/) · [Production health check](https://weight-bot.copymyui.com/healthz)
 

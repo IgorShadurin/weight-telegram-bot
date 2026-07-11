@@ -1,7 +1,6 @@
 title: Weight Goal Bot
-description: Instructions and commands for the multilingual Telegram weight-goal bot
+description: Weekly weight goals, check-ins, progress charts, and reminders in Telegram groups
 theme: jekyll-theme-cayman
 markdown: kramdown
 url: https://igorshadurin.github.io
 baseurl: /weight-telegram-bot
-
