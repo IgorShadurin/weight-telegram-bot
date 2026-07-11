@@ -1,0 +1,14 @@
+.git
+.github
+.env*
+node_modules
+dist
+coverage
+data
+tmp
+tests
+scripts
+assets/achievements/originals
+assets/achievements/anchors
+assets/achievements/prompts.json
+*.md

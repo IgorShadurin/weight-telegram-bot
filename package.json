@@ -1,0 +1,41 @@
+{
+  "name": "weight-telegram-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A bilingual Telegram group bot for weekly weight goals.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "assets:optimize": "tsx scripts/optimize-achievements.ts",
+    "assets:validate": "tsx scripts/validate-achievements.ts",
+    "assets:contact-sheet": "tsx scripts/create-contact-sheet.ts"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.2",
+    "better-sqlite3": "^12.11.1",
+    "fastify": "^5.10.0",
+    "grammy": "^1.44.0",
+    "luxon": "^3.7.2",
+    "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^25.0.0",
+    "eslint": "^10.0.1",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0",
+    "vitest": "^4.1.10"
+  }
+}
