@@ -5,15 +5,18 @@ import { Bot, InlineKeyboard, InputFile } from 'grammy';
 import type { AppConfig, Language } from '../config.js';
 import { Store } from '../db/store.js';
 import { formatKg } from '../domain/periods.js';
-import type { GoalPeriodRecord, GoalRecord } from '../domain/types.js';
+import type { GoalPeriodRecord, GoalRecord, UserRecord } from '../domain/types.js';
 import { achievementForWeek } from '../i18n/achievements.js';
 import { t, variant } from '../i18n/catalog.js';
 import { renderGoalChart } from '../graphics/chart.js';
 import { renderGoalPlanPages } from '../graphics/plan.js';
 
+function escapeHtml(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
 function mention(userId: string, displayName: string): string {
-  const safe = displayName.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-  return `<a href="tg://user?id=${userId}">${safe}</a>`;
+  return `<a href="tg://user?id=${userId}">${escapeHtml(displayName)}</a>`;
 }
 
 export class TelegramService {
@@ -25,6 +28,44 @@ export class TelegramService {
     private readonly config: AppConfig,
   ) {
     this.bot = new Bot(token);
+  }
+
+  goalStatusText(input: {
+    language: Language;
+    goal: GoalRecord;
+    period: GoalPeriodRecord;
+  }): string {
+    const latest = this.store.getWeighIns(input.goal.id).at(-1);
+    return t(input.language, 'status', {
+      start: formatKg(input.goal.startWeightGrams),
+      target: formatKg(input.goal.targetWeightGrams),
+      goalDate: input.goal.targetDate,
+      current: latest ? formatKg(latest.weightGrams) : formatKg(input.goal.startWeightGrams),
+      weekTarget: formatKg(input.period.targetWeightGrams),
+      weekDate: input.period.endDate,
+    });
+  }
+
+  enqueueNewUserNotifications(input: {
+    user: UserRecord;
+    chatType: string;
+    chatTitle: string | null;
+    now: string;
+  }): void {
+    for (const adminChatId of this.config.adminTelegramUserIds) {
+      this.store.enqueue({
+        dedupeKey: `admin-new-user:${input.user.telegramUserId}:${adminChatId}`,
+        type: 'admin-new-user',
+        payload: {
+          telegramUserId: input.user.telegramUserId,
+          adminChatId,
+          chatType: input.chatType,
+          chatTitle: input.chatTitle,
+        },
+        dueAt: input.now,
+        now: input.now,
+      });
+    }
   }
 
   async sendStatus(input: {
@@ -47,17 +88,9 @@ export class TelegramService {
 
     const periods = this.store.getPeriods(input.goal.id);
     const weighIns = this.store.getWeighIns(input.goal.id);
-    const latest = weighIns.at(-1);
     const caption = [
       input.captionPrefix,
-      t(input.language, 'status', {
-        start: formatKg(input.goal.startWeightGrams),
-        target: formatKg(input.goal.targetWeightGrams),
-        goalDate: input.goal.targetDate,
-        current: latest ? formatKg(latest.weightGrams) : formatKg(input.goal.startWeightGrams),
-        weekTarget: formatKg(input.period.targetWeightGrams),
-        weekDate: input.period.endDate,
-      }),
+      this.goalStatusText(input),
     ].filter(Boolean).join('\n\n');
     const chart = await renderGoalChart({
       goal: input.goal,
@@ -139,7 +172,24 @@ export class TelegramService {
           continue;
         }
         const thread = job.payload.threadId ? { message_thread_id: Number(job.payload.threadId) } : {};
-        if (job.type === 'reminder') {
+        if (job.type === 'admin-new-user') {
+          const stats = this.store.platformStats();
+          const username = user.username ? `@${escapeHtml(user.username)}` : '—';
+          const source = job.payload.chatTitle
+            ? `${escapeHtml(job.payload.chatType)} — ${escapeHtml(job.payload.chatTitle)}`
+            : escapeHtml(job.payload.chatType);
+          await this.bot.api.sendMessage(job.payload.adminChatId, [
+            '🆕 <b>New Weight Goal Bot user</b>',
+            `Name: ${mention(user.telegramUserId, user.displayName)}`,
+            `Username: ${username}`,
+            `Telegram ID: <code>${user.telegramUserId}</code>`,
+            `Language: <code>${user.language}</code>`,
+            `Started in: ${source}`,
+            '',
+            `👥 Total users: <b>${stats.totalUsers}</b>`,
+            `🎯 Users with goals: <b>${stats.usersWithGoals}</b>`,
+          ].join('\n'), { parse_mode: 'HTML' });
+        } else if (job.type === 'reminder') {
           await this.bot.api.sendMessage(job.payload.chatId, `${mention(user.telegramUserId, user.displayName)}, ${variant(
             job.payload.language, 'reminder', `${job.payload.goalId}:${job.payload.periodId}`, { target: job.payload.target },
           )}`, { parse_mode: 'HTML', ...thread });

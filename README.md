@@ -97,6 +97,8 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 
 - Provides complete, naturally adapted interfaces in English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.
+- Lets users request goal status, progress charts, weekly plans, help, and language settings in private chat.
+- Optionally notifies configured admin Telegram users about each new registration with platform user and goal-owner totals.
 - Stores one active goal per Telegram user and preserves replaced/completed goal history.
 - Requires each recorded weight to be attached to a new Telegram photo whose caption mentions the bot.
 - Never downloads user photos; only Telegram's non-reusable `file_unique_id` is retained for duplicate detection.
@@ -142,6 +144,7 @@ npm run assets:validate
 | `REMINDER_HOUR` | `10` | Local reminder hour |
 | `REMINDER_MINUTE` | `0` | Local reminder minute |
 | `GRAPHIC_COOLDOWN_SECONDS` | `60` | Per-user image cooldown |
+| `ADMIN_TELEGRAM_USER_IDS` | empty | Comma-separated positive private-chat user IDs that receive new-user statistics |
 | `PORT` | `3000` | HTTP port |
 
 ## Telegram setup

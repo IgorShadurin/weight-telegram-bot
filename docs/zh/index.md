@@ -7,7 +7,7 @@ description: 在 Telegram 群聊中设定每周体重目标、记录打卡、查
 
 # Weight Goal Bot 使用说明
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) 用来在 Telegram 群聊中管理体重目标。私聊可查看说明和切换语言；创建目标与体重打卡只在群聊中进行。
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) 用来在 Telegram 群聊中管理体重目标。私聊可用 `/status` 查看目标和进度图，用 `/schedule` 查看每周计划，也可以切换语言；创建目标与照片打卡只在群聊中进行。
 
 ## 开始使用
 

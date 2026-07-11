@@ -7,7 +7,7 @@ description: Wöchentliche Gewichtsziele, Check-ins, Fortschrittskurven und Erin
 
 # Anleitung für Weight Goal Bot
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) begleitet dein Gewichtsziel in einer Telegram-Gruppe. Im Privat-Chat kannst du diese Anleitung öffnen und die Sprache ändern; Ziele und Check-ins funktionieren nur in Gruppen.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) begleitet dein Gewichtsziel in einer Telegram-Gruppe. Im Privat-Chat zeigen `/status` dein Ziel und die Kurve sowie `/schedule` den Wochenplan; auch die Sprache lässt sich dort ändern. Ziele und Foto-Check-ins erstellst du nur in Gruppen.
 
 ## So geht es los
 

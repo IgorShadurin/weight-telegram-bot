@@ -10,9 +10,9 @@ import { t, variant } from '../i18n/catalog.js';
 import { TelegramService } from './service.js';
 
 const NEW_GOAL = /(?:^|\s)\/goal(?:@\w+)?\b|\b(new\s+goal|replace\s+goal|нов(?:ая|ую)\s+цел|смен(?:ить|а)\s+цел|nueva\s+meta|cambiar\s+meta|nova\s+meta|trocar\s+meta|neues\s+ziel|ziel\s+ändern|nouvel\s+objectif|changer\s+(?:d['’])?objectif|target\s+baru|ganti\s+target)\b|新目标|更换目标|减重目标|新しい目標|目標変更/iu;
-const STATUS = /\b(status|progress|chart|goal\s+info|статус|прогресс|график|моя\s+цель|estado|progreso|gráfico|mi\s+meta|progresso|gráfico|minha\s+meta|fortschritt|diagramm|mein\s+ziel|statut|progrès|graphique|mon\s+objectif|progres|grafik|target\s+saya)\b|状态|进度|图表|我的目标|進捗|グラフ|私の目標/iu;
+const STATUS = /(?:^|\s)(?:\/status(?:@\w+)?|status|progress|chart|goal\s+info|статус|прогресс|график|моя\s+цель|estado|progreso|gráfico|mi\s+meta|progresso|minha\s+meta|fortschritt|diagramm|mein\s+ziel|statut|progrès|graphique|mon\s+objectif|progres|grafik|target\s+saya)(?=$|\s|[,.!?])|状态|进度|图表|我的目标|進捗|グラフ|私の目標/iu;
 const SCHEDULE = /(?:^|\s)(?:\/schedule(?:@\w+)?|schedule|roadmap|weekly\s+plan|checkpoints|план|расписание|маршрут|план\s+по\s+неделям|недельный\s+план|рубежи|calendario|ruta\s+semanal|plan\s+semanal|cronograma|rota\s+semanal|plano\s+semanal|wochenplan|fahrplan|zeitplan|calendrier|feuille\s+de\s+route|plan\s+hebdomadaire|jadwal|peta\s+jalan|rencana\s+mingguan)(?=$|\s|[,.!?])|计划表|每周计划|路线图|减重计划|スケジュール|ロードマップ|週間計画/iu;
-const SETTINGS = /\b(settings|language|lang|настройки|язык|ajustes|idioma|configurações|einstellungen|sprache|paramètres|langue|pengaturan|bahasa)\b|设置|语言|設定|言語/iu;
+const SETTINGS = /(?:^|\s)(?:\/settings(?:@\w+)?|settings|language|lang|настройки|язык|ajustes|idioma|configurações|einstellungen|sprache|paramètres|langue|pengaturan|bahasa)(?=$|\s|[,.!?])|设置|语言|設定|言語/iu;
 const HELP = /(?:^|\s)(?:\/help(?:@\w+)?|help|commands|помощь|команды|что\s+ты\s+умеешь|ayuda|comandos|qué\s+puedes\s+hacer|ajuda|o\s+que\s+você\s+faz|hilfe|befehle|was\s+kannst\s+du|aide|commandes|que\s+peux-tu\s+faire|bantuan|perintah|apa\s+yang\s+bisa\s+kamu\s+lakukan)(?=$|\s|[,.!?])|帮助|命令|你会做什么|ヘルプ|コマンド|できること/iu;
 
 function localized(language: Language, values: Record<Language, string>): string {
@@ -69,6 +69,26 @@ async function editOrReply(ctx: Context, draft: GoalDraft, text: string, markup:
 export function configureBot(service: TelegramService, store: Store, config: AppConfig): void {
   const bot = service.bot;
 
+  function upsertContextUser(ctx: Context, defaultLanguage: Language, now: string) {
+    const result = store.upsertUserWithStatus({
+      telegramUserId: String(ctx.from!.id),
+      username: ctx.from!.username ?? null,
+      displayName: userName(ctx),
+      defaultLanguage,
+      now,
+    });
+    if (result.created) {
+      const chatTitle = ctx.chat && 'title' in ctx.chat ? ctx.chat.title ?? null : null;
+      service.enqueueNewUserNotifications({
+        user: result.user,
+        chatType: ctx.chat?.type ?? 'unknown',
+        chatTitle,
+        now,
+      });
+    }
+    return result;
+  }
+
   bot.use(async (ctx, next) => {
     const now = DateTime.utc().toISO()!;
     if (!store.claimUpdate(ctx.update.update_id, now)) return;
@@ -84,13 +104,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       return;
     }
     const now = DateTime.utc();
-    const user = store.upsertUser({
-      telegramUserId: userId,
-      username: ctx.from.username ?? null,
-      displayName: userName(ctx),
-      defaultLanguage: config.defaultLanguage,
-      now: now.toISO()!,
-    });
+    const { user } = upsertContextUser(ctx, config.defaultLanguage, now.toISO()!);
 
     if (action === 'lang' && isLanguage(value)) {
       store.setLanguage(userId, value, now.toISO()!);
@@ -175,13 +189,60 @@ export function configureBot(service: TelegramService, store: Store, config: App
 
     if (ctx.chat.type === 'private') {
       const language = store.getUser(userId)?.language ?? telegramLanguage(ctx.from.language_code) ?? config.defaultLanguage;
-      const user = store.upsertUser({
-        telegramUserId: userId,
-        username: ctx.from.username ?? null,
-        displayName: userName(ctx),
-        defaultLanguage: language,
-        now: now.toISO()!,
-      });
+      const { user } = upsertContextUser(ctx, language, now.toISO()!);
+      if (SETTINGS.test(text)) {
+        await ctx.reply(t(user.language, 'privateOnly', {
+          bot: ctx.me.username,
+          docs: docsUrl(config, user.language),
+        }), {
+          parse_mode: 'HTML',
+          link_preview_options: { is_disabled: true },
+          reply_markup: service.languageKeyboard(userId),
+        });
+        return;
+      }
+      if (HELP.test(text)) {
+        await ctx.reply(t(user.language, 'help'), { parse_mode: 'HTML' });
+        return;
+      }
+
+      const activeGoal = store.getActiveGoal(userId);
+      if (SCHEDULE.test(text)) {
+        if (!activeGoal) {
+          await ctx.reply(t(user.language, 'noGoal'));
+          return;
+        }
+        store.normalizeActiveGoalPeriods(config.timezone, activeGoal.id);
+        const result = await service.sendGoalPlan({
+          telegramUserId: userId,
+          chatId: String(ctx.chat.id),
+          language: user.language,
+          goal: activeGoal,
+        });
+        if (result !== 'sent') await ctx.reply(t(user.language, 'cooldown', { seconds: result }));
+        return;
+      }
+      if (STATUS.test(text)) {
+        if (!activeGoal) {
+          await ctx.reply(t(user.language, 'noGoal'));
+          return;
+        }
+        const localDate = now.setZone(config.timezone).toISODate()!;
+        const period = store.getPeriod(activeGoal.id, localDate) ?? store.getPeriods(activeGoal.id).at(-1)!;
+        const result = await service.sendStatus({
+          telegramUserId: userId,
+          chatId: String(ctx.chat.id),
+          language: user.language,
+          goal: activeGoal,
+          period,
+        });
+        if (result !== 'sent') {
+          await ctx.reply(`${service.goalStatusText({ language: user.language, goal: activeGoal, period })}\n\n${
+            t(user.language, 'cooldown', { seconds: result })
+          }`, { parse_mode: 'HTML' });
+        }
+        return;
+      }
       await ctx.reply(t(user.language, 'privateOnly', {
         bot: ctx.me.username,
         docs: docsUrl(config, user.language),
@@ -198,17 +259,10 @@ export function configureBot(service: TelegramService, store: Store, config: App
     const isReply = ctx.message.reply_to_message?.from?.id === ctx.me.id;
     if (!isMentioned && !isAddressedCommand && !isReply) return;
 
-    const wasKnown = store.getUser(userId) !== null;
-    const user = store.upsertUser({
-      telegramUserId: userId,
-      username: ctx.from.username ?? null,
-      displayName: userName(ctx),
-      defaultLanguage: config.defaultLanguage,
-      now: now.toISO()!,
-    });
+    const { user, created } = upsertContextUser(ctx, config.defaultLanguage, now.toISO()!);
     store.upsertChat(String(ctx.chat.id), ctx.chat.type, 'title' in ctx.chat ? ctx.chat.title ?? null : null, now.toISO()!);
 
-    if (!wasKnown) {
+    if (created) {
       await ctx.reply(t(user.language, 'welcome', { bot: ctx.me.username }), {
         reply_markup: service.languageKeyboard(userId),
       });
@@ -329,7 +383,11 @@ export function configureBot(service: TelegramService, store: Store, config: App
         goal: activeGoal,
         period,
       });
-      if (result !== 'sent') await ctx.reply(t(user.language, 'cooldown', { seconds: result }));
+      if (result !== 'sent') {
+        await ctx.reply(`${service.goalStatusText({ language: user.language, goal: activeGoal, period })}\n\n${
+          t(user.language, 'cooldown', { seconds: result })
+        }`, { parse_mode: 'HTML' });
+      }
       return;
     }
 

@@ -23,6 +23,7 @@ export interface AppConfig {
   host: string;
   logLevel: string;
   graphicCooldownSeconds: number;
+  adminTelegramUserIds: string[];
 }
 
 function integer(name: string, fallback: number, min: number, max: number): number {
@@ -50,6 +51,16 @@ function httpUrl(name: string, fallback: string): string {
   return parsed.toString().replace(/\/$/, '');
 }
 
+function telegramUserIds(name: string): string[] {
+  const values = (process.env[name] ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+  for (const value of values) {
+    if (!/^[1-9]\d{0,19}$/u.test(value)) {
+      throw new Error(`${name} must contain comma-separated positive Telegram user IDs`);
+    }
+  }
+  return [...new Set(values)];
+}
+
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const language = process.env.DEFAULT_LANGUAGE ?? 'ru';
   if (!isLanguage(language)) {
@@ -71,6 +82,7 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     host: process.env.HOST ?? '0.0.0.0',
     logLevel: process.env.LOG_LEVEL ?? 'info',
     graphicCooldownSeconds: integer('GRAPHIC_COOLDOWN_SECONDS', 60, 1, 3600),
+    adminTelegramUserIds: telegramUserIds('ADMIN_TELEGRAM_USER_IDS'),
   };
 
   return { ...config, ...overrides };

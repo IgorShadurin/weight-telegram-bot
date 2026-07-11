@@ -32,6 +32,19 @@ describe('Store', () => {
     expect(store.getActiveGoal('1')?.id).toBe(newGoal.id);
   });
 
+  it('atomically identifies new users and reports platform totals', () => {
+    expect(store.upsertUserWithStatus({
+      telegramUserId: '1', displayName: 'Updated', defaultLanguage: 'en', now: '2026-07-08T11:00:00Z',
+    }).created).toBe(false);
+    expect(store.upsertUserWithStatus({
+      telegramUserId: '2', displayName: 'New', defaultLanguage: 'en', now: '2026-07-08T11:00:00Z',
+    }).created).toBe(true);
+    expect(store.platformStats()).toEqual({ totalUsers: 2, usersWithGoals: 0 });
+
+    create();
+    expect(store.platformStats()).toEqual({ totalUsers: 2, usersWithGoals: 1 });
+  });
+
   it('records all points and passes a period once', () => {
     const goal = create();
     const first = store.getPeriods(goal.id)[0]!;

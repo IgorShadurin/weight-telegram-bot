@@ -7,7 +7,7 @@ description: Metas semanales de peso, registros, gráficas de progreso y recorda
 
 # Instrucciones de Weight Goal Bot
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) lleva tu meta de peso dentro de un grupo de Telegram. En privado puedes consultar estas instrucciones y cambiar el idioma; las metas y los registros funcionan únicamente en grupos.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) lleva tu meta de peso dentro de un grupo de Telegram. En privado, usa `/status` para ver la meta y la gráfica, `/schedule` para el plan semanal o cambia el idioma. La creación de metas y los registros con foto funcionan únicamente en grupos.
 
 ## Cómo empezar
 

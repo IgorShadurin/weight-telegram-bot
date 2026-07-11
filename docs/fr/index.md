@@ -7,7 +7,7 @@ description: Objectifs de poids hebdomadaires, relevés, courbes de progression 
 
 # Mode d’emploi de Weight Goal Bot
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) suit ton objectif de poids dans un groupe Telegram. En privé, tu peux consulter ce guide et changer de langue ; les objectifs et les relevés fonctionnent uniquement dans les groupes.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) suit ton objectif de poids dans un groupe Telegram. En privé, utilise `/status` pour l’objectif et la courbe, `/schedule` pour le plan hebdomadaire ou change de langue. La création d’un objectif et les relevés avec photo fonctionnent uniquement dans les groupes.
 
 ## Bien démarrer
 

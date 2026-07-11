@@ -132,15 +132,32 @@ export class Store {
     defaultLanguage: Language;
     now: string;
   }): UserRecord {
-    this.db.prepare(`
-      INSERT INTO users (telegram_user_id, username, display_name, language, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(telegram_user_id) DO UPDATE SET
-        username = excluded.username,
-        display_name = excluded.display_name,
-        updated_at = excluded.updated_at
-    `).run(input.telegramUserId, input.username ?? null, input.displayName, input.defaultLanguage, input.now, input.now);
-    return this.getUser(input.telegramUserId)!;
+    return this.upsertUserWithStatus(input).user;
+  }
+
+  upsertUserWithStatus(input: {
+    telegramUserId: string;
+    username?: string | null;
+    displayName: string;
+    defaultLanguage: Language;
+    now: string;
+  }): { user: UserRecord; created: boolean } {
+    return this.db.transaction(() => {
+      const inserted = this.db.prepare(`
+        INSERT OR IGNORE INTO users (
+          telegram_user_id, username, display_name, language, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?)
+      `).run(
+        input.telegramUserId, input.username ?? null, input.displayName,
+        input.defaultLanguage, input.now, input.now,
+      );
+      if (inserted.changes === 0) {
+        this.db.prepare(`
+          UPDATE users SET username = ?, display_name = ?, updated_at = ? WHERE telegram_user_id = ?
+        `).run(input.username ?? null, input.displayName, input.now, input.telegramUserId);
+      }
+      return { user: this.getUser(input.telegramUserId)!, created: inserted.changes === 1 };
+    })();
   }
 
   getUser(telegramUserId: string): UserRecord | null {
@@ -159,6 +176,13 @@ export class Store {
   setLanguage(telegramUserId: string, language: Language, now: string): void {
     this.db.prepare('UPDATE users SET language = ?, updated_at = ? WHERE telegram_user_id = ?')
       .run(language, now, telegramUserId);
+  }
+
+  platformStats(): { totalUsers: number; usersWithGoals: number } {
+    const total = this.db.prepare('SELECT COUNT(*) AS count FROM users').get() as { count: number };
+    const withGoals = this.db.prepare('SELECT COUNT(DISTINCT telegram_user_id) AS count FROM goals')
+      .get() as { count: number };
+    return { totalUsers: total.count, usersWithGoals: withGoals.count };
   }
 
   upsertChat(chatId: string, type: string, title: string | null, now: string): void {

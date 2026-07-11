@@ -44,7 +44,7 @@ describe('graphics and fixed catalogs', () => {
     expect(t('en', 'help')).not.toContain('used once');
   });
 
-  it('clearly explains the group-only behavior in every language', () => {
+  it('explains private goal queries and group-only photo check-ins in every language', () => {
     const groupWords = {
       ru: 'групп', en: 'group', zh: '群', es: 'grupo', pt: 'grupo', de: 'Gruppe', fr: 'groupe', ja: 'グループ', id: 'grup',
     } as const;
@@ -53,6 +53,8 @@ describe('graphics and fixed catalogs', () => {
         bot: 'my_weight_goal_bot', docs: `https://example.com/${language}/`,
       });
       expect(message).toContain(groupWords[language]);
+      expect(message).toContain('/status');
+      expect(message).toContain('/schedule');
       expect(message).toContain('@my_weight_goal_bot');
       expect(message).toContain(`https://example.com/${language}/`);
       expect(message).not.toContain('{{');

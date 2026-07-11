@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { loadConfig } from '../src/config.js';
 import { Store } from '../src/db/store.js';
@@ -11,6 +12,7 @@ describe('Telegram group behavior', () => {
   const config = loadConfig({ botToken: '123:test', webhookSecret: 'secret', publicBaseUrl: 'http://localhost' });
 
   beforeEach(() => {
+    config.adminTelegramUserIds = [];
     store = new Store();
     telegram = new TelegramService(config.botToken, store, config);
     telegram.bot.botInfo = {
@@ -84,7 +86,8 @@ describe('Telegram group behavior', () => {
       from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'ja' },
       text: '/start',
     });
-    expect(calls.at(-1)?.payload.text).toContain('グループに追加');
+    expect(calls.at(-1)?.payload.text).toContain('/status');
+    expect(calls.at(-1)?.payload.text).toContain('/schedule');
     expect(calls.at(-1)?.payload.text).toContain('/ja/');
     expect(calls.at(-1)?.payload.parse_mode).toBe('HTML');
     expect(calls.at(-1)?.payload.reply_markup.inline_keyboard.flat()).toHaveLength(9);
@@ -111,9 +114,72 @@ describe('Telegram group behavior', () => {
 
     expect(store.getUser('1')?.language).toBe('es');
     expect(calls.at(-1)?.method).toBe('editMessageText');
-    expect(calls.at(-1)?.payload.text).toContain('Solo funciono en chats de grupo');
+    expect(calls.at(-1)?.payload.text).toContain('Aquí puedes consultar tu meta activa');
     expect(calls.at(-1)?.payload.text).toContain('/es/');
     expect(calls.at(-1)?.payload.reply_markup.inline_keyboard.flat()).toHaveLength(9);
+  });
+
+  it('shows goal status and the weekly plan in private chat', async () => {
+    await update(33, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'ru' },
+      text: '/start',
+    });
+    store.upsertChat('-100', 'supergroup', 'Test', '2026-07-11T10:00:00Z');
+    store.createGoal({
+      telegramUserId: '1', chatId: '-100', threadId: null,
+      startDate: '2026-07-11', startWeightGrams: 93_050,
+      targetWeightGrams: 80_000, targetDate: '2026-12-31',
+      initialPhotoUniqueId: 'private-status', now: '2026-07-11T10:00:00Z', timezone: 'Europe/Minsk',
+    });
+
+    calls.length = 0;
+    await update(34, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'ru' },
+      text: 'моя цель',
+    });
+    expect(calls.at(-1)?.method).toBe('sendPhoto');
+    expect(calls.at(-1)?.payload.chat_id).toBe('1');
+    expect(calls.at(-1)?.payload.caption).toContain('93.05 → 80 кг');
+
+    store.db.prepare('DELETE FROM graphic_limits WHERE telegram_user_id = ?').run('1');
+    calls.length = 0;
+    await update(35, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', language_code: 'ru' },
+      text: '/schedule',
+    });
+    expect(calls.at(-1)?.method).toBe('sendPhoto');
+    expect(calls.at(-1)?.payload.chat_id).toBe('1');
+    expect(calls.at(-1)?.payload.caption).toContain('План по неделям');
+  });
+
+  it('queues one safe admin notification for a newly registered user', async () => {
+    config.adminTelegramUserIds = ['580489664'];
+    await update(36, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: '<Alice & Bob>', username: 'alice', language_code: 'en' },
+      text: '/start',
+    });
+    expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'admin-new-user'").get())
+      .toMatchObject({ count: 1 });
+
+    await telegram.processOutbox(DateTime.utc().plus({ seconds: 1 }));
+    const notification = calls.at(-1)!;
+    expect(notification.method).toBe('sendMessage');
+    expect(notification.payload.chat_id).toBe('580489664');
+    expect(notification.payload.text).toContain('&lt;Alice &amp; Bob&gt;');
+    expect(notification.payload.text).toContain('Total users: <b>1</b>');
+    expect(notification.payload.text).toContain('Users with goals: <b>0</b>');
+
+    await update(37, {
+      chat: { id: 1, type: 'private', first_name: 'Alice' },
+      from: { id: 1, is_bot: false, first_name: 'Alice', username: 'alice', language_code: 'en' },
+      text: '/help',
+    });
+    expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'admin-new-user'").get())
+      .toMatchObject({ count: 1 });
   });
 
   it('requires a mentioned photo caption and offers all supported languages', async () => {
