@@ -2,12 +2,12 @@
 layout: default
 title: Weight Goal Bot — Instructions
 lang: en
-description: Weekly weight goals, check-ins, progress charts, and reminders in Telegram groups
+description: Group accountability for weight goals with photo check-ins, reminders, progress charts, and achievements
 ---
 
 # Weight Goal Bot instructions
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) tracks a weight goal inside a Telegram group. In private chat, use `/status` for your goal and chart, `/schedule` for the weekly plan, or change the language. Goal creation and photo check-ins work only in groups.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) helps one person or a whole chat stay accountable to weight goals. Photo check-ins let people in the chat see and verify progress, while the bot records each weight, builds the weekly trajectory, and sends reminders so nobody loses track or forgets to check in. Completed weekly milestones unlock playful capybara achievements.
 
 ## Get started
 

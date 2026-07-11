@@ -2,12 +2,12 @@
 layout: default
 title: Weight Goal Bot — Mode d’emploi
 lang: fr
-description: Objectifs de poids hebdomadaires, relevés, courbes de progression et rappels dans les groupes Telegram
+description: Suivi collectif des objectifs de poids avec photos, rappels, courbes et succès dans Telegram
 ---
 
 # Mode d’emploi de Weight Goal Bot
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) suit ton objectif de poids dans un groupe Telegram. En privé, utilise `/status` pour l’objectif et la courbe, `/schedule` pour le plan hebdomadaire ou change de langue. La création d’un objectif et les relevés avec photo fonctionnent uniquement dans les groupes.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) aide une personne ou plusieurs membres du chat à rester responsables et à avancer vers leurs objectifs de poids. Les relevés avec photo permettent aux personnes du groupe de voir et de confirmer les progrès ; le bot enregistre chaque poids, organise la trajectoire hebdomadaire et envoie des rappels pour que personne ne perde le fil ni n’oublie son relevé. Chaque palier hebdomadaire atteint débloque un succès capybara amusant.
 
 ## Bien démarrer
 

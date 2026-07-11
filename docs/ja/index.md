@@ -2,12 +2,12 @@
 layout: default
 title: Weight Goal Bot — 使い方
 lang: ja
-description: Telegramグループで毎週の体重目標を設定し、記録・進捗グラフ・リマインダーを活用
+description: Telegramで写真記録・リマインダー・進捗グラフ・実績を使って体重目標を仲間と管理
 ---
 
 # Weight Goal Bot の使い方
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) は、Telegram のグループ内で体重目標を管理するボットです。個別チャットでは `/status` で目標とグラフ、`/schedule` で週間計画を確認でき、言語も変更できます。目標の作成と写真の記録はグループで行います。
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) は、1人でも複数のメンバーでも、チャット内でお互いに見守りながら体重目標を続けられるようにします。写真付きの記録は人同士で進捗を確認する材料になり、ボットは体重を記録して週間の推移を整理し、記録忘れやペースの乱れを防ぐリマインダーを送ります。週ごとの節目を達成すると、楽しいカピバラ実績が解除されます。
 
 ## はじめ方
 

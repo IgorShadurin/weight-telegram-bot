@@ -2,12 +2,12 @@
 layout: default
 title: Weight Goal Bot — Instruções
 lang: pt
-description: Metas semanais de peso, check-ins, gráficos de progresso e lembretes em grupos do Telegram
+description: Acompanhamento coletivo de metas de peso com fotos, lembretes, gráficos e conquistas no Telegram
 ---
 
 # Instruções do Weight Goal Bot
 
-O [@my_weight_goal_bot](https://t.me/my_weight_goal_bot) acompanha sua meta de peso dentro de um grupo do Telegram. No privado, use `/status` para ver a meta e o gráfico, `/schedule` para o plano semanal ou troque o idioma. A criação de metas e os check-ins com foto funcionam somente em grupos.
+O [@my_weight_goal_bot](https://t.me/my_weight_goal_bot) ajuda uma pessoa ou vários participantes do chat a prestar contas e avançar nas próprias metas de peso. Os check-ins com foto permitem que o grupo veja e confirme o progresso; o bot registra cada peso, organiza a trajetória semanal e envia lembretes para ninguém perder o ritmo nem esquecer de se pesar. Cada etapa semanal concluída libera uma conquista divertida da capivara.
 
 ## Como começar
 

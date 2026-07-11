@@ -2,12 +2,12 @@
 layout: default
 title: Weight Goal Bot — Petunjuk
 lang: id
-description: Target berat mingguan, check-in, grafik progres, dan pengingat di grup Telegram
+description: Pantau target berat bersama lewat foto, pengingat, grafik progres, dan pencapaian di Telegram
 ---
 
 # Petunjuk Weight Goal Bot
 
-[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) membantu melacak target berat badan di dalam grup Telegram. Di chat pribadi, gunakan `/status` untuk melihat target dan grafik, `/schedule` untuk rencana mingguan, atau ganti bahasa. Pembuatan target dan check-in dengan foto hanya dilakukan di grup.
+[@my_weight_goal_bot](https://t.me/my_weight_goal_bot) membantu satu orang atau beberapa anggota chat tetap saling bertanggung jawab dalam mengejar target berat masing-masing. Check-in dengan foto membuat progres bisa dilihat dan dikonfirmasi oleh orang-orang di grup; bot mencatat setiap berat, menyusun perjalanan mingguan, dan mengirim pengingat agar tidak keluar jalur atau lupa check-in. Setiap pos mingguan yang tercapai membuka pencapaian kapibara yang seru.
 
 ## Cara memulai
 

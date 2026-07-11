@@ -31,6 +31,25 @@ describe('GitHub Pages instructions', () => {
     }
   });
 
+  it('keeps commands and language settings out of user-benefit introductions', () => {
+    const benefitWords = {
+      ru: ['Фото', 'напоминает', 'достижения'], en: ['Photo', 'reminders', 'achievements'],
+      zh: ['照片', '提醒', '成就'], es: ['foto', 'recordatorios', 'logro'], pt: ['foto', 'lembretes', 'conquista'],
+      de: ['Foto', 'erinnert', 'Erfolge'], fr: ['photo', 'rappels', 'succès'],
+      ja: ['写真', 'リマインダー', '実績'], id: ['foto', 'pengingat', 'pencapaian'],
+    } as const;
+    const settingsCopy = /\/(?:goal|status|schedule|settings|help)|commands?|команд|命令|comandos?|Befehle|commandes|コマンド|perintah|languages?|язык|语言|idioma|Sprache|langue|言語|bahasa/iu;
+
+    for (const language of LANGUAGES) {
+      const page = readFileSync(`docs/${language}/index.md`, 'utf8');
+      const description = page.match(/^description: (.+)$/mu)?.[1] ?? '';
+      const introduction = page.slice(page.indexOf('\n# '), page.indexOf('\n## '));
+      expect(description).not.toMatch(settingsCopy);
+      expect(introduction).not.toMatch(settingsCopy);
+      for (const word of benefitWords[language]) expect(introduction).toContain(word);
+    }
+  });
+
   it('offers all languages from the landing page', () => {
     const landing = readFileSync('docs/index.md', 'utf8');
     for (const language of LANGUAGES) expect(landing).toContain(`./${language}/`);
