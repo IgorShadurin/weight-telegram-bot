@@ -54,6 +54,24 @@ describe('Telegram group behavior', () => {
     } as any);
   }
 
+  function callback(updateId: number, data: string, messageId: number) {
+    return telegram.bot.handleUpdate({
+      update_id: updateId,
+      callback_query: {
+        id: `callback-${updateId}`,
+        chat_instance: 'test-chat',
+        data,
+        from: { id: 1, is_bot: false, first_name: 'Alice', username: 'alice' },
+        message: {
+          message_id: messageId,
+          date: 1_783_700_000,
+          chat: { id: -100, type: 'supergroup', title: 'Test' },
+          from: telegram.bot.botInfo,
+        },
+      },
+    } as any);
+  }
+
   it('ignores an ordinary unmentioned group message', async () => {
     await update(1, { text: '88.3 kg' });
     expect(calls).toHaveLength(0);
@@ -95,5 +113,38 @@ describe('Telegram group behavior', () => {
     const count = calls.length;
     await update(5, { text: '@my_weight_goal_bot help' });
     expect(calls).toHaveLength(count);
+  });
+
+  it('sends a weekly roadmap image immediately after goal confirmation', async () => {
+    await update(10, {
+      caption: '@my_weight_goal_bot 92 kg',
+      photo: [{ file_id: 'downloadable', file_unique_id: 'roadmap-start', width: 1000, height: 1000 }],
+    });
+    let draft = store.getDraft('1', new Date().toISOString())!;
+    await update(11, {
+      text: '80 kg',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    await update(12, {
+      text: '31 Dec 2027',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    await callback(13, 'goal:confirm:1', draft.promptMessageId!);
+
+    expect(store.getActiveGoal('1')).not.toBeNull();
+    const roadmapCall = calls.find((call) => call.method === 'sendMediaGroup' || call.method === 'sendPhoto');
+    expect(roadmapCall).toBeDefined();
   });
 });

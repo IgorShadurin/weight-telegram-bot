@@ -37,6 +37,26 @@ Every check-in produces a compact chart with the complete weight history, the pl
 
 ![Пример графика изменения веса](assets/readme/progress-chart-example-ru.jpg)
 
+## Weekly roadmap after goal creation
+
+Immediately after confirmation, the bot sends every weekly checkpoint with its date, target weight, and required loss in grams. Longer goals are split into a Telegram album without omitting any period.
+
+### 6-month plan — English
+
+![Six-month weekly weight roadmap in English](assets/readme/weekly-roadmap-6-months-en.jpg)
+
+### План на 6 месяцев — Русский
+
+![План снижения веса на шесть месяцев](assets/readme/weekly-roadmap-6-months-ru.jpg)
+
+### 12-month plan — English
+
+![Twelve-month weekly weight roadmap in English](assets/readme/weekly-roadmap-12-months-en.jpg)
+
+### План на 12 месяцев — Русский
+
+![План снижения веса на двенадцать месяцев](assets/readme/weekly-roadmap-12-months-ru.jpg)
+
 ## Behavior
 
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.

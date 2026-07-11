@@ -9,6 +9,7 @@ import type { GoalPeriodRecord, GoalRecord } from '../domain/types.js';
 import { achievementForWeek } from '../i18n/achievements.js';
 import { t, variant } from '../i18n/catalog.js';
 import { renderGoalChart } from '../graphics/chart.js';
+import { renderGoalPlanPages } from '../graphics/plan.js';
 
 function mention(userId: string, displayName: string): string {
   const safe = displayName.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -91,6 +92,44 @@ export class TelegramService {
     return 'sent';
   }
 
+  async sendGoalPlan(input: {
+    telegramUserId: string;
+    chatId: string;
+    threadId?: number;
+    language: Language;
+    goal: GoalRecord;
+  }): Promise<'sent' | number> {
+    const now = DateTime.utc().toISO()!;
+    const wait = this.store.secondsUntilGraphicAllowed(
+      input.telegramUserId,
+      now,
+      this.config.graphicCooldownSeconds,
+    );
+    if (wait > 0) return wait;
+
+    const pages = await renderGoalPlanPages({
+      goal: input.goal,
+      periods: this.store.getPeriods(input.goal.id),
+      language: input.language,
+    });
+    const extra = input.threadId ? { message_thread_id: input.threadId } : {};
+    const caption = t(input.language, 'planReady');
+    if (pages.length === 1) {
+      await this.bot.api.sendPhoto(input.chatId, new InputFile(pages[0]!, 'weekly-roadmap.jpg'), {
+        caption,
+        ...extra,
+      });
+    } else {
+      await this.bot.api.sendMediaGroup(input.chatId, pages.map((page, index) => ({
+        type: 'photo' as const,
+        media: new InputFile(page, `weekly-roadmap-${index + 1}.jpg`),
+        ...(index === 0 ? { caption } : {}),
+      })), extra);
+    }
+    this.store.markGraphicSent(input.telegramUserId, now);
+    return 'sent';
+  }
+
   async processOutbox(now: DateTime): Promise<void> {
     for (const job of this.store.dueOutbox(now.toUTC().toISO()!)) {
       try {
@@ -124,6 +163,18 @@ export class TelegramService {
               period,
               captionPrefix: job.payload.captionPrefix,
               ...(job.payload.badgeWeek ? { badgeWeek: job.payload.badgeWeek } : {}),
+            });
+            if (result !== 'sent') throw new Error(`GRAPHIC_COOLDOWN:${result}`);
+          }
+        } else if (job.type === 'goal-plan') {
+          const goal = this.store.getGoal(job.payload.goalId);
+          if (goal) {
+            const result = await this.sendGoalPlan({
+              telegramUserId: job.payload.telegramUserId,
+              chatId: job.payload.chatId,
+              ...(job.payload.threadId ? { threadId: Number(job.payload.threadId) } : {}),
+              language: job.payload.language,
+              goal,
             });
             if (result !== 'sent') throw new Error(`GRAPHIC_COOLDOWN:${result}`);
           }

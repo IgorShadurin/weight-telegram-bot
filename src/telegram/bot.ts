@@ -111,6 +111,28 @@ export function configureBot(service: TelegramService, store: Store, config: App
       await ctx.editMessageText(t(user.language, 'goalCreated', {
         target: formatKg(first.targetWeightGrams), date: first.endDate,
       }), { parse_mode: 'HTML' });
+      const plan = await service.sendGoalPlan({
+        telegramUserId: userId,
+        chatId: goal.originChatId,
+        ...(goal.originThreadId ? { threadId: Number(goal.originThreadId) } : {}),
+        language: user.language,
+        goal,
+      });
+      if (plan !== 'sent') {
+        store.enqueue({
+          dedupeKey: `goal-plan:${goal.id}`,
+          type: 'goal-plan',
+          payload: {
+            telegramUserId: userId,
+            chatId: goal.originChatId,
+            threadId: goal.originThreadId,
+            language: user.language,
+            goalId: goal.id,
+          },
+          dueAt: now.plus({ seconds: plan }).toISO()!,
+          now: now.toISO()!,
+        });
+      }
     }
   });
 

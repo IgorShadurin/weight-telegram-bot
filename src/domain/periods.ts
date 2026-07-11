@@ -66,6 +66,6 @@ export function periodForDate<T extends Pick<GoalPeriodRecord, 'startDate' | 'en
 }
 
 export function formatKg(grams: number): string {
-  const kilograms = grams / 1000;
-  return kilograms.toFixed(3).replace(/0+$/, '').replace(/[.,]$/, '');
+  const hundredths = Math.ceil(grams / 10);
+  return (hundredths / 100).toFixed(2).replace(/0+$/, '').replace(/[.,]$/, '');
 }

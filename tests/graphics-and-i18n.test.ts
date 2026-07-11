@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { achievements } from '../src/i18n/achievements.js';
 import { t, variants } from '../src/i18n/catalog.js';
 import { createChartModel, renderGoalChart } from '../src/graphics/chart.js';
+import { createGoalPlanModel, renderGoalPlanPages } from '../src/graphics/plan.js';
 import type { GoalPeriodRecord, GoalRecord, WeighInRecord } from '../src/domain/types.js';
 
 const goal: GoalRecord = {
@@ -50,5 +51,15 @@ describe('graphics and fixed catalogs', () => {
     const image = await renderGoalChart({ goal, periods, weighIns, language: 'en', timezone: 'Europe/Minsk' });
     expect(image.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
     expect(image.byteLength).toBeLessThan(10 * 1024 * 1024);
+  });
+
+  it('builds every weekly roadmap row with its required gram loss', async () => {
+    const model = createGoalPlanModel(goal, periods);
+    expect(model.rows).toHaveLength(periods.length);
+    expect(model.rows.map((row) => row.lossGrams)).toEqual([500, 500, 500]);
+    expect(model.totalLossGrams).toBe(12_000);
+    const pages = await renderGoalPlanPages({ goal, periods, language: 'ru' });
+    expect(pages).toHaveLength(1);
+    expect(pages[0]!.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
   });
 });

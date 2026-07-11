@@ -44,6 +44,10 @@ const copy: Record<string, Copy> = {
     ru: '🎯 Цель активна. Текущий рубеж: <b>{{target}} кг</b> до <b>{{date}}</b>.',
     en: '🎯 Goal activated. Current checkpoint: <b>{{target}} kg</b> by <b>{{date}}</b>.',
   },
+  planReady: {
+    ru: '🗺 Маршрут по неделям',
+    en: '🗺 Weekly roadmap',
+  },
   cancelled: { ru: 'Отменено. Ничего не изменено.', en: 'Cancelled. Nothing changed.' },
   noGoal: { ru: 'Активной цели пока нет. Пришли фото с упоминанием и текущим весом, чтобы начать.', en: 'You have no active goal. Send a photo mentioning me with your current weight to begin.' },
   duplicatePhoto: { ru: 'Это фото уже использовалось. Нужна новая фотография.', en: 'That photo was already used. Please send a new one.' },

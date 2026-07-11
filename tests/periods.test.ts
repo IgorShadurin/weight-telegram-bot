@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPeriods, roundCheckpointGrams } from '../src/domain/periods.js';
+import { buildPeriods, formatKg, roundCheckpointGrams } from '../src/domain/periods.js';
 
 describe('weekly periods', () => {
   it('ends on Sundays and uses the exact final partial date', () => {
@@ -35,6 +35,15 @@ describe('weekly periods', () => {
   it('rounds checkpoint values to 0.1 kg', () => {
     expect(roundCheckpointGrams(88_849)).toBe(88_800);
     expect(roundCheckpointGrams(88_850)).toBe(88_900);
+  });
+
+  it('formats every displayed weight with at most two decimals, rounding upward', () => {
+    expect(formatKg(91_333)).toBe('91.34');
+    expect(formatKg(88_667)).toBe('88.67');
+    expect(formatKg(83_333)).toBe('83.34');
+    expect(formatKg(80_667)).toBe('80.67');
+    expect(formatKg(92_000)).toBe('92');
+    expect(formatKg(88_300)).toBe('88.3');
   });
 
   it('rejects non-loss and non-future goals', () => {
