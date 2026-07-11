@@ -13,7 +13,7 @@ const NEW_GOAL = /(?:^|\s)\/goal(?:@\w+)?\b|\b(new\s+goal|replace\s+goal|нов(
 const STATUS = /\b(status|progress|chart|goal\s+info|статус|прогресс|график|моя\s+цель|estado|progreso|gráfico|mi\s+meta|progresso|gráfico|minha\s+meta|fortschritt|diagramm|mein\s+ziel|statut|progrès|graphique|mon\s+objectif|progres|grafik|target\s+saya)\b|状态|进度|图表|我的目标|進捗|グラフ|私の目標/iu;
 const SCHEDULE = /(?:^|\s)(?:\/schedule(?:@\w+)?|schedule|roadmap|weekly\s+plan|checkpoints|план|расписание|маршрут|план\s+по\s+неделям|недельный\s+план|рубежи|calendario|ruta\s+semanal|plan\s+semanal|cronograma|rota\s+semanal|plano\s+semanal|wochenplan|fahrplan|zeitplan|calendrier|feuille\s+de\s+route|plan\s+hebdomadaire|jadwal|peta\s+jalan|rencana\s+mingguan)(?=$|\s|[,.!?])|计划表|每周计划|路线图|减重计划|スケジュール|ロードマップ|週間計画/iu;
 const SETTINGS = /\b(settings|language|lang|настройки|язык|ajustes|idioma|configurações|einstellungen|sprache|paramètres|langue|pengaturan|bahasa)\b|设置|语言|設定|言語/iu;
-const HELP = /\b(help|помощь|что\s+ты\s+умеешь|ayuda|qué\s+puedes\s+hacer|ajuda|o\s+que\s+você\s+faz|hilfe|was\s+kannst\s+du|aide|que\s+peux-tu\s+faire|bantuan|apa\s+yang\s+bisa\s+kamu\s+lakukan)\b|帮助|你会做什么|ヘルプ|できること/iu;
+const HELP = /(?:^|\s)(?:\/help(?:@\w+)?|help|commands|помощь|команды|что\s+ты\s+умеешь|ayuda|comandos|qué\s+puedes\s+hacer|ajuda|o\s+que\s+você\s+faz|hilfe|befehle|was\s+kannst\s+du|aide|commandes|que\s+peux-tu\s+faire|bantuan|perintah|apa\s+yang\s+bisa\s+kamu\s+lakukan)(?=$|\s|[,.!?])|帮助|命令|你会做什么|ヘルプ|コマンド|できること/iu;
 
 function localized(language: Language, values: Record<Language, string>): string {
   return values[language];
@@ -186,7 +186,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       return;
     }
     if (HELP.test(text)) {
-      await ctx.reply(t(user.language, 'help'));
+      await ctx.reply(t(user.language, 'help'), { parse_mode: 'HTML' });
       return;
     }
 

@@ -61,6 +61,15 @@ describe('graphics and fixed catalogs', () => {
     expect(t('ru', 'help')).not.toContain('маршрут');
   });
 
+  it('lists every available command in help for every language', () => {
+    for (const language of LANGUAGES) {
+      const help = t(language, 'help');
+      for (const command of ['/goal', '/status', '/schedule', '/settings', '/help']) {
+        expect(help).toContain(command);
+      }
+    }
+  });
+
   it('keeps every weight in the chart model and highlights two periods', () => {
     const model = createChartModel(goal, periods, weighIns, 'Europe/Minsk');
     expect(model.points).toHaveLength(30);

@@ -99,13 +99,13 @@ describe('Telegram group behavior', () => {
   });
 
   it.each([
-    ['zh', '设置', '帮助', '开始或打卡'],
-    ['es', 'ajustes', 'ayuda', 'Para empezar'],
-    ['pt', 'configurações', 'ajuda', 'Para começar'],
-    ['de', 'Einstellungen', 'Hilfe', 'Zum Starten'],
-    ['fr', 'paramètres', 'aide', 'Pour démarrer'],
-    ['ja', '設定', 'ヘルプ', '開始・記録'],
-    ['id', 'pengaturan', 'bantuan', 'Untuk mulai'],
+    ['zh', '设置', '帮助', '可用命令'],
+    ['es', 'ajustes', 'ayuda', 'Comandos disponibles'],
+    ['pt', 'configurações', 'ajuda', 'Comandos disponíveis'],
+    ['de', 'Einstellungen', 'Hilfe', 'Verfügbare Befehle'],
+    ['fr', 'paramètres', 'aide', 'Commandes disponibles'],
+    ['ja', '設定', 'ヘルプ', '利用できるコマンド'],
+    ['id', 'pengaturan', 'bantuan', 'Perintah yang tersedia'],
   ] as const)('stores %s selection and answers localized commands', async (language, settings, help, expected) => {
     await update(20, { text: `@my_weight_goal_bot ${settings}` });
     await callback(21, `lang:${language}:1`, 101);
@@ -160,6 +160,13 @@ describe('Telegram group behavior', () => {
     const count = calls.length;
     await update(6, { text: '@my_weight_goal_bot help' });
     expect(calls).toHaveLength(count);
+  });
+
+  it.each(['help', 'помощь', 'команды'])('shows the command list for %s', async (word) => {
+    await update(60 + calls.length, { text: `@my_weight_goal_bot ${word}` });
+    expect(calls.at(-1)?.payload.text).toContain('Доступные команды');
+    expect(calls.at(-1)?.payload.text).toContain('/schedule');
+    expect(calls.at(-1)?.payload.parse_mode).toBe('HTML');
   });
 
   it('sends a weekly roadmap image immediately after goal confirmation', async () => {
