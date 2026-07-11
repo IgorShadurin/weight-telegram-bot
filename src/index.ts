@@ -30,38 +30,47 @@ const scheduler = new Scheduler(store, config, (now: DateTime) => telegram.proce
 const localizedCommands: Record<Language, Array<{ command: string; description: string }>> = {
   ru: [
     { command: 'goal', description: 'Создать или заменить цель по весу' }, { command: 'status', description: 'Цель и график прогресса' },
+    { command: 'schedule', description: 'Маршрут по неделям' },
     { command: 'settings', description: 'Выбрать язык' }, { command: 'help', description: 'Как работает бот' },
   ],
   en: [
     { command: 'goal', description: 'Create or replace a weight goal' }, { command: 'status', description: 'Goal and progress chart' },
+    { command: 'schedule', description: 'Weekly goal roadmap' },
     { command: 'settings', description: 'Choose a language' }, { command: 'help', description: 'How the bot works' },
   ],
   zh: [
     { command: 'goal', description: '立个新目标，或换掉当前目标' }, { command: 'status', description: '看看目标和体重曲线' },
+    { command: 'schedule', description: '查看每周闯关地图' },
     { command: 'settings', description: '切换语言' }, { command: 'help', description: '看看我能帮你做什么' },
   ],
   es: [
     { command: 'goal', description: 'Crear o cambiar tu meta de peso' }, { command: 'status', description: 'Ver tu meta y la gráfica de progreso' },
+    { command: 'schedule', description: 'Ver la ruta semana a semana' },
     { command: 'settings', description: 'Cambiar el idioma' }, { command: 'help', description: 'Ver cómo funciona el bot' },
   ],
   pt: [
     { command: 'goal', description: 'Criar ou trocar sua meta de peso' }, { command: 'status', description: 'Ver sua meta e o gráfico de progresso' },
+    { command: 'schedule', description: 'Ver o caminho semana a semana' },
     { command: 'settings', description: 'Trocar o idioma' }, { command: 'help', description: 'Ver como o bot funciona' },
   ],
   de: [
     { command: 'goal', description: 'Gewichtsziel erstellen oder ändern' }, { command: 'status', description: 'Ziel und Fortschrittskurve anzeigen' },
+    { command: 'schedule', description: 'Wochenfahrplan anzeigen' },
     { command: 'settings', description: 'Sprache wechseln' }, { command: 'help', description: 'So funktioniert der Bot' },
   ],
   fr: [
     { command: 'goal', description: 'Créer ou changer votre objectif de poids' }, { command: 'status', description: 'Voir votre objectif et votre courbe' },
+    { command: 'schedule', description: 'Voir la feuille de route hebdomadaire' },
     { command: 'settings', description: 'Changer de langue' }, { command: 'help', description: 'Découvrir le fonctionnement du bot' },
   ],
   ja: [
     { command: 'goal', description: '体重目標を作成・変更' }, { command: 'status', description: '目標と進捗グラフを確認' },
+    { command: 'schedule', description: '週ごとのロードマップを表示' },
     { command: 'settings', description: '言語を変更' }, { command: 'help', description: '使い方を見る' },
   ],
   id: [
     { command: 'goal', description: 'Buat atau ganti target berat badan' }, { command: 'status', description: 'Lihat target dan grafik progres' },
+    { command: 'schedule', description: 'Lihat peta jalan mingguan' },
     { command: 'settings', description: 'Ganti bahasa' }, { command: 'help', description: 'Lihat cara kerja bot' },
   ],
 };

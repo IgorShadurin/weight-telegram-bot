@@ -184,8 +184,10 @@ export class Store {
       .all(goalId).map(mapPeriod);
   }
 
-  normalizeActiveGoalPeriods(timezone: string): number {
-    const goals = this.db.prepare("SELECT * FROM goals WHERE status = 'active'").all().map(mapGoal);
+  normalizeActiveGoalPeriods(timezone: string, goalId?: string): number {
+    const goals = this.db.prepare(`
+      SELECT * FROM goals WHERE status = 'active' AND (? IS NULL OR id = ?)
+    `).all(goalId ?? null, goalId ?? null).map(mapGoal);
     const updateTarget = this.db.prepare(`
       UPDATE goal_periods SET target_weight_grams = ? WHERE goal_id = ? AND period_index = ?
     `);

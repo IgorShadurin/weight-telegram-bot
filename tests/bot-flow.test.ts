@@ -194,4 +194,31 @@ describe('Telegram group behavior', () => {
     const roadmapCall = calls.find((call) => call.method === 'sendMediaGroup' || call.method === 'sendPhoto');
     expect(roadmapCall).toBeDefined();
   });
+
+  it('re-normalizes and resends the stored roadmap when the user asks for the schedule', async () => {
+    await update(40, { text: '@my_weight_goal_bot настройки' });
+    const goal = store.createGoal({
+      telegramUserId: '1', chatId: '-100', threadId: null,
+      startDate: '2026-07-11', startWeightGrams: 93_050,
+      targetWeightGrams: 80_000, targetDate: '2026-12-31',
+      initialPhotoUniqueId: 'schedule-start', now: '2026-07-11T10:00:00Z', timezone: 'Europe/Minsk',
+    });
+    store.db.prepare('UPDATE goal_periods SET target_weight_grams = target_weight_grams - 75 WHERE goal_id = ? AND period_index = 3')
+      .run(goal.id);
+
+    await update(41, { text: '@my_weight_goal_bot расписание' });
+
+    const normalized = store.getPeriods(goal.id);
+    const losses = normalized.map((period, index) => {
+      const previous = index === 0 ? goal.startWeightGrams : normalized[index - 1]!.targetWeightGrams;
+      return previous - period.targetWeightGrams;
+    });
+    expect(new Set(losses.slice(1, -1))).toEqual(new Set([500, 550]));
+    expect(calls.at(-1)?.method).toBe('sendPhoto');
+    expect(calls.at(-1)?.payload.caption).toContain('Маршрут по неделям');
+
+    await update(42, { text: '@my_weight_goal_bot /schedule' });
+    expect(calls.at(-1)?.method).toBe('sendMessage');
+    expect(calls.at(-1)?.payload.text).toContain('Новую графику можно отправить');
+  });
 });
