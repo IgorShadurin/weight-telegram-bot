@@ -64,7 +64,8 @@ describe('Telegram group behavior', () => {
     await update(2, { text: '@my_weight_goal_bot create goal' });
     expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(2);
     expect(calls[0]?.payload.text).toContain('Choose a language');
-    expect(calls[1]?.payload.text).toContain('одно фото');
+    expect(calls[1]?.payload.text).toContain('Пришли фото');
+    expect(calls[1]?.payload.text).not.toContain('скачива');
   });
 
   it('starts a goal wizard from a mentioned photo and accepts a ForceReply target', async () => {

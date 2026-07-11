@@ -13,8 +13,8 @@ const copy: Record<string, Copy> = {
   },
   languageSet: { ru: 'Язык установлен: русский 🇷🇺', en: 'Language set to English 🇬🇧' },
   needPhotoWeight: {
-    ru: 'Пришли одно фото с упоминанием @{{bot}} и весом в подписи, например: <code>@{{bot}} 92.3 кг</code>. Фото я не скачиваю.',
-    en: 'Send one photo whose caption mentions @{{bot}} and contains the weight, for example: <code>@{{bot}} 92.3 kg</code>. I do not download it.',
+    ru: 'Пришли фото с упоминанием @{{bot}} и весом в подписи. Например: <code>@{{bot}} 92.3 кг</code>.',
+    en: 'Send a photo whose caption mentions @{{bot}} and contains the weight. For example: <code>@{{bot}} 92.3 kg</code>.',
   },
   needTarget: {
     ru: 'Старт: <b>{{weight}} кг</b>. Ответь на это сообщение целевым весом, например <code>80 кг</code>.',
@@ -54,8 +54,8 @@ const copy: Record<string, Copy> = {
   },
   finalAchieved: { ru: '🏁 Финальная цель взята досрочно. Капибара снимает повязку только ради победного фото.', en: '🏁 Final goal reached early. The capybara removes the headband only for the victory photo.' },
   help: {
-    ru: 'Упомяни меня с фото и весом для старта или отметки. Напиши «статус» для цели и графика, «язык» для настроек. Каждое фото используется один раз.',
-    en: 'Mention me with a photo and weight to start or check in. Say “status” for your goal and chart, or “language” for settings. Each photo can be used once.',
+    ru: 'Упомяни меня с фото и весом для старта или отметки. Напиши «статус» для цели и графика, «язык» для настроек.',
+    en: 'Mention me with a photo and weight to start or check in. Say “status” for your goal and chart, or “language” for settings.',
   },
 };
 

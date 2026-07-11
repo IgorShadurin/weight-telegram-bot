@@ -18,7 +18,8 @@
     "test:watch": "vitest",
     "assets:optimize": "tsx scripts/optimize-achievements.ts",
     "assets:validate": "tsx scripts/validate-achievements.ts",
-    "assets:contact-sheet": "tsx scripts/create-contact-sheet.ts"
+    "assets:contact-sheet": "tsx scripts/create-contact-sheet.ts",
+    "assets:chart-example": "tsx scripts/create-chart-example.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.2",

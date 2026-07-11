@@ -25,6 +25,12 @@ The same original teal capybara becomes fitter across 53 fixed weekly achievemen
 3. Reply to the bot with the target weight, then the target date, and confirm.
 4. For each check-in, attach a new photo with the bot mention and current weight. Mention it with `status` at any time for the current checkpoint and chart.
 
+## Progress chart
+
+Every check-in produces a compact chart with the complete weight history, the planned goal line, and a visual comparison of the final two weekly periods.
+
+![Example weight progress chart](assets/readme/progress-chart-example.jpg)
+
 ## Behavior
 
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.

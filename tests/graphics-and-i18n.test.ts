@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { achievements } from '../src/i18n/achievements.js';
-import { variants } from '../src/i18n/catalog.js';
+import { t, variants } from '../src/i18n/catalog.js';
 import { createChartModel, renderGoalChart } from '../src/graphics/chart.js';
 import type { GoalPeriodRecord, GoalRecord, WeighInRecord } from '../src/domain/types.js';
 
@@ -31,6 +31,13 @@ describe('graphics and fixed catalogs', () => {
       expect(category.en).toHaveLength(10);
       expect(category.ru).toHaveLength(10);
     }
+  });
+
+  it('keeps user instructions concise and omits internal photo handling details', () => {
+    expect(t('ru', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).not.toMatch(/скачив|хран/iu);
+    expect(t('en', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).not.toMatch(/download|store/iu);
+    expect(t('ru', 'help')).not.toContain('используется');
+    expect(t('en', 'help')).not.toContain('used once');
   });
 
   it('keeps every weight in the chart model and highlights two periods', () => {
