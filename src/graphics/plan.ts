@@ -1,7 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { DateTime } from 'luxon';
 import type { Language } from '../config.js';
-import { formatKg } from '../domain/periods.js';
+import { formatKg, typicalWeeklyLossGrams } from '../domain/periods.js';
 import type { GoalPeriodRecord, GoalRecord } from '../domain/types.js';
 
 const PERIODS_PER_PAGE = 54;
@@ -22,7 +22,7 @@ export interface GoalPlanRow {
 export interface GoalPlanModel {
   rows: GoalPlanRow[];
   totalLossGrams: number;
-  averageLossGrams: number;
+  typicalLossGrams: number;
 }
 
 export function createGoalPlanModel(goal: GoalRecord, periods: GoalPeriodRecord[]): GoalPlanModel {
@@ -42,7 +42,7 @@ export function createGoalPlanModel(goal: GoalRecord, periods: GoalPeriodRecord[
   return {
     rows,
     totalLossGrams,
-    averageLossGrams: rows.length === 0 ? 0 : Math.round(totalLossGrams / rows.length),
+    typicalLossGrams: typicalWeeklyLossGrams(goal.startWeightGrams, periods),
   };
 }
 
@@ -65,7 +65,7 @@ async function renderPage(input: {
   language: Language;
   pageIndex: number;
   pageCount: number;
-  totalPeriodCount: number;
+  typicalLossGrams: number;
 }): Promise<Buffer> {
   const columns = input.rows.length <= 18 ? 1 : input.rows.length <= 36 ? 2 : 3;
   const rowsPerColumn = Math.ceil(input.rows.length / columns);
@@ -139,7 +139,7 @@ async function renderPage(input: {
         ru: 'В СРЕДНЕМ ЗА НЕДЕЛЮ', en: 'AVERAGE PER WEEK', zh: '平均每周', es: 'MEDIA POR SEMANA', pt: 'MÉDIA POR SEMANA',
         de: 'Ø PRO WOCHE', fr: 'MOYENNE / SEMAINE', ja: '週平均', id: 'RATA-RATA / MINGGU',
       }),
-      value: `${Math.round(totalLoss / Math.max(1, input.totalPeriodCount)).toLocaleString(numberLocale)} ${gramUnit}`,
+      value: `${input.typicalLossGrams.toLocaleString(numberLocale)} ${gramUnit}`,
     },
   ];
   summaryCards.forEach((card, index) => {
@@ -256,6 +256,6 @@ export async function renderGoalPlanPages(input: {
     language: input.language,
     pageIndex,
     pageCount: chunks.length,
-    totalPeriodCount: model.rows.length,
+    typicalLossGrams: model.typicalLossGrams,
   })));
 }

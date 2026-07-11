@@ -184,6 +184,40 @@ export class Store {
       .all(goalId).map(mapPeriod);
   }
 
+  normalizeActiveGoalPeriods(timezone: string): number {
+    const goals = this.db.prepare("SELECT * FROM goals WHERE status = 'active'").all().map(mapGoal);
+    const updateTarget = this.db.prepare(`
+      UPDATE goal_periods SET target_weight_grams = ? WHERE goal_id = ? AND period_index = ?
+    `);
+    let normalized = 0;
+
+    const normalize = this.db.transaction(() => {
+      for (const goal of goals) {
+        const definitions = buildPeriods({
+          startDate: goal.startDate,
+          targetDate: goal.targetDate,
+          startWeightGrams: goal.startWeightGrams,
+          targetWeightGrams: goal.targetWeightGrams,
+          timezone,
+        });
+        const stored = this.getPeriods(goal.id);
+        const sameBoundaries = definitions.length === stored.length && definitions.every((definition, index) => (
+          definition.periodIndex === stored[index]?.periodIndex
+          && definition.startDate === stored[index]?.startDate
+          && definition.endDate === stored[index]?.endDate
+        ));
+        if (!sameBoundaries) continue;
+
+        definitions.forEach((definition) => {
+          updateTarget.run(definition.targetWeightGrams, goal.id, definition.periodIndex);
+        });
+        normalized += 1;
+      }
+    });
+    normalize();
+    return normalized;
+  }
+
   getPeriod(goalId: string, localDate: string): GoalPeriodRecord | null {
     return periodForDate(this.getPeriods(goalId), localDate);
   }

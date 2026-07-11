@@ -19,6 +19,7 @@ if (!config.botToken) throw new Error('TELEGRAM_BOT_TOKEN is required');
 if (!process.env.TELEGRAM_WEBHOOK_SECRET) throw new Error('TELEGRAM_WEBHOOK_SECRET is required');
 
 const store = new Store(config.databasePath);
+store.normalizeActiveGoalPeriods(config.timezone);
 const telegram = new TelegramService(config.botToken, store, config);
 configureBot(telegram, store, config);
 await telegram.bot.init();

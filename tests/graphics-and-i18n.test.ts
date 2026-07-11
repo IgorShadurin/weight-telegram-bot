@@ -65,6 +65,7 @@ describe('graphics and fixed catalogs', () => {
     expect(model.rows).toHaveLength(periods.length);
     expect(model.rows.map((row) => row.lossGrams)).toEqual([500, 500, 500]);
     expect(model.totalLossGrams).toBe(12_000);
+    expect(model.typicalLossGrams).toBe(500);
     for (const language of LANGUAGES) {
       const pages = await renderGoalPlanPages({ goal, periods, language });
       expect(pages).toHaveLength(1);

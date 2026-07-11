@@ -32,9 +32,51 @@ describe('weekly periods', () => {
     expect(periods.length).toBeGreaterThan(53);
   });
 
-  it('rounds checkpoint values to 0.1 kg', () => {
-    expect(roundCheckpointGrams(88_849)).toBe(88_800);
-    expect(roundCheckpointGrams(88_850)).toBe(88_900);
+  it('rounds checkpoint values to 50 grams', () => {
+    expect(roundCheckpointGrams(88_824)).toBe(88_800);
+    expect(roundCheckpointGrams(88_825)).toBe(88_850);
+    expect(roundCheckpointGrams(88_876)).toBe(88_900);
+  });
+
+  it('keeps full-week losses 50-gram aligned and within one step', () => {
+    const startWeightGrams = 93_050;
+    const targetWeightGrams = 80_000;
+    const periods = buildPeriods({
+      startDate: '2026-07-11', targetDate: '2026-12-31',
+      startWeightGrams, targetWeightGrams, timezone: 'Europe/Minsk',
+    });
+    const losses = periods.map((period, index) => {
+      const previous = index === 0 ? startWeightGrams : periods[index - 1]!.targetWeightGrams;
+      return previous - period.targetWeightGrams;
+    });
+    const fullWeekLosses = losses.slice(1, -1);
+
+    expect(new Set(fullWeekLosses)).toEqual(new Set([500, 550]));
+    expect(fullWeekLosses.every((loss) => loss % 50 === 0)).toBe(true);
+    expect(Math.max(...fullWeekLosses) - Math.min(...fullWeekLosses)).toBeLessThanOrEqual(50);
+    expect(losses[0]).toBeLessThanOrEqual(Math.min(...fullWeekLosses));
+    expect(losses.at(-1)).toBeLessThanOrEqual(Math.min(...fullWeekLosses));
+    expect(losses.reduce((sum, loss) => sum + loss, 0)).toBe(startWeightGrams - targetWeightGrams);
+    expect(periods.at(-1)?.targetWeightGrams).toBe(targetWeightGrams);
+  });
+
+  it.each([
+    ['2026-01-01', '2026-06-30', 92_000, 80_000],
+    ['2026-01-04', '2026-12-31', 101_250, 79_900],
+    ['2026-02-09', '2026-08-16', 88_875, 75_125],
+  ])('preserves normalized monotonic schedules from %s to %s', (startDate, targetDate, startWeightGrams, targetWeightGrams) => {
+    const periods = buildPeriods({ startDate, targetDate, startWeightGrams, targetWeightGrams, timezone: 'UTC' });
+    const losses = periods.map((period, index) => {
+      const previous = index === 0 ? startWeightGrams : periods[index - 1]!.targetWeightGrams;
+      return previous - period.targetWeightGrams;
+    });
+    const interior = losses.slice(1, -1);
+
+    expect(losses.every((loss) => loss >= 0)).toBe(true);
+    expect(interior.every((loss) => loss % 50 === 0)).toBe(true);
+    expect(Math.max(...interior) - Math.min(...interior)).toBeLessThanOrEqual(50);
+    expect(losses.reduce((sum, loss) => sum + loss, 0)).toBe(startWeightGrams - targetWeightGrams);
+    expect(periods.at(-1)?.targetWeightGrams).toBe(targetWeightGrams);
   });
 
   it('formats every displayed weight with at most two decimals, rounding upward', () => {

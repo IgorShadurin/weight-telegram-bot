@@ -3,7 +3,7 @@ import { InlineKeyboard } from 'grammy';
 import type { Context } from 'grammy';
 import { isLanguage, type AppConfig, type Language } from '../config.js';
 import { Store } from '../db/store.js';
-import { buildPeriods, formatKg } from '../domain/periods.js';
+import { buildPeriods, formatKg, typicalWeeklyLossGrams } from '../domain/periods.js';
 import { parseLocalizedDate, parseWeightGrams } from '../domain/parsers.js';
 import type { GoalDraft } from '../domain/types.js';
 import { t, variant } from '../i18n/catalog.js';
@@ -222,15 +222,15 @@ export function configureBot(service: TelegramService, store: Store, config: App
           await ctx.reply(t(user.language, 'badDate'), { parse_mode: 'HTML' });
           return;
         }
-        let periodCount: number;
+        let periods: ReturnType<typeof buildPeriods>;
         try {
-          periodCount = buildPeriods({
+          periods = buildPeriods({
             startDate,
             targetDate,
             startWeightGrams: draft.initialWeightGrams!,
             targetWeightGrams: draft.targetWeightGrams,
             timezone: config.timezone,
-          }).length;
+          });
         } catch {
           await ctx.reply(t(user.language, 'badDate'), { parse_mode: 'HTML' });
           return;
@@ -251,8 +251,8 @@ export function configureBot(service: TelegramService, store: Store, config: App
           start: formatKg(draft.initialWeightGrams!),
           target: formatKg(draft.targetWeightGrams),
           date: targetDate,
-          periods: periodCount,
-          grams: Math.round((draft.initialWeightGrams! - draft.targetWeightGrams) / periodCount),
+          periods: periods.length,
+          grams: typicalWeeklyLossGrams(draft.initialWeightGrams!, periods),
         }), keyboard);
         store.saveDraft(draft);
         return;

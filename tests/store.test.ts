@@ -53,6 +53,27 @@ describe('Store', () => {
     expect(store.getWeighIns(goal.id)).toHaveLength(4);
   });
 
+  it('normalizes stored checkpoints for existing active goals without replacing their rows', () => {
+    const goal = create('photo-normalize', '2026-12-31');
+    const original = store.getPeriods(goal.id);
+    const originalIds = original.map((period) => period.id);
+    store.db.prepare('UPDATE goal_periods SET target_weight_grams = target_weight_grams - 75 WHERE goal_id = ? AND period_index = 3')
+      .run(goal.id);
+
+    expect(store.normalizeActiveGoalPeriods('Europe/Minsk')).toBe(1);
+    const normalized = store.getPeriods(goal.id);
+    const losses = normalized.map((period, index) => {
+      const previous = index === 0 ? goal.startWeightGrams : normalized[index - 1]!.targetWeightGrams;
+      return previous - period.targetWeightGrams;
+    });
+    const interior = losses.slice(1, -1);
+
+    expect(normalized.map((period) => period.id)).toEqual(originalIds);
+    expect(interior.every((loss) => loss % 50 === 0)).toBe(true);
+    expect(Math.max(...interior) - Math.min(...interior)).toBeLessThanOrEqual(50);
+    expect(normalized.at(-1)?.targetWeightGrams).toBe(goal.targetWeightGrams);
+  });
+
   it('rejects reused photo evidence', () => {
     create();
     expect(() => store.recordCheckIn({

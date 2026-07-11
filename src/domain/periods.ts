@@ -12,7 +12,46 @@ function date(value: string, zone: string): DateTime {
 }
 
 export function roundCheckpointGrams(grams: number): number {
-  return Math.round(grams / 100) * 100;
+  return Math.round(grams / 50) * 50;
+}
+
+function distributeLossGrams(totalLossGrams: number, durations: number[]): number[] {
+  if (durations.length === 1) return [totalLossGrams];
+
+  const unitGrams = 50;
+  const totalUnits = Math.floor(totalLossGrams / unitGrams);
+  const residualGrams = totalLossGrams - totalUnits * unitGrams;
+  const totalDays = durations.reduce((sum, days) => sum + days, 0);
+  const units = Array.from({ length: durations.length }, () => 0);
+  const edgeIndexes = [0, durations.length - 1];
+
+  for (const index of edgeIndexes) {
+    units[index] = Math.round((totalUnits * durations[index]!) / totalDays);
+  }
+
+  while (units[0]! + units.at(-1)! > totalUnits) {
+    const index = units[0]! >= units.at(-1)! ? 0 : units.length - 1;
+    units[index] = Math.max(0, units[index]! - 1);
+  }
+
+  const interiorCount = Math.max(0, durations.length - 2);
+  if (interiorCount > 0) {
+    const remainingUnits = totalUnits - units[0]! - units.at(-1)!;
+    const baseUnits = Math.floor(remainingUnits / interiorCount);
+    const extraUnits = remainingUnits % interiorCount;
+
+    for (let offset = 0; offset < interiorCount; offset += 1) {
+      const receivesExtra = Math.floor(((offset + 1) * extraUnits) / interiorCount)
+        > Math.floor((offset * extraUnits) / interiorCount);
+      units[offset + 1] = baseUnits + (receivesExtra ? 1 : 0);
+    }
+  } else {
+    units[units.length - 1] = totalUnits - units[0]!;
+  }
+
+  const losses = units.map((value) => value * unitGrams);
+  losses[losses.length - 1] = losses.at(-1)! + residualGrams;
+  return losses;
 }
 
 export function buildPeriods(input: {
@@ -31,31 +70,51 @@ export function buildPeriods(input: {
     throw new Error('Target weight must be lower than the start weight');
   }
 
-  const periods: PeriodDefinition[] = [];
+  const boundaries: Array<{ startDate: string; endDate: string; durationDays: number }> = [];
   let periodStart = start;
-  let index = 1;
+  let previousDeadline = start;
 
   while (periodStart <= target) {
     const daysUntilSunday = (7 - periodStart.weekday) % 7;
     const sunday = periodStart.plus({ days: daysUntilSunday });
     const periodEnd = sunday < target ? sunday : target;
-    const elapsedDays = periodEnd.diff(start, 'days').days;
-    const progress = Math.min(1, Math.max(0, elapsedDays / totalDays));
-    const rawTarget = input.startWeightGrams + (input.targetWeightGrams - input.startWeightGrams) * progress;
-
-    periods.push({
-      periodIndex: index,
+    boundaries.push({
       startDate: periodStart.toISODate()!,
       endDate: periodEnd.toISODate()!,
-      targetWeightGrams: periodEnd.equals(target) ? input.targetWeightGrams : roundCheckpointGrams(rawTarget),
+      durationDays: periodEnd.diff(previousDeadline, 'days').days,
     });
 
     if (periodEnd.equals(target)) break;
+    previousDeadline = periodEnd;
     periodStart = periodEnd.plus({ days: 1 });
-    index += 1;
   }
 
-  return periods;
+  const totalLossGrams = input.startWeightGrams - input.targetWeightGrams;
+  const losses = distributeLossGrams(totalLossGrams, boundaries.map((period) => period.durationDays));
+  let targetWeightGrams = input.startWeightGrams;
+
+  return boundaries.map((period, index) => {
+    targetWeightGrams -= losses[index]!;
+    return {
+      periodIndex: index + 1,
+      startDate: period.startDate,
+      endDate: period.endDate,
+      targetWeightGrams: index === boundaries.length - 1 ? input.targetWeightGrams : targetWeightGrams,
+    };
+  });
+}
+
+export function typicalWeeklyLossGrams(
+  startWeightGrams: number,
+  periods: Array<Pick<PeriodDefinition, 'targetWeightGrams'>>,
+): number {
+  const losses = periods.map((period, index) => {
+    const previous = index === 0 ? startWeightGrams : periods[index - 1]!.targetWeightGrams;
+    return Math.max(0, previous - period.targetWeightGrams);
+  });
+  const typical = losses.length > 2 ? losses.slice(1, -1) : losses;
+  const sorted = typical.toSorted((left, right) => left - right);
+  return sorted.length === 0 ? 0 : sorted[Math.floor(sorted.length / 2)]!;
 }
 
 export function periodForDate<T extends Pick<GoalPeriodRecord, 'startDate' | 'endDate'>>(
