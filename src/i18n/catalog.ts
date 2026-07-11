@@ -166,10 +166,10 @@ const copy: Record<string, Copy> = {
     es: 'La gráfica actualizada se podrá enviar en {{seconds}} s.', pt: 'O gráfico atualizado poderá ser enviado em {{seconds}} s.', de: 'Die aktualisierte Kurve kann in {{seconds}} Sek. gesendet werden.',
     fr: 'La courbe actualisée pourra être envoyée dans {{seconds}} s.', ja: '更新したグラフはあと {{seconds}} 秒で送信できます。', id: 'Grafik terbaru bisa dikirim dalam {{seconds}} detik.',
   },
-  planQueued: {
-    ru: 'План по неделям отправлю через {{seconds}} сек. Повторять команду не нужно.', en: 'I’ll send the weekly plan in {{seconds}} sec. No need to repeat the command.', zh: '我会在 {{seconds}} 秒后发送每周计划，不用重复输入命令。',
-    es: 'Enviaré el plan semanal en {{seconds}} s. No hace falta repetir el comando.', pt: 'Vou enviar o plano semanal em {{seconds}} s. Não precisa repetir o comando.', de: 'Ich sende den Wochenplan in {{seconds}} Sek. Du musst den Befehl nicht wiederholen.',
-    fr: 'J’enverrai le plan hebdomadaire dans {{seconds}} s. Inutile de répéter la commande.', ja: '週間計画はあと {{seconds}} 秒で送信します。コマンドをもう一度送る必要はありません。', id: 'Rencana mingguan akan kukirim dalam {{seconds}} detik. Tidak perlu mengulang perintah.',
+  planCooldown: {
+    ru: 'План по неделям уже отправлялся недавно. Попробуй снова через {{seconds}} сек.', en: 'The weekly plan was sent recently. Try again in {{seconds}} sec.', zh: '每周计划刚刚发送过，请在 {{seconds}} 秒后重试。',
+    es: 'El plan semanal se envió hace poco. Inténtalo de nuevo en {{seconds}} s.', pt: 'O plano semanal foi enviado há pouco. Tente novamente em {{seconds}} s.', de: 'Der Wochenplan wurde erst kürzlich gesendet. Versuche es in {{seconds}} Sek. erneut.',
+    fr: 'Le plan hebdomadaire a été envoyé récemment. Réessaie dans {{seconds}} s.', ja: '週間計画は先ほど送信されました。あと {{seconds}} 秒後にもう一度お試しください。', id: 'Rencana mingguan baru saja dikirim. Coba lagi dalam {{seconds}} detik.',
   },
   status: {
     ru: '🎯 <b>{{start}} → {{target}} кг</b> к {{goalDate}}\nСейчас: <b>{{current}} кг</b>\nРубеж недели: <b>{{weekTarget}} кг</b> до {{weekDate}}',

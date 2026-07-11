@@ -177,13 +177,14 @@ async function renderPage(input: {
   const margin = 70;
   const gap = 24;
   const columnWidth = (width - margin * 2 - gap * (columns - 1)) / columns;
+  const targetColumnX = columnWidth - 205;
   for (let column = 0; column < columns; column += 1) {
     const columnX = margin + column * (columnWidth + gap);
     context.fillStyle = colors.muted;
     context.font = `700 17px ${FONT_FAMILY}`;
     context.fillText(localized(input.language, { ru: 'НЕД.', en: 'WK', zh: '周', es: 'SEM', pt: 'SEM', de: 'WO', fr: 'SEM', ja: '週', id: 'MG' }), columnX + 18, tableTop - 18);
     context.fillText(localized(input.language, { ru: 'ДАТЫ', en: 'DATES', zh: '日期', es: 'FECHAS', pt: 'DATAS', de: 'DATUM', fr: 'DATES', ja: '日付', id: 'TANGGAL' }), columnX + 76, tableTop - 18);
-    context.fillText(localized(input.language, { ru: 'ЦЕЛЬ', en: 'TARGET', zh: '目标', es: 'META', pt: 'META', de: 'ZIEL', fr: 'CIBLE', ja: '目標', id: 'TARGET' }), columnX + columnWidth - 205, tableTop - 18);
+    context.fillText(localized(input.language, { ru: 'ЦЕЛЬ', en: 'TARGET', zh: '目标', es: 'META', pt: 'META', de: 'ZIEL', fr: 'CIBLE', ja: '目標', id: 'TARGET' }), columnX + targetColumnX, tableTop - 18);
     context.fillText(localized(input.language, { ru: 'СБРОСИТЬ', en: 'TO LOSE', zh: '需减', es: 'BAJAR', pt: 'PERDER', de: 'MINUS', fr: 'PERDRE', ja: '減量', id: 'TURUN' }), columnX + columnWidth - 100, tableTop - 18);
   }
 
@@ -204,11 +205,11 @@ async function renderPage(input: {
     context.font = `20px ${FONT_FAMILY}`;
     context.fillText(dateRange(row, input.language), x + 76, y + 42);
 
-    context.textAlign = 'right';
     context.font = `700 23px ${FONT_FAMILY}`;
-    context.fillText(`≤ ${formatKg(row.targetWeightGrams)}`, x + columnWidth - 112, y + 42);
+    context.fillText(`≤ ${formatKg(row.targetWeightGrams)}`, x + targetColumnX, y + 42);
     context.fillStyle = colors.orange;
     context.font = `700 20px ${FONT_FAMILY}`;
+    context.textAlign = 'right';
     context.fillText(`-${row.lossGrams} ${gramUnit}`, x + columnWidth - 18, y + 42);
     context.textAlign = 'left';
   });

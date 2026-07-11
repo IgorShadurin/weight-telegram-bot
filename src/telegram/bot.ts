@@ -89,31 +89,6 @@ export function configureBot(service: TelegramService, store: Store, config: App
     return result;
   }
 
-  function enqueueRequestedGoalPlan(input: {
-    telegramUserId: string;
-    chatId: string;
-    threadId: number | null;
-    language: Language;
-    goalId: string;
-    waitSeconds: number;
-    now: DateTime;
-  }): void {
-    const cooldownStartedAt = store.lastGraphicSentAt(input.telegramUserId) ?? input.now.toISO()!;
-    store.enqueue({
-      dedupeKey: `requested-goal-plan:${input.goalId}:${input.chatId}:${cooldownStartedAt}`,
-      type: 'goal-plan',
-      payload: {
-        telegramUserId: input.telegramUserId,
-        chatId: input.chatId,
-        threadId: input.threadId,
-        language: input.language,
-        goalId: input.goalId,
-      },
-      dueAt: input.now.plus({ seconds: input.waitSeconds }).toISO()!,
-      now: input.now.toISO()!,
-    });
-  }
-
   bot.use(async (ctx, next) => {
     const now = DateTime.utc().toISO()!;
     if (!store.claimUpdate(ctx.update.update_id, now)) return;
@@ -245,16 +220,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
           goal: activeGoal,
         });
         if (result !== 'sent') {
-          enqueueRequestedGoalPlan({
-            telegramUserId: userId,
-            chatId: String(ctx.chat.id),
-            threadId: null,
-            language: user.language,
-            goalId: activeGoal.id,
-            waitSeconds: result,
-            now,
-          });
-          await ctx.reply(t(user.language, 'planQueued', { seconds: result }));
+          await ctx.reply(t(user.language, 'planCooldown', { seconds: result }));
         }
         return;
       }
@@ -401,16 +367,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
         goal: activeGoal,
       });
       if (result !== 'sent') {
-        enqueueRequestedGoalPlan({
-          telegramUserId: userId,
-          chatId: String(ctx.chat.id),
-          threadId: currentThreadId ?? null,
-          language: user.language,
-          goalId: activeGoal.id,
-          waitSeconds: result,
-          now,
-        });
-        await ctx.reply(t(user.language, 'planQueued', { seconds: result }));
+        await ctx.reply(t(user.language, 'planCooldown', { seconds: result }));
       }
       return;
     }

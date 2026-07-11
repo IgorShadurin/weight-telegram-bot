@@ -339,18 +339,12 @@ describe('Telegram group behavior', () => {
 
     await update(42, { text: '@my_weight_goal_bot /schedule' });
     expect(calls.at(-1)?.method).toBe('sendMessage');
-    expect(calls.at(-1)?.payload.text).toContain('План по неделям отправлю через');
-    expect(calls.at(-1)?.payload.text).toContain('Повторять команду не нужно');
+    expect(calls.at(-1)?.payload.text).toContain('План по неделям уже отправлялся недавно');
+    expect(calls.at(-1)?.payload.text).toContain('Попробуй снова через');
     expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'goal-plan'").get())
-      .toMatchObject({ count: 1 });
+      .toMatchObject({ count: 0 });
     await update(43, { text: '@my_weight_goal_bot /schedule' });
     expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'goal-plan'").get())
-      .toMatchObject({ count: 1 });
-
-    store.db.prepare("UPDATE graphic_limits SET last_sent_at = '2020-01-01T00:00:00Z' WHERE telegram_user_id = ?")
-      .run('1');
-    await telegram.processOutbox(DateTime.utc().plus({ minutes: 2 }));
-    expect(calls.at(-1)?.method).toBe('sendPhoto');
-    expect(calls.at(-1)?.payload.caption).toContain('План по неделям');
+      .toMatchObject({ count: 0 });
   });
 });
