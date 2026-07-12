@@ -40,7 +40,7 @@ Di grup, mention bot bersama perintah atau gunakan `/command@my_weight_goal_bot`
 - Minggu penuh dibagi serata mungkin dalam langkah 50 g; minggu parsial pertama dan terakhir bisa lebih kecil.
 - Target berat dan tanggal akhir selalu tetap tepat.
 - Setiap pengguna dapat menerima satu gambar per menit.
-- Pada hari Kamis, bot mengingatkan jika target minggu berjalan belum tercapai.
+- Pada hari Kamis, bot mengingatkan target minggu berjalan; hari Minggu pukul 10.00, bot mengingatkan lagi jika minggu itu belum punya check-in.
 - Setiap minggu yang berhasil membuka pencapaian kapibara berikutnya.
 - Ganti bahasa kapan saja lewat `/settings` atau tombol di chat pribadi dengan bot.
 

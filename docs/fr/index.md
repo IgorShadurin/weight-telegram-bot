@@ -40,7 +40,7 @@ Dans le groupe, mentionne le bot avec la commande ou utilise `/command@my_weight
 - Les semaines complètes sont réparties aussi régulièrement que possible par pas de 50 g ; les semaines partielles du début et de la fin peuvent être plus légères.
 - Le poids final et la date restent toujours exacts.
 - Chaque utilisateur peut recevoir une image par minute.
-- Le jeudi, le bot rappelle le palier de la semaine s’il reste à atteindre.
+- Le jeudi, le bot rappelle le palier de la semaine ; le dimanche à 10 h, il relance si aucun relevé n’a été envoyé cette semaine.
 - Chaque semaine réussie débloque le succès capybara suivant.
 - Change de langue à tout moment avec `/settings` ou avec les boutons du chat privé avec le bot.
 

@@ -56,6 +56,28 @@ export class Scheduler {
         });
       }
 
+      if (
+        current && current.status !== 'passed' && !this.store.periodHasWeighIn(current.id) &&
+        now.weekday === 7 && now.hour === this.config.sundayReminderHour &&
+        now.minute === this.config.sundayReminderMinute
+      ) {
+        this.store.enqueue({
+          dedupeKey: `sunday-reminder:${goal.id}:${current.periodIndex}`,
+          type: 'sunday-reminder',
+          payload: {
+            goalId: goal.id,
+            periodId: current.id,
+            telegramUserId: goal.telegramUserId,
+            chatId: goal.originChatId,
+            threadId: goal.originThreadId,
+            language: user.language,
+            target: formatKg(current.targetWeightGrams),
+          },
+          dueAt: nowIso,
+          now: nowIso,
+        });
+      }
+
       for (const period of periods.filter((item) => item.status === 'pending' && item.endDate < localDate)) {
         if (!this.store.markPeriodMissed(period.id, nowIso)) continue;
         const final = period.endDate === goal.targetDate;

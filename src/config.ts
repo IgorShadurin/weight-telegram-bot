@@ -19,6 +19,8 @@ export interface AppConfig {
   reminderWeekday: number;
   reminderHour: number;
   reminderMinute: number;
+  sundayReminderHour: number;
+  sundayReminderMinute: number;
   port: number;
   host: string;
   logLevel: string;
@@ -78,6 +80,8 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     reminderWeekday: integer('REMINDER_WEEKDAY', 4, 1, 7),
     reminderHour: integer('REMINDER_HOUR', 10, 0, 23),
     reminderMinute: integer('REMINDER_MINUTE', 0, 0, 59),
+    sundayReminderHour: integer('SUNDAY_REMINDER_HOUR', 10, 0, 23),
+    sundayReminderMinute: integer('SUNDAY_REMINDER_MINUTE', 0, 0, 59),
     port: integer('PORT', 3000, 1, 65_535),
     host: process.env.HOST ?? '0.0.0.0',
     logLevel: process.env.LOG_LEVEL ?? 'info',

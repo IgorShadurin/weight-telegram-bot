@@ -193,6 +193,10 @@ export class TelegramService {
           await this.bot.api.sendMessage(job.payload.chatId, `${mention(user.telegramUserId, user.displayName)}, ${variant(
             job.payload.language, 'reminder', `${job.payload.goalId}:${job.payload.periodId}`, { target: job.payload.target },
           )}`, { parse_mode: 'HTML', ...thread });
+        } else if (job.type === 'sunday-reminder') {
+          await this.bot.api.sendMessage(job.payload.chatId, `${mention(user.telegramUserId, user.displayName)}, ${t(
+            job.payload.language, 'sundayReminder', { target: job.payload.target },
+          )}`, { parse_mode: 'HTML', ...thread });
         } else if (job.type === 'missed') {
           const suffix = job.payload.final
             ? `\n${t(job.payload.language, 'finalFailed')}`

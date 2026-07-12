@@ -40,7 +40,7 @@ No grupo, marque o bot junto com o comando ou use `/command@my_weight_goal_bot`.
 - As semanas completas são equilibradas em passos de 50 g; a primeira e a última semana parcial podem ser menores.
 - O peso final e a data permanecem exatos.
 - Cada usuário pode receber uma imagem por minuto.
-- Às quintas-feiras, o bot lembra o checkpoint se ele ainda estiver pendente.
+- Às quintas-feiras, o bot lembra o checkpoint; no domingo às 10:00, envia outro aviso se a semana ainda não tiver check-in.
 - Cada semana concluída libera a próxima conquista da capivara.
 - Troque o idioma quando quiser com `/settings` ou pelos botões do chat privado com o bot.
 

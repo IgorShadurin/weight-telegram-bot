@@ -91,6 +91,14 @@ describe('graphics and fixed catalogs', () => {
     expect(closed).not.toContain('не закрыта');
   });
 
+  it('localizes the Sunday missing-check-in reminder', () => {
+    for (const language of LANGUAGES) {
+      const message = t(language, 'sundayReminder', { target: '88.5' });
+      expect(message).toContain('88.5');
+      expect(message).not.toContain('{{');
+    }
+  });
+
   it('keeps every weight in the chart model and highlights two periods', () => {
     const model = createChartModel(goal, periods, weighIns, 'Europe/Minsk');
     expect(model.points).toHaveLength(30);

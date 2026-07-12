@@ -40,7 +40,7 @@ Erwähne den Bot in der Gruppe zusammen mit dem Befehl oder nutze `/command@my_w
 - Volle Wochen werden in 50-g-Schritten möglichst gleichmäßig verteilt; die erste und letzte Teilwoche dürfen kleiner sein.
 - Endgewicht und Zieldatum bleiben immer exakt.
 - Pro Nutzer wird höchstens ein Bild pro Minute erzeugt.
-- Donnerstags erinnert der Bot an eine noch offene Wochenetappe.
+- Donnerstags erinnert der Bot an die Wochenetappe; sonntags um 10:00 Uhr folgt eine weitere Erinnerung, wenn für die Woche noch kein Check-in vorliegt.
 - Abgeschlossene Wochen schalten nacheinander die Capybara-Erfolge frei.
 - Die Sprache lässt sich jederzeit mit `/settings` oder über die Schaltflächen im Privat-Chat mit dem Bot ändern.
 

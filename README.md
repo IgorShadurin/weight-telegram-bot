@@ -103,7 +103,7 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 - Requires each recorded weight to be attached to a new Telegram photo whose caption mentions the bot.
 - Never downloads user photos; only Telegram's non-reusable `file_unique_id` is retained for duplicate detection.
 - Calculates linearly interpolated checkpoints ending Sunday, with the final partial week ending on the exact goal date.
-- Sends Thursday reminders only to users who have not passed the current checkpoint.
+- Sends Thursday checkpoint reminders and a Sunday 10:00 reminder when the current week has no weight check-in.
 - Generates progress charts in memory and rate-limits graphic responses to one album per user per minute.
 - Uses 53 fixed, original bitmap achievements. Goals longer than 53 periods continue without additional badges.
 
@@ -143,6 +143,8 @@ npm run assets:validate
 | `REMINDER_WEEKDAY` | `4` | Luxon weekday (Thursday is 4) |
 | `REMINDER_HOUR` | `10` | Local reminder hour |
 | `REMINDER_MINUTE` | `0` | Local reminder minute |
+| `SUNDAY_REMINDER_HOUR` | `10` | Sunday reminder hour when the current week has no check-in |
+| `SUNDAY_REMINDER_MINUTE` | `0` | Sunday reminder minute |
 | `GRAPHIC_COOLDOWN_SECONDS` | `60` | Per-user image cooldown |
 | `ADMIN_TELEGRAM_USER_IDS` | empty | Comma-separated positive private-chat user IDs that receive new-user statistics |
 | `PORT` | `3000` | HTTP port |

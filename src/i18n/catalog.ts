@@ -199,6 +199,11 @@ const copy: Record<string, Copy> = {
     es: 'No se alcanzó el punto semanal de {{target}} kg: el último registro quedó por encima.', pt: 'O checkpoint semanal de {{target}} kg não foi atingido: o último check-in ficou acima.', de: 'Die Wochenetappe von {{target}} kg wurde verfehlt: Der letzte Check-in lag darüber.',
     fr: 'Le palier hebdomadaire de {{target}} kg n’a pas été atteint : le dernier relevé était au-dessus.', ja: '今週の {{target}} kg は未達成です。最新の記録が目標を上回っていました。', id: 'Pos mingguan {{target}} kg belum tercapai: check-in terakhir masih di atas target.',
   },
+  sundayReminder: {
+    ru: 'Сегодня воскресенье, а отметки за неделю ещё нет. Пришли фото с текущим весом. Рубеж: ≤ {{target}} кг.', en: 'It’s Sunday and this week still has no check-in. Send a photo with your current weight. Target: ≤ {{target}} kg.', zh: '今天是周日，本周还没有打卡。请发送照片并写上当前体重。目标：≤ {{target}} 公斤。',
+    es: 'Es domingo y esta semana aún no tiene registro. Envía una foto con tu peso actual. Meta: ≤ {{target}} kg.', pt: 'É domingo e ainda não há check-in nesta semana. Envie uma foto com seu peso atual. Meta: ≤ {{target}} kg.', de: 'Es ist Sonntag und für diese Woche fehlt noch der Check-in. Sende ein Foto mit deinem aktuellen Gewicht. Ziel: ≤ {{target}} kg.',
+    fr: 'Nous sommes dimanche et il manque encore le relevé de la semaine. Envoie une photo avec ton poids actuel. Objectif : ≤ {{target}} kg.', ja: '今日は日曜日ですが、今週の記録がまだありません。現在の体重を写真付きで送ってください。目標：≤ {{target}} kg。', id: 'Hari ini Minggu dan belum ada check-in minggu ini. Kirim foto dengan beratmu saat ini. Target: ≤ {{target}} kg.',
+  },
   help: {
     ru: '<b>Доступные команды</b>\n\n/goal — создать или заменить цель\n/status — показать цель, недельный рубеж и график\n/schedule — показать план по неделям\n/settings — выбрать язык\n/help — показать эту справку\n\n/status, /schedule и /settings работают и здесь, в личном чате. Для старта или отметки пришли фото в группу, упомяни меня в подписи и укажи вес.',
     en: '<b>Available commands</b>\n\n/goal — create or replace a goal\n/status — show the goal, weekly checkpoint, and chart\n/schedule — show the weekly plan\n/settings — choose a language\n/help — show this help\n\n/status, /schedule, and /settings also work here in private chat. To start or check in, send a photo in a group, mention me in the caption, and include your weight.',

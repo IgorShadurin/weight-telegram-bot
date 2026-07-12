@@ -40,7 +40,7 @@ In a group, mention the bot with the command or use `/command@my_weight_goal_bot
 - Full weeks are balanced as evenly as possible in 50 g steps; the first and last partial weeks may be smaller.
 - The final target weight and date always remain exact.
 - Graphic responses are limited to one image per user per minute.
-- On Thursdays, the bot reminds you about an unfinished current checkpoint.
+- On Thursdays, the bot reminds you about the current checkpoint; on Sunday at 10:00, it reminds you again if the week has no check-in.
 - Completed weeks unlock the capybara achievement sequence.
 - Change the language at any time with `/settings` or the buttons in a private chat with the bot.
 

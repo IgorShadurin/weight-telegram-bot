@@ -40,7 +40,7 @@ En el grupo, menciona al bot junto al comando o usa `/command@my_weight_goal_bot
 - Las semanas completas se equilibran en pasos de 50 g; la primera y la última semana parcial pueden ser menores.
 - El peso final y la fecha siempre se mantienen exactos.
 - Cada usuario puede recibir una imagen por minuto.
-- Los jueves, el bot recuerda el punto semanal si sigue pendiente.
+- Los jueves, el bot recuerda el punto semanal; el domingo a las 10:00 vuelve a avisar si aún no hay ningún registro esa semana.
 - Cada semana superada desbloquea el siguiente logro de la capibara.
 - Cambia el idioma cuando quieras con `/settings` o con los botones del chat privado con el bot.
 

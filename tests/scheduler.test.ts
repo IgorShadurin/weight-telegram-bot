@@ -44,6 +44,38 @@ describe('Scheduler', () => {
     expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'reminder'").get()).toMatchObject({ count: 0 });
   });
 
+  it('queues one Sunday reminder when the current week has no check-in', async () => {
+    const goal = create();
+    const second = store.getPeriods(goal.id)[1]!;
+    const process = vi.fn(async () => undefined);
+    const scheduler = new Scheduler(store, loadConfig({ botToken: 'x', webhookSecret: 's' }), process);
+
+    await scheduler.tick(DateTime.fromISO('2026-07-19T10:00:00', { zone: 'Europe/Minsk' }));
+    await scheduler.tick(DateTime.fromISO('2026-07-19T10:00:30', { zone: 'Europe/Minsk' }));
+
+    const jobs = store.db.prepare("SELECT payload_json FROM outbox WHERE type = 'sunday-reminder'").all() as Array<{ payload_json: string }>;
+    expect(jobs).toHaveLength(1);
+    expect(JSON.parse(jobs[0]!.payload_json)).toMatchObject({
+      periodId: second.id,
+      target: String(second.targetWeightGrams / 1000),
+    });
+  });
+
+  it('does not send the Sunday reminder after any check-in that week', async () => {
+    const goal = create();
+    const second = store.getPeriods(goal.id)[1]!;
+    store.recordCheckIn({
+      telegramUserId: '1', chatId: '-100', localDate: '2026-07-14',
+      weightGrams: second.targetWeightGrams + 100, photoUniqueId: 'week-two', now: '2026-07-14T08:00:00Z',
+    });
+    const scheduler = new Scheduler(store, loadConfig({ botToken: 'x', webhookSecret: 's' }), async () => undefined);
+
+    await scheduler.tick(DateTime.fromISO('2026-07-19T10:00:00', { zone: 'Europe/Minsk' }));
+
+    expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'sunday-reminder'").get())
+      .toMatchObject({ count: 0 });
+  });
+
   it('closes a missed final partial week and fails the goal', async () => {
     const goal = create('2026-07-10');
     const scheduler = new Scheduler(store, loadConfig({ botToken: 'x', webhookSecret: 's' }), async () => undefined);
