@@ -91,6 +91,23 @@ describe('graphics and fixed catalogs', () => {
     expect(closed).not.toContain('не закрыта');
   });
 
+  it('keeps live above-target feedback explicit in every language', () => {
+    const weeklyContext = {
+      ru: /недельн|рубеж/iu, en: /week|weekly|checkpoint/iu, zh: /周/u,
+      es: /semanal|semana/iu, pt: /semanal|semana/iu, de: /Wochen/iu,
+      fr: /hebdomadaire|semaine/iu, ja: /週/u, id: /minggu/iu,
+    } as const;
+    for (const language of LANGUAGES) {
+      expect(variants.fail[language].every((message) => weeklyContext[language].test(message))).toBe(true);
+    }
+  });
+
+  it('uses natural Spanish photo-caption wording without leaked French terms', () => {
+    expect(t('es', 'needPhotoWeight', { bot: 'my_weight_goal_bot' })).toContain('pie de foto');
+    expect(t('es', 'help')).toContain('pie de foto');
+    expect(variants.missing.es.some((message) => /palier/iu.test(message))).toBe(false);
+  });
+
   it('localizes the Sunday missing-check-in reminder', () => {
     for (const language of LANGUAGES) {
       const message = t(language, 'sundayReminder', { target: '88.5' });
