@@ -49,6 +49,7 @@ describe('Scheduler', () => {
     const scheduler = new Scheduler(store, loadConfig({ botToken: 'x', webhookSecret: 's' }), async () => undefined);
     await scheduler.tick(DateTime.fromISO('2026-07-11T00:01:00', { zone: 'Europe/Minsk' }));
     expect(store.getGoal(goal.id)?.status).toBe('failed');
-    expect(store.db.prepare("SELECT COUNT(*) AS count FROM outbox WHERE type = 'missed'").get()).toMatchObject({ count: 1 });
+    const job = store.db.prepare("SELECT payload_json FROM outbox WHERE type = 'missed'").get() as { payload_json: string };
+    expect(JSON.parse(job.payload_json)).toMatchObject({ target: '80', hadSubmission: true, final: true });
   });
 });

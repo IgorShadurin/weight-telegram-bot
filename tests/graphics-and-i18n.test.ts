@@ -84,6 +84,13 @@ describe('graphics and fixed catalogs', () => {
     }
   });
 
+  it('keeps Russian live and closed-week feedback explicit', () => {
+    expect(variants.fail.ru.every((message) => /недельн|рубеж/iu.test(message))).toBe(true);
+    const closed = t('ru', 'closedAboveTarget', { target: '92.95' });
+    expect(closed).toBe('Недельный рубеж 92.95 кг не пройден: последняя отметка была выше цели.');
+    expect(closed).not.toContain('не закрыта');
+  });
+
   it('keeps every weight in the chart model and highlights two periods', () => {
     const model = createChartModel(goal, periods, weighIns, 'Europe/Minsk');
     expect(model.points).toHaveLength(30);

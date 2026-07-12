@@ -73,6 +73,7 @@ export class Scheduler {
             language: user.language,
             final,
             hadSubmission,
+            target: formatKg(period.targetWeightGrams),
           },
           dueAt: nowIso,
           now: nowIso,

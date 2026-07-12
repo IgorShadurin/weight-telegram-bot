@@ -182,6 +182,27 @@ describe('Telegram group behavior', () => {
       .toMatchObject({ count: 1 });
   });
 
+  it('describes a closed failed week without saying it is still open', async () => {
+    await update(38, { text: '@my_weight_goal_bot настройки' });
+    const dueAt = DateTime.utc().toISO()!;
+    store.enqueue({
+      dedupeKey: 'missed:test:1',
+      type: 'missed',
+      payload: {
+        goalId: 'goal', periodId: 'period', telegramUserId: '1', chatId: '-100', threadId: null,
+        language: 'ru', final: false, hadSubmission: true, target: '92.95',
+      },
+      dueAt,
+      now: dueAt,
+    });
+    calls.length = 0;
+
+    await telegram.processOutbox(DateTime.utc().plus({ seconds: 1 }));
+
+    expect(calls.at(-1)?.payload.text).toContain('Недельный рубеж 92.95 кг не пройден');
+    expect(calls.at(-1)?.payload.text).not.toContain('Неделя ещё не закрыта');
+  });
+
   it('requires a mentioned photo caption and offers all supported languages', async () => {
     await update(2, { text: '@my_weight_goal_bot create goal' });
     expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(2);

@@ -197,9 +197,14 @@ export class TelegramService {
           const suffix = job.payload.final
             ? `\n${t(job.payload.language, 'finalFailed')}`
             : '';
-          await this.bot.api.sendMessage(job.payload.chatId, `${mention(user.telegramUserId, user.displayName)}, ${variant(
-            job.payload.language, job.payload.hadSubmission ? 'fail' : 'missing', `${job.payload.goalId}:${job.payload.periodId}`,
-          )}${suffix}`, { parse_mode: 'HTML', ...thread });
+          const result = job.payload.hadSubmission
+            ? t(job.payload.language, 'closedAboveTarget', { target: job.payload.target })
+            : variant(job.payload.language, 'missing', `${job.payload.goalId}:${job.payload.periodId}`);
+          await this.bot.api.sendMessage(
+            job.payload.chatId,
+            `${mention(user.telegramUserId, user.displayName)}, ${result}${suffix}`,
+            { parse_mode: 'HTML', ...thread },
+          );
         } else if (job.type === 'graphics') {
           const goal = this.store.getGoal(job.payload.goalId);
           const period = goal ? this.store.getPeriods(goal.id).find((item) => item.id === job.payload.periodId) : null;
