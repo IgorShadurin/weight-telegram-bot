@@ -458,6 +458,65 @@ describe('Telegram group behavior', () => {
     expect(store.getGoal(existing.id)?.status).toBe('active');
   });
 
+  it('rejects reused replacement photos before asking for the target', async () => {
+    const existing = await seedActiveGoal(130, 'replace-duplicate-early');
+    calls.length = 0;
+    await update(131, { text: '/goal@my_weight_goal_bot' });
+    const confirmation = store.getDraft('1', new Date().toISOString())!;
+    await callback(132, 'goal:replace:1', confirmation.promptMessageId!);
+    const photoPrompt = store.getDraft('1', new Date().toISOString())!;
+
+    await update(133, {
+      caption: '93.2',
+      photo: [{ file_id: 'replacement', file_unique_id: 'replace-duplicate-early', width: 1000, height: 1000 }],
+      reply_to_message: {
+        message_id: photoPrompt.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+
+    expect(calls.some((call) => call.payload.text?.includes('Это фото уже использовалось'))).toBe(true);
+    expect(store.getDraft('1', new Date().toISOString())).toMatchObject({
+      stage: 'await-start-photo',
+      initialWeightGrams: null,
+      initialPhotoUniqueId: null,
+      targetWeightGrams: null,
+      targetDate: null,
+    });
+    expect(store.getActiveGoal('1')?.id).toBe(existing.id);
+  });
+
+  it('recovers if a photo becomes duplicated before final confirmation', async () => {
+    const existing = await seedActiveGoal(140, 'replace-duplicate-race-existing');
+    store.saveDraft({
+      telegramUserId: '1', intent: 'replace', stage: 'confirm-goal', chatId: '-100', threadId: null,
+      promptMessageId: 777, initialWeightGrams: 93_250, initialPhotoUniqueId: 'replace-duplicate-race',
+      targetWeightGrams: 85_000, targetDate: '2027-12-31', expiresAt: '2027-01-01T00:00:00Z',
+    });
+    store.recordCheckIn({
+      telegramUserId: '1', chatId: '-100', localDate: '2026-07-13', weightGrams: 93_250,
+      photoUniqueId: 'replace-duplicate-race', now: '2026-07-13T09:30:00Z',
+    });
+    calls.length = 0;
+
+    await callback(141, 'goal:confirm:1', 777);
+
+    const alert = calls.find((call) => call.method === 'answerCallbackQuery')!;
+    expect(alert.payload.text).toContain('Это фото уже использовалось');
+    expect(alert.payload.show_alert).toBe(true);
+    expect(store.getDraft('1', new Date().toISOString())).toMatchObject({
+      stage: 'await-start-photo',
+      initialWeightGrams: null,
+      initialPhotoUniqueId: null,
+      targetWeightGrams: null,
+      targetDate: null,
+    });
+    expect(store.getActiveGoal('1')?.id).toBe(existing.id);
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+  });
+
   it('deduplicates repeated Telegram update IDs', async () => {
     await update(6, { text: '@my_weight_goal_bot help' });
     const count = calls.length;

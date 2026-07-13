@@ -17,7 +17,13 @@ export function createServer(input: {
   telegram: TelegramService;
 }) {
   const server = Fastify({
-    logger: { level: input.config.logLevel },
+    logger: {
+      level: input.config.logLevel,
+      redact: {
+        paths: ['err.ctx', 'req.headers.x-telegram-bot-api-secret-token'],
+        censor: '[Redacted]',
+      },
+    },
     bodyLimit: 2 * 1024 * 1024,
   });
 

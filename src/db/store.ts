@@ -253,6 +253,12 @@ export class Store {
       .all(goalId).map(mapWeighIn);
   }
 
+  hasUsedPhoto(telegramUserId: string, photoUniqueId: string): boolean {
+    return Boolean(this.db.prepare(`
+      SELECT 1 FROM weigh_ins WHERE telegram_user_id = ? AND photo_unique_id = ? LIMIT 1
+    `).get(telegramUserId, photoUniqueId));
+  }
+
   periodHasWeighIn(periodId: string): boolean {
     const row = this.db.prepare('SELECT 1 FROM weigh_ins WHERE period_id = ? LIMIT 1').get(periodId);
     return Boolean(row);
@@ -307,7 +313,12 @@ export class Store {
         input.startWeightGrams, input.initialPhotoUniqueId, input.now,
       );
     });
-    create();
+    try {
+      create();
+    } catch (error) {
+      if (String(error).includes('UNIQUE constraint failed')) throw new Error('DUPLICATE_PHOTO', { cause: error });
+      throw error;
+    }
     return this.getGoal(goalId)!;
   }
 

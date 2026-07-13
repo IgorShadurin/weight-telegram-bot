@@ -32,6 +32,16 @@ describe('Store', () => {
     expect(store.getActiveGoal('1')?.id).toBe(newGoal.id);
   });
 
+  it('keeps the old goal active when a replacement reuses photo evidence', () => {
+    const oldGoal = create('replacement-photo');
+
+    expect(() => create('replacement-photo', '2026-08-31')).toThrow('DUPLICATE_PHOTO');
+    expect(store.getActiveGoal('1')?.id).toBe(oldGoal.id);
+    expect(store.getGoal(oldGoal.id)).toMatchObject({ status: 'active', replacedByGoalId: null });
+    expect(store.db.prepare('SELECT COUNT(*) AS count FROM goals WHERE telegram_user_id = ?').get('1'))
+      .toMatchObject({ count: 1 });
+  });
+
   it('atomically identifies new users and reports platform totals', () => {
     expect(store.upsertUserWithStatus({
       telegramUserId: '1', displayName: 'Updated', defaultLanguage: 'en', now: '2026-07-08T11:00:00Z',

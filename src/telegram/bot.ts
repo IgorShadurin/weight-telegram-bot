@@ -95,6 +95,27 @@ async function askCurrentWeight(ctx: Context, language: Language): Promise<numbe
   return prompt.message_id;
 }
 
+async function askStartingPhoto(
+  ctx: Context,
+  language: Language,
+  botUsername: string,
+  messageThreadId?: number,
+): Promise<number> {
+  const prompt = await ctx.reply(t(language, 'replacementPhotoPrompt', { bot: botUsername }), {
+    parse_mode: 'HTML',
+    ...(messageThreadId !== undefined ? { message_thread_id: messageThreadId } : {}),
+    reply_markup: {
+      force_reply: true,
+      selective: true,
+      input_field_placeholder: localized(language, {
+        ru: '93.25 кг', en: '93.25 kg', zh: '93.25 公斤', es: '93,25 kg', pt: '93,25 kg',
+        de: '93,25 kg', fr: '93,25 kg', ja: '93.25 kg', id: '93,25 kg',
+      }),
+    },
+  });
+  return prompt.message_id;
+}
+
 async function askTargetWeight(ctx: Context, language: Language, weight: number): Promise<number> {
   const prompt = await ctx.reply(t(language, 'needTarget', { weight: formatKg(weight) }), {
     parse_mode: 'HTML',
@@ -208,20 +229,10 @@ export function configureBot(service: TelegramService, store: Store, config: App
       await ctx.answerCallbackQuery();
       await ctx.editMessageText(t(user.language, 'replacementApproved'));
       const callbackThreadId = ctx.callbackQuery.message?.message_thread_id;
-      const prompt = await ctx.reply(t(user.language, 'replacementPhotoPrompt', { bot: ctx.me.username }), {
-        parse_mode: 'HTML',
-        ...(callbackThreadId !== undefined ? { message_thread_id: callbackThreadId } : {}),
-        reply_markup: {
-          force_reply: true,
-          selective: true,
-          input_field_placeholder: localized(user.language, {
-            ru: '93.25 кг', en: '93.25 kg', zh: '93.25 公斤', es: '93,25 kg', pt: '93,25 kg',
-            de: '93,25 kg', fr: '93,25 kg', ja: '93.25 kg', id: '93,25 kg',
-          }),
-        },
-      });
       draft.stage = 'await-start-photo';
-      draft.promptMessageId = prompt.message_id;
+      draft.promptMessageId = await askStartingPhoto(
+        ctx, user.language, ctx.me.username, callbackThreadId,
+      );
       draft.expiresAt = now.plus({ minutes: 20 }).toISO()!;
       store.saveDraft(draft);
       return;
@@ -237,18 +248,36 @@ export function configureBot(service: TelegramService, store: Store, config: App
         return;
       }
       const startDate = now.setZone(config.timezone).toISODate()!;
-      const goal = store.createGoal({
-        telegramUserId: userId,
-        chatId: draft.chatId,
-        threadId: draft.threadId,
-        startDate,
-        startWeightGrams: draft.initialWeightGrams,
-        targetWeightGrams: draft.targetWeightGrams,
-        targetDate: draft.targetDate,
-        initialPhotoUniqueId: draft.initialPhotoUniqueId,
-        now: now.toISO()!,
-        timezone: config.timezone,
-      });
+      let goal;
+      try {
+        goal = store.createGoal({
+          telegramUserId: userId,
+          chatId: draft.chatId,
+          threadId: draft.threadId,
+          startDate,
+          startWeightGrams: draft.initialWeightGrams,
+          targetWeightGrams: draft.targetWeightGrams,
+          targetDate: draft.targetDate,
+          initialPhotoUniqueId: draft.initialPhotoUniqueId,
+          now: now.toISO()!,
+          timezone: config.timezone,
+        });
+      } catch (error) {
+        if (!String(error).includes('DUPLICATE_PHOTO')) throw error;
+        await ctx.answerCallbackQuery({ text: t(user.language, 'duplicatePhoto'), show_alert: true });
+        await ctx.editMessageText(t(user.language, 'duplicatePhoto'));
+        draft.stage = 'await-start-photo';
+        draft.promptMessageId = await askStartingPhoto(
+          ctx, user.language, ctx.me.username, ctx.callbackQuery.message?.message_thread_id,
+        );
+        draft.initialWeightGrams = null;
+        draft.initialPhotoUniqueId = null;
+        draft.targetWeightGrams = null;
+        draft.targetDate = null;
+        draft.expiresAt = now.plus({ minutes: 20 }).toISO()!;
+        store.saveDraft(draft);
+        return;
+      }
       store.deleteDraft(userId);
       const first = store.getPeriods(goal.id)[0]!;
       await ctx.answerCallbackQuery();
@@ -563,6 +592,17 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
     const weight = parseWeightGrams(text.replace(new RegExp(`@${ctx.me.username}`, 'igu'), ''));
     const isStartingPhoto = !activeGoal || isReplacementPhoto;
+    if (isReplacementPhoto && draft && store.hasUsedPhoto(userId, photo.file_unique_id)) {
+      await ctx.reply(t(user.language, 'duplicatePhoto'));
+      draft.promptMessageId = await askStartingPhoto(ctx, user.language, ctx.me.username, currentThreadId);
+      draft.initialWeightGrams = null;
+      draft.initialPhotoUniqueId = null;
+      draft.targetWeightGrams = null;
+      draft.targetDate = null;
+      draft.expiresAt = now.plus({ minutes: 20 }).toISO()!;
+      store.saveDraft(draft);
+      return;
+    }
     if (!weight && isStartingPhoto) {
       const expiresAt = now.plus({ minutes: 20 }).toISO()!;
       const promptMessageId = await askCurrentWeight(ctx, user.language);
