@@ -35,6 +35,8 @@ Send a new photo that mentions the bot and includes your current weight: `@my_we
 
 In a group, mention the bot with the command or use `/command@my_weight_goal_bot`.
 
+If a goal is already active, `/goal` first asks you to confirm the replacement with buttons. After confirming, send a new starting photo and weight by mentioning the bot or replying to its prompt. The old goal is archived only after the new one is created.
+
 ## Plans, charts, and achievements
 
 - Full weeks are balanced as evenly as possible in 50 g steps; the first and last partial weeks may be smaller.

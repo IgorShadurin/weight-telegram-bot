@@ -76,6 +76,16 @@ describe('graphics and fixed catalogs', () => {
     }
   });
 
+  it('localizes the active-goal replacement confirmation and photo prompt', () => {
+    for (const language of LANGUAGES) {
+      expect(t(language, 'confirmReplaceGoal')).not.toContain('{{');
+      expect(t(language, 'replacementApproved')).not.toContain('{{');
+      const prompt = t(language, 'replacementPhotoPrompt', { bot: 'my_weight_goal_bot' });
+      expect(prompt).toContain('@my_weight_goal_bot');
+      expect(prompt).not.toContain('{{');
+    }
+  });
+
   it('uses request-specific cooldown messages in every language', () => {
     for (const language of LANGUAGES) {
       expect(t(language, 'planCooldown', { seconds: 42 })).toContain('42');

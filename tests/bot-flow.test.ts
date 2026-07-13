@@ -74,6 +74,16 @@ describe('Telegram group behavior', () => {
     } as any);
   }
 
+  async function seedActiveGoal(updateId: number, photoUniqueId: string) {
+    await update(updateId, { text: '@my_weight_goal_bot настройки' });
+    return store.createGoal({
+      telegramUserId: '1', chatId: '-100', threadId: null,
+      startDate: '2026-07-13', startWeightGrams: 94_000,
+      targetWeightGrams: 80_000, targetDate: '2027-12-31',
+      initialPhotoUniqueId: photoUniqueId, now: '2026-07-13T09:00:00Z', timezone: 'Europe/Minsk',
+    });
+  }
+
   it('ignores an ordinary unmentioned group message', async () => {
     await update(1, { text: '88.3 kg' });
     expect(calls).toHaveLength(0);
@@ -271,6 +281,127 @@ describe('Telegram group behavior', () => {
     expect(calls.at(-1)?.payload.text).toMatch(/≈ \d+ г\/нед\./u);
   });
 
+  it('asks before replacing an active goal and keeps it when the user says no', async () => {
+    const existing = await seedActiveGoal(90, 'replace-no-existing');
+    calls.length = 0;
+
+    await update(91, { text: '/goal@my_weight_goal_bot' });
+
+    const question = calls.at(-1)!;
+    expect(question.method).toBe('sendMessage');
+    expect(question.payload.text).toContain('Точно заменить её новой?');
+    expect(question.payload.reply_markup.inline_keyboard.flat().map((button: any) => button.callback_data))
+      .toEqual(['goal:replace:1', 'goal:keep:1']);
+    const confirmation = store.getDraft('1', new Date().toISOString())!;
+    expect(confirmation.stage).toBe('confirm-replace');
+
+    await callback(92, 'goal:keep:1', confirmation.promptMessageId!);
+
+    expect(store.getActiveGoal('1')?.id).toBe(existing.id);
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+    expect(store.getDraft('1', new Date().toISOString())).toBeNull();
+    expect(calls.at(-1)?.payload.text).toContain('Ничего не изменено');
+  });
+
+  it('does not let an old replacement button alter a newer draft', async () => {
+    const existing = await seedActiveGoal(95, 'replace-stale-existing');
+    calls.length = 0;
+    await update(96, { text: '/goal@my_weight_goal_bot' });
+    const oldConfirmation = store.getDraft('1', new Date().toISOString())!;
+    await update(97, { text: '/goal@my_weight_goal_bot' });
+    const currentConfirmation = store.getDraft('1', new Date().toISOString())!;
+    expect(currentConfirmation.promptMessageId).not.toBe(oldConfirmation.promptMessageId);
+
+    await callback(98, 'goal:keep:1', oldConfirmation.promptMessageId!);
+
+    expect(store.getDraft('1', new Date().toISOString())?.promptMessageId).toBe(currentConfirmation.promptMessageId);
+    expect(store.getActiveGoal('1')?.id).toBe(existing.id);
+    expect(calls.at(-1)?.method).toBe('answerCallbackQuery');
+    expect(calls.at(-1)?.payload.text).toContain('Черновик цели истёк');
+  });
+
+  it('starts replacement from a photo reply and archives the old goal only after final confirmation', async () => {
+    const existing = await seedActiveGoal(100, 'replace-reply-existing');
+    calls.length = 0;
+    await update(101, { text: '/goal@my_weight_goal_bot' });
+    const confirmation = store.getDraft('1', new Date().toISOString())!;
+    await callback(102, 'goal:replace:1', confirmation.promptMessageId!);
+
+    let draft = store.getDraft('1', new Date().toISOString())!;
+    expect(draft.intent).toBe('replace');
+    expect(draft.initialWeightGrams).toBeNull();
+    expect(calls.at(-1)?.payload.text).toContain('ответь фотографией на это сообщение');
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+
+    await update(103, {
+      caption: '93.25',
+      photo: [{ file_id: 'replacement', file_unique_id: 'replace-reply-start', width: 1000, height: 1000 }],
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    expect(draft.initialWeightGrams).toBe(93_250);
+    expect(draft.initialPhotoUniqueId).toBe('replace-reply-start');
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+
+    await update(104, {
+      text: '82 kg',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    await update(105, {
+      text: '31 Dec 2027',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+
+    await callback(106, 'goal:confirm:1', draft.promptMessageId!);
+
+    const replacement = store.getActiveGoal('1')!;
+    expect(replacement.id).not.toBe(existing.id);
+    expect(replacement.startWeightGrams).toBe(93_250);
+    expect(store.getGoal(existing.id)).toMatchObject({
+      status: 'replaced',
+      replacedByGoalId: replacement.id,
+    });
+    expect(store.getWeighIns(existing.id)).toHaveLength(1);
+  });
+
+  it('also accepts a mentioned starting photo after replacement is approved', async () => {
+    const existing = await seedActiveGoal(110, 'replace-mention-existing');
+    calls.length = 0;
+    await update(111, { text: '/goal@my_weight_goal_bot' });
+    const confirmation = store.getDraft('1', new Date().toISOString())!;
+    await callback(112, 'goal:replace:1', confirmation.promptMessageId!);
+
+    await update(113, {
+      caption: '@my_weight_goal_bot 93.1 kg',
+      photo: [{ file_id: 'replacement', file_unique_id: 'replace-mention-start', width: 1000, height: 1000 }],
+    });
+
+    expect(store.getDraft('1', new Date().toISOString())).toMatchObject({
+      intent: 'replace',
+      initialWeightGrams: 93_100,
+      initialPhotoUniqueId: 'replace-mention-start',
+    });
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+  });
+
   it('deduplicates repeated Telegram update IDs', async () => {
     await update(6, { text: '@my_weight_goal_bot help' });
     const count = calls.length;
@@ -286,6 +417,7 @@ describe('Telegram group behavior', () => {
   });
 
   it.each([
+    ['/goal', 'Пришли фото'],
     ['/goal@my_weight_goal_bot', 'Пришли фото'],
     ['/status@my_weight_goal_bot', 'Активной цели пока нет'],
     ['/schedule@my_weight_goal_bot', 'Активной цели пока нет'],

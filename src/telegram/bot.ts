@@ -42,12 +42,24 @@ function mentioned(text: string, username: string): boolean {
 }
 
 function commandAddressedToBot(text: string, username: string): boolean {
-  const match = text.match(/^\/(?:goal|status|schedule|settings|help)@([a-z0-9_]+)(?=$|\s)/iu);
-  return match?.[1]?.toLowerCase() === username.toLowerCase();
+  const match = text.match(/^\/(?:goal|status|schedule|settings|help)(?:@([a-z0-9_]+))?(?=$|\s)/iu);
+  return Boolean(match && (!match[1] || match[1].toLowerCase() === username.toLowerCase()));
 }
 
 function threadId(ctx: Context): number | undefined {
   return ctx.message?.message_thread_id;
+}
+
+function draftStage(draft: GoalDraft): NonNullable<GoalDraft['stage']> {
+  if (draft.stage) return draft.stage;
+  if (draft.initialWeightGrams === null) return 'await-start-photo';
+  if (draft.targetWeightGrams === null) return 'await-target';
+  if (draft.targetDate === null) return 'await-date';
+  return 'confirm-goal';
+}
+
+function callbackMatchesDraft(ctx: Context, draft: GoalDraft, stage: NonNullable<GoalDraft['stage']>): boolean {
+  return draftStage(draft) === stage && draft.promptMessageId === ctx.callbackQuery?.message?.message_id;
 }
 
 async function editOrReply(ctx: Context, draft: GoalDraft, text: string, markup: any): Promise<number> {
@@ -125,15 +137,70 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     if (action === 'goal' && value === 'cancel') {
+      const draft = store.getDraft(userId, now.toISO()!);
+      if (!draft || !callbackMatchesDraft(ctx, draft, 'confirm-goal')) {
+        await ctx.answerCallbackQuery({ text: t(user.language, 'draftExpired') });
+        return;
+      }
       store.deleteDraft(userId);
       await ctx.answerCallbackQuery();
       await ctx.editMessageText(t(user.language, 'cancelled'));
       return;
     }
 
+    if (action === 'goal' && value === 'keep') {
+      const draft = store.getDraft(userId, now.toISO()!);
+      if (!draft || !callbackMatchesDraft(ctx, draft, 'confirm-replace')) {
+        await ctx.answerCallbackQuery({ text: t(user.language, 'draftExpired') });
+        return;
+      }
+      store.deleteDraft(userId);
+      await ctx.answerCallbackQuery();
+      await ctx.editMessageText(t(user.language, 'cancelled'));
+      return;
+    }
+
+    if (action === 'goal' && value === 'replace') {
+      const draft = store.getDraft(userId, now.toISO()!);
+      if (!draft || !callbackMatchesDraft(ctx, draft, 'confirm-replace')) {
+        await ctx.answerCallbackQuery({ text: t(user.language, 'draftExpired') });
+        return;
+      }
+      const activeGoal = store.getActiveGoal(userId);
+      if (!activeGoal) {
+        store.deleteDraft(userId);
+        await ctx.answerCallbackQuery({ text: t(user.language, 'noGoal') });
+        await ctx.editMessageText(t(user.language, 'noGoal'));
+        return;
+      }
+      await ctx.answerCallbackQuery();
+      await ctx.editMessageText(t(user.language, 'replacementApproved'));
+      const callbackThreadId = ctx.callbackQuery.message?.message_thread_id;
+      const prompt = await ctx.reply(t(user.language, 'replacementPhotoPrompt', { bot: ctx.me.username }), {
+        parse_mode: 'HTML',
+        ...(callbackThreadId !== undefined ? { message_thread_id: callbackThreadId } : {}),
+        reply_markup: {
+          force_reply: true,
+          selective: true,
+          input_field_placeholder: localized(user.language, {
+            ru: '93.25 кг', en: '93.25 kg', zh: '93.25 公斤', es: '93,25 kg', pt: '93,25 kg',
+            de: '93,25 kg', fr: '93,25 kg', ja: '93.25 kg', id: '93,25 kg',
+          }),
+        },
+      });
+      draft.stage = 'await-start-photo';
+      draft.promptMessageId = prompt.message_id;
+      draft.expiresAt = now.plus({ minutes: 20 }).toISO()!;
+      store.saveDraft(draft);
+      return;
+    }
+
     if (action === 'goal' && value === 'confirm') {
       const draft = store.getDraft(userId, now.toISO()!);
-      if (!draft?.initialWeightGrams || !draft.initialPhotoUniqueId || !draft.targetWeightGrams || !draft.targetDate) {
+      if (
+        !draft || !callbackMatchesDraft(ctx, draft, 'confirm-goal') || !draft.initialWeightGrams ||
+        !draft.initialPhotoUniqueId || !draft.targetWeightGrams || !draft.targetDate
+      ) {
         await ctx.answerCallbackQuery({ text: t(user.language, 'draftExpired') });
         return;
       }
@@ -282,14 +349,21 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     const draft = store.getDraft(userId, now.toISO()!);
-    if (isReply && draft) {
-      if (draft.targetWeightGrams === null) {
+    const currentThreadId = threadId(ctx);
+    const isDraftReply = Boolean(
+      isReply && draft && draft.chatId === String(ctx.chat.id) &&
+      draft.promptMessageId === ctx.message.reply_to_message?.message_id &&
+      draft.threadId === (currentThreadId === undefined ? null : String(currentThreadId)),
+    );
+    if (isDraftReply && draft && draft.initialWeightGrams !== null) {
+      if (draftStage(draft) === 'await-target') {
         const target = parseWeightGrams(text);
         if (!target || !draft.initialWeightGrams || target >= draft.initialWeightGrams) {
           await ctx.reply(t(user.language, 'badTarget'));
           return;
         }
         draft.targetWeightGrams = target;
+        draft.stage = 'await-date';
         // A ForceReply is consumed after one answer. Editing the old prompt does not
         // reopen Telegram's reply composer, so every wizard input step needs a new message.
         const prompt = await ctx.reply(t(user.language, 'needDate', { weight: formatKg(target) }), {
@@ -307,7 +381,13 @@ export function configureBot(service: TelegramService, store: Store, config: App
         store.saveDraft(draft);
         return;
       }
-      if (draft.targetDate === null) {
+      if (draftStage(draft) === 'await-date') {
+        const targetWeightGrams = draft.targetWeightGrams;
+        if (targetWeightGrams === null) {
+          store.deleteDraft(userId);
+          await ctx.reply(t(user.language, 'draftExpired'));
+          return;
+        }
         const targetDate = parseLocalizedDate(text, config.timezone);
         const startDate = now.setZone(config.timezone).toISODate()!;
         if (!targetDate || targetDate <= startDate) {
@@ -320,7 +400,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
             startDate,
             targetDate,
             startWeightGrams: draft.initialWeightGrams!,
-            targetWeightGrams: draft.targetWeightGrams,
+            targetWeightGrams,
             timezone: config.timezone,
           });
         } catch {
@@ -328,6 +408,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
           return;
         }
         draft.targetDate = targetDate;
+        draft.stage = 'confirm-goal';
         const replace = store.getActiveGoal(userId) ? t(user.language, 'replacing') : '';
         const keyboard = new InlineKeyboard()
           .text(localized(user.language, {
@@ -341,7 +422,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
         draft.promptMessageId = await editOrReply(ctx, draft, t(user.language, 'confirmGoal', {
           replace,
           start: formatKg(draft.initialWeightGrams!),
-          target: formatKg(draft.targetWeightGrams),
+          target: formatKg(targetWeightGrams),
           date: targetDate,
           periods: periods.length,
           grams: typicalWeeklyLossGrams(draft.initialWeightGrams!, periods),
@@ -352,13 +433,38 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     const activeGoal = store.getActiveGoal(userId);
+    if (activeGoal && NEW_GOAL.test(text)) {
+      store.deleteDraft(userId);
+      const keyboard = new InlineKeyboard()
+        .text(localized(user.language, {
+          ru: 'Да, заменить', en: 'Yes, replace', zh: '确认更换', es: 'Sí, sustituir', pt: 'Sim, trocar',
+          de: 'Ja, ersetzen', fr: 'Oui, remplacer', ja: 'はい、変更する', id: 'Ya, ganti',
+        }), `goal:replace:${userId}`)
+        .text(localized(user.language, {
+          ru: 'Нет', en: 'No', zh: '保留当前', es: 'No', pt: 'Não', de: 'Nein', fr: 'Non', ja: 'いいえ', id: 'Tidak',
+        }), `goal:keep:${userId}`);
+      const question = await ctx.reply(t(user.language, 'confirmReplaceGoal'), { reply_markup: keyboard });
+      store.saveDraft({
+        telegramUserId: userId,
+        intent: 'replace',
+        stage: 'confirm-replace',
+        chatId: String(ctx.chat.id),
+        threadId: currentThreadId === undefined ? null : String(currentThreadId),
+        promptMessageId: question.message_id,
+        initialWeightGrams: null,
+        initialPhotoUniqueId: null,
+        targetWeightGrams: null,
+        targetDate: null,
+        expiresAt: now.plus({ minutes: 20 }).toISO()!,
+      });
+      return;
+    }
     if (SCHEDULE.test(text)) {
       if (!activeGoal) {
         await ctx.reply(t(user.language, 'noGoal'));
         return;
       }
       store.normalizeActiveGoalPeriods(config.timezone, activeGoal.id);
-      const currentThreadId = threadId(ctx);
       const result = await service.sendGoalPlan({
         telegramUserId: userId,
         chatId: String(ctx.chat.id),
@@ -378,7 +484,6 @@ export function configureBot(service: TelegramService, store: Store, config: App
       }
       const localDate = now.setZone(config.timezone).toISODate()!;
       const period = store.getPeriod(activeGoal.id, localDate) ?? store.getPeriods(activeGoal.id).at(-1)!;
-      const currentThreadId = threadId(ctx);
       const result = await service.sendStatus({
         telegramUserId: userId,
         chatId: String(ctx.chat.id),
@@ -396,7 +501,13 @@ export function configureBot(service: TelegramService, store: Store, config: App
     }
 
     const photo = ctx.message.photo?.at(-1);
-    if (!photo || (!isMentioned && !isAddressedCommand)) {
+    const isReplacementPhoto = Boolean(
+      activeGoal && draft?.intent === 'replace' && draftStage(draft) === 'await-start-photo' &&
+      draft.chatId === String(ctx.chat.id) &&
+      draft.threadId === (currentThreadId === undefined ? null : String(currentThreadId)) &&
+      (isMentioned || isDraftReply),
+    );
+    if (!photo || (!isMentioned && !isAddressedCommand && !isReplacementPhoto)) {
       await ctx.reply(t(user.language, 'needPhotoWeight', { bot: ctx.me.username }), { parse_mode: 'HTML' });
       return;
     }
@@ -406,7 +517,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       return;
     }
 
-    if (!activeGoal || NEW_GOAL.test(text)) {
+    if (!activeGoal || isReplacementPhoto) {
       const expiresAt = now.plus({ minutes: 20 }).toISO()!;
       const message = await ctx.reply(t(user.language, 'needTarget', { weight: formatKg(weight) }), {
         parse_mode: 'HTML',
@@ -421,6 +532,8 @@ export function configureBot(service: TelegramService, store: Store, config: App
       });
       store.saveDraft({
         telegramUserId: userId,
+        intent: activeGoal ? 'replace' : 'create',
+        stage: 'await-target',
         chatId: String(ctx.chat.id),
         threadId: threadId(ctx) ? String(threadId(ctx)) : null,
         promptMessageId: message.message_id,
@@ -447,7 +560,6 @@ export function configureBot(service: TelegramService, store: Store, config: App
         ? t(user.language, 'finalAchieved')
         : variant(user.language, result.justPassed ? 'success' : 'fail', `${result.goal.id}:${result.weighIn.id}`);
       const badgeWeek = result.justPassed && result.period.periodIndex <= 53 ? result.period.periodIndex : undefined;
-      const currentThreadId = threadId(ctx);
       const graphic = await service.sendStatus({
         telegramUserId: userId,
         chatId: String(ctx.chat.id),

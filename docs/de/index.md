@@ -35,6 +35,8 @@ Sende ein neues Foto, erwähne den Bot in der Bildunterschrift und ergänze dein
 
 Erwähne den Bot in der Gruppe zusammen mit dem Befehl oder nutze `/command@my_weight_goal_bot`.
 
+Wenn bereits ein Ziel aktiv ist, fragt `/goal` zuerst per Schaltflächen nach einer Bestätigung. Sende danach ein neues Startfoto mit Gewicht, indem du den Bot erwähnst oder auf seine Nachricht antwortest. Das alte Ziel wird erst archiviert, wenn das neue erstellt wurde.
+
 ## Plan, Diagramme und Erfolge
 
 - Volle Wochen werden in 50-g-Schritten möglichst gleichmäßig verteilt; die erste und letzte Teilwoche dürfen kleiner sein.

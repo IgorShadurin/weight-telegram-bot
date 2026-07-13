@@ -97,6 +97,7 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 
 - Provides complete, naturally adapted interfaces in English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.
+- Confirms active-goal replacement with Yes/No buttons, accepts the new starting photo by mention or prompt reply, and archives the old goal only after the new one is created.
 - Lets users request goal status, progress charts, weekly plans, help, and language settings in private chat.
 - Optionally notifies configured admin Telegram users about each new registration with platform user and goal-owner totals.
 - Stores one active goal per Telegram user and preserves replaced/completed goal history.

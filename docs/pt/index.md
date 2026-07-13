@@ -35,6 +35,8 @@ Envie uma foto nova, marque o bot na legenda e informe o peso atual: `@my_weight
 
 No grupo, marque o bot junto com o comando ou use `/command@my_weight_goal_bot`.
 
+Se já houver uma meta ativa, `/goal` primeiro pedirá a confirmação da troca por botões. Depois, envie uma nova foto inicial com o peso, marcando o bot ou respondendo à mensagem dele. A meta anterior só será arquivada quando a nova for criada.
+
 ## Plano, gráficos e conquistas
 
 - As semanas completas são equilibradas em passos de 50 g; a primeira e a última semana parcial podem ser menores.
