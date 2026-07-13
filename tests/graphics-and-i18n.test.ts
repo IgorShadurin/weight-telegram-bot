@@ -62,8 +62,10 @@ describe('graphics and fixed catalogs', () => {
     }
   });
 
-  it('uses plan instead of route in visible Russian copy', () => {
-    expect(t('ru', 'planReady')).toBe('🗺 План по неделям');
+  it('explains the weekly photo check-in and reward in the roadmap caption', () => {
+    expect(t('ru', 'planReady')).toContain('🗺 План по неделям');
+    expect(t('ru', 'planReady')).toContain('фото с весом');
+    expect(t('ru', 'planReady')).toContain('награду');
     expect(t('ru', 'help')).not.toContain('маршрут');
   });
 
