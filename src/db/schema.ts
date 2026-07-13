@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS chats (
   chat_id TEXT PRIMARY KEY,
   type TEXT NOT NULL,
   title TEXT,
+  welcome_language TEXT CHECK(welcome_language IN ('ru', 'en', 'zh', 'es', 'pt', 'de', 'fr', 'ja', 'id')),
   updated_at TEXT NOT NULL
 );
 
@@ -74,6 +75,13 @@ CREATE TABLE IF NOT EXISTS goal_drafts (
 CREATE TABLE IF NOT EXISTS processed_updates (
   update_id INTEGER PRIMARY KEY,
   processed_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS welcomed_chat_members (
+  chat_id TEXT NOT NULL REFERENCES chats(chat_id),
+  telegram_user_id TEXT NOT NULL,
+  welcomed_at TEXT NOT NULL,
+  PRIMARY KEY(chat_id, telegram_user_id)
 );
 
 CREATE TABLE IF NOT EXISTS graphic_limits (

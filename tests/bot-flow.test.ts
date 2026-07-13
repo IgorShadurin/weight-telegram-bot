@@ -90,6 +90,69 @@ describe('Telegram group behavior', () => {
     expect(store.getUser('1')).toBeNull();
   });
 
+  it('welcomes new members in the language selected by the admin who added the bot', async () => {
+    store.upsertUser({
+      telegramUserId: '2', displayName: 'Admin', defaultLanguage: 'es', now: '2026-07-13T09:00:00Z',
+    });
+    await telegram.bot.handleUpdate({
+      update_id: 40,
+      my_chat_member: {
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: { id: 2, is_bot: false, first_name: 'Admin', language_code: 'en' },
+        date: 1_783_700_000,
+        old_chat_member: { user: telegram.bot.botInfo, status: 'left' },
+        new_chat_member: { user: telegram.bot.botInfo, status: 'member' },
+      },
+    } as any);
+    expect(store.getChatWelcomeLanguage('-100')).toBe('es');
+
+    calls.length = 0;
+    await telegram.bot.handleUpdate({
+      update_id: 41,
+      message: {
+        message_id: 41, date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: { id: 2, is_bot: false, first_name: 'Admin' },
+        new_chat_members: [{ id: 3, is_bot: false, first_name: '<New & Member>' }],
+      },
+    } as any);
+
+    const welcome = calls.at(-1)!;
+    expect(welcome.method).toBe('sendMessage');
+    expect(welcome.payload.parse_mode).toBe('HTML');
+    expect(welcome.payload.text).toContain('¡Bienvenido/a');
+    expect(welcome.payload.text).toContain('tg://user?id=3');
+    expect(welcome.payload.text).toContain('&lt;New &amp; Member&gt;');
+    expect(welcome.payload.text).toContain('/goal');
+    expect(welcome.payload.text).not.toContain('/status');
+  });
+
+  it('uses the chat-member event as a non-duplicating welcome fallback', async () => {
+    store.upsertChat('-100', 'supergroup', 'Test', '2026-07-13T09:00:00Z', 'en');
+    await telegram.bot.handleUpdate({
+      update_id: 42,
+      chat_member: {
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: { id: 2, is_bot: false, first_name: 'Admin' },
+        date: 1_783_700_000,
+        old_chat_member: { user: { id: 4, is_bot: false, first_name: 'Sam' }, status: 'left' },
+        new_chat_member: { user: { id: 4, is_bot: false, first_name: 'Sam' }, status: 'member' },
+      },
+    } as any);
+    expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(1);
+
+    await telegram.bot.handleUpdate({
+      update_id: 43,
+      message: {
+        message_id: 43, date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: { id: 2, is_bot: false, first_name: 'Admin' },
+        new_chat_members: [{ id: 4, is_bot: false, first_name: 'Sam' }],
+      },
+    } as any);
+    expect(calls.filter((call) => call.method === 'sendMessage')).toHaveLength(1);
+  });
+
   it('uses the Telegram profile language for private-chat guidance', async () => {
     await update(30, {
       chat: { id: 1, type: 'private', first_name: 'Alice' },
@@ -242,7 +305,7 @@ describe('Telegram group behavior', () => {
 
   it('starts a goal wizard and sends a fresh ForceReply for every input step', async () => {
     await update(3, {
-      caption: '@my_weight_goal_bot 92 kg',
+      caption: '/goal 92 kg',
       photo: [{ file_id: 'downloadable', file_unique_id: 'unique-start', width: 1000, height: 1000 }],
     });
     const draft = store.getDraft('1', new Date().toISOString());

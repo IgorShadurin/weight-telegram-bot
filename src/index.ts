@@ -82,7 +82,7 @@ for (const [languageCode, commands] of Object.entries(localizedCommands)) {
 if (config.publicBaseUrl.startsWith('https://')) {
   await telegram.bot.api.setWebhook(`${config.publicBaseUrl}/telegram/webhook`, {
     secret_token: config.webhookSecret,
-    allowed_updates: ['message', 'callback_query'],
+    allowed_updates: ['message', 'callback_query', 'my_chat_member', 'chat_member'],
   });
 }
 

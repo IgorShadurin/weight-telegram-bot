@@ -33,6 +33,27 @@ function userName(ctx: Context): string {
   return [user.first_name, user.last_name].filter(Boolean).join(' ');
 }
 
+function escapeHtml(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
+function mentionUser(user: { id: number; first_name: string; last_name?: string }): string {
+  const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ');
+  return `<a href="tg://user?id=${user.id}">${escapeHtml(displayName)}</a>`;
+}
+
+function chatTitle(ctx: Context): string | null {
+  return ctx.chat && 'title' in ctx.chat ? ctx.chat.title ?? null : null;
+}
+
+function isGroupChat(ctx: Context): boolean {
+  return ctx.chat?.type === 'group' || ctx.chat?.type === 'supergroup';
+}
+
+function isChatMember(status: string): boolean {
+  return ['member', 'administrator', 'restricted'].includes(status);
+}
+
 function messageText(ctx: Context): string {
   return ctx.message?.text ?? ctx.message?.caption ?? '';
 }
@@ -134,6 +155,24 @@ async function askTargetWeight(ctx: Context, language: Language, weight: number)
 export function configureBot(service: TelegramService, store: Store, config: AppConfig): void {
   const bot = service.bot;
 
+  async function welcomeChatMember(input: {
+    chatId: number;
+    user: { id: number; is_bot: boolean; first_name: string; last_name?: string };
+    now: string;
+    threadId?: number;
+  }): Promise<void> {
+    if (input.user.is_bot) return;
+    const chatId = String(input.chatId);
+    if (!store.claimChatMemberWelcome(chatId, String(input.user.id), input.now)) return;
+    const language = store.getChatWelcomeLanguage(chatId) ?? config.defaultLanguage;
+    await bot.api.sendMessage(input.chatId, t(language, 'groupWelcome', {
+      user: mentionUser(input.user),
+    }), {
+      parse_mode: 'HTML',
+      ...(input.threadId === undefined ? {} : { message_thread_id: input.threadId }),
+    });
+  }
+
   function upsertContextUser(ctx: Context, defaultLanguage: Language, now: string) {
     const result = store.upsertUserWithStatus({
       telegramUserId: String(ctx.from!.id),
@@ -143,11 +182,11 @@ export function configureBot(service: TelegramService, store: Store, config: App
       now,
     });
     if (result.created) {
-      const chatTitle = ctx.chat && 'title' in ctx.chat ? ctx.chat.title ?? null : null;
+      const title = chatTitle(ctx);
       service.enqueueNewUserNotifications({
         user: result.user,
         chatType: ctx.chat?.type ?? 'unknown',
-        chatTitle,
+        chatTitle: title,
         now,
       });
     }
@@ -158,6 +197,44 @@ export function configureBot(service: TelegramService, store: Store, config: App
     const now = DateTime.utc().toISO()!;
     if (!store.claimUpdate(ctx.update.update_id, now)) return;
     await next();
+  });
+
+  bot.on('my_chat_member', async (ctx) => {
+    if (!ctx.from || !isGroupChat(ctx)) return;
+    const oldStatus = ctx.myChatMember.old_chat_member.status;
+    const newStatus = ctx.myChatMember.new_chat_member.status;
+    const joined = isChatMember(newStatus) && !isChatMember(oldStatus);
+    if (!joined) return;
+
+    const language = store.getUser(String(ctx.from.id))?.language
+      ?? telegramLanguage(ctx.from.language_code)
+      ?? config.defaultLanguage;
+    store.upsertChat(String(ctx.chat.id), ctx.chat.type, chatTitle(ctx), DateTime.utc().toISO()!, language);
+  });
+
+  bot.on('message:new_chat_members', async (ctx) => {
+    if (!isGroupChat(ctx)) return;
+    const now = DateTime.utc().toISO()!;
+    store.upsertChat(String(ctx.chat.id), ctx.chat.type, chatTitle(ctx), now);
+    const thread = threadId(ctx);
+    for (const newMember of ctx.message.new_chat_members) {
+      await welcomeChatMember({
+        chatId: ctx.chat.id,
+        user: newMember,
+        now,
+        ...(thread === undefined ? {} : { threadId: thread }),
+      });
+    }
+  });
+
+  bot.on('chat_member', async (ctx) => {
+    if (!isGroupChat(ctx)) return;
+    const oldStatus = ctx.chatMember.old_chat_member.status;
+    const newMember = ctx.chatMember.new_chat_member;
+    if (!isChatMember(newMember.status) || isChatMember(oldStatus)) return;
+    const now = DateTime.utc().toISO()!;
+    store.upsertChat(String(ctx.chat.id), ctx.chat.type, chatTitle(ctx), now);
+    await welcomeChatMember({ chatId: ctx.chat.id, user: newMember.user, now });
   });
 
   bot.on('callback_query:data', async (ctx) => {
@@ -390,7 +467,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
     if (!isMentioned && !isAddressedCommand && !isReply) return;
 
     const { user, created } = upsertContextUser(ctx, config.defaultLanguage, now.toISO()!);
-    store.upsertChat(String(ctx.chat.id), ctx.chat.type, 'title' in ctx.chat ? ctx.chat.title ?? null : null, now.toISO()!);
+    store.upsertChat(String(ctx.chat.id), ctx.chat.type, chatTitle(ctx), now.toISO()!);
 
     if (created) {
       await ctx.reply(t(user.language, 'welcome', { bot: ctx.me.username }), {

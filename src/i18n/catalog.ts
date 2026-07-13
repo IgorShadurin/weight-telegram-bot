@@ -25,6 +25,17 @@ const copy: Record<string, Copy> = {
     ja: 'こんにちは！グループのみんなと一緒に、体重目標を「いつか」から「今週」に変えていきます。言語を選び、写真に <code>@{{bot}} 92 kg</code> と添えて送ってください。',
     id: 'Hai! Di grup ini aku bantu supaya target berat badanmu nggak cuma jadi wacana. Pilih bahasa, lalu kirim foto dengan caption <code>@{{bot}} 92 kg</code>.',
   },
+  groupWelcome: {
+    ru: 'Привет, {{user}}! Ты можешь достичь своей цели по снижению веса 💪\n\nЧтобы настроить цель, отправь фото с текущим весом и подписью <code>/goal 92 кг</code>.',
+    en: 'Welcome, {{user}}! You can achieve your weight-loss goal 💪\n\nTo set it up, send a photo with your current weight and the caption <code>/goal 92 kg</code>.',
+    zh: '欢迎你，{{user}}！你的减重目标一定能实现 💪\n\n设置目标时，请发送一张照片，并在配文中写 <code>/goal 92 公斤</code>。',
+    es: '¡Bienvenido/a, {{user}}! Puedes lograr tu meta de pérdida de peso 💪\n\nPara configurarla, envía una foto con tu peso actual y el texto <code>/goal 92 kg</code>.',
+    pt: 'Boas-vindas, {{user}}! Você pode alcançar sua meta de perda de peso 💪\n\nPara configurá-la, envie uma foto com seu peso atual e a legenda <code>/goal 92 kg</code>.',
+    de: 'Willkommen, {{user}}! Du kannst dein Abnehmziel erreichen 💪\n\nZum Einrichten sende ein Foto mit deinem aktuellen Gewicht und der Bildunterschrift <code>/goal 92 kg</code>.',
+    fr: 'Bienvenue, {{user}} ! Tu peux atteindre ton objectif de perte de poids 💪\n\nPour le définir, envoie une photo avec ton poids actuel et la légende <code>/goal 92 kg</code>.',
+    ja: 'ようこそ、{{user}}！減量の目標は達成できます 💪\n\n設定するには、現在の体重が分かる写真に <code>/goal 92 kg</code> と添えて送ってください。',
+    id: 'Selamat datang, {{user}}! Kamu bisa mencapai target penurunan berat badanmu 💪\n\nUntuk mengaturnya, kirim foto dengan berat badanmu saat ini dan caption <code>/goal 92 kg</code>.',
+  },
   languageSet: {
     ru: 'Язык установлен: русский 🇷🇺', en: 'Language set to English 🇬🇧', zh: '好，接下来用中文聊 🇨🇳',
     es: 'Listo, seguimos en español 🇪🇸', pt: 'Pronto, agora vamos de português 🇧🇷', de: 'Alles klar, weiter auf Deutsch 🇩🇪',

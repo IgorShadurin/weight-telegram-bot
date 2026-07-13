@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
-import { LANGUAGES, type Language } from '../config.js';
+import { isLanguage, LANGUAGES, type Language } from '../config.js';
 import { buildPeriods, periodForDate } from '../domain/periods.js';
 import type {
   GoalDraft,
@@ -87,6 +87,7 @@ export class Store {
     this.db = new Database(filename);
     this.db.exec(SCHEMA_SQL);
     this.migrateLanguageConstraint();
+    this.migrateChatWelcomeLanguage();
   }
 
   private migrateLanguageConstraint(): void {
@@ -119,6 +120,15 @@ export class Store {
     }
     const violations = this.db.pragma('foreign_key_check') as unknown[];
     if (violations.length > 0) throw new Error('Foreign key violation after language migration');
+  }
+
+  private migrateChatWelcomeLanguage(): void {
+    const columns = this.db.pragma('table_info(chats)') as Array<{ name: string }>;
+    if (columns.some((column) => column.name === 'welcome_language')) return;
+    this.db.exec(`
+      ALTER TABLE chats ADD COLUMN welcome_language TEXT
+      CHECK(welcome_language IN ('ru', 'en', 'zh', 'es', 'pt', 'de', 'fr', 'ja', 'id'));
+    `);
   }
 
   close(): void {
@@ -185,11 +195,29 @@ export class Store {
     return { totalUsers: total.count, usersWithGoals: withGoals.count };
   }
 
-  upsertChat(chatId: string, type: string, title: string | null, now: string): void {
+  upsertChat(chatId: string, type: string, title: string | null, now: string, welcomeLanguage?: Language): void {
     this.db.prepare(`
-      INSERT INTO chats (chat_id, type, title, updated_at) VALUES (?, ?, ?, ?)
-      ON CONFLICT(chat_id) DO UPDATE SET type = excluded.type, title = excluded.title, updated_at = excluded.updated_at
-    `).run(chatId, type, title, now);
+      INSERT INTO chats (chat_id, type, title, welcome_language, updated_at) VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(chat_id) DO UPDATE SET
+        type = excluded.type,
+        title = excluded.title,
+        welcome_language = COALESCE(excluded.welcome_language, chats.welcome_language),
+        updated_at = excluded.updated_at
+    `).run(chatId, type, title, welcomeLanguage ?? null, now);
+  }
+
+  getChatWelcomeLanguage(chatId: string): Language | null {
+    const row = this.db.prepare('SELECT welcome_language FROM chats WHERE chat_id = ?').get(chatId) as { welcome_language: string | null } | undefined;
+    const language = row?.welcome_language ?? undefined;
+    return isLanguage(language) ? language : null;
+  }
+
+  claimChatMemberWelcome(chatId: string, telegramUserId: string, now: string): boolean {
+    const result = this.db.prepare(`
+      INSERT OR IGNORE INTO welcomed_chat_members (chat_id, telegram_user_id, welcomed_at)
+      VALUES (?, ?, ?)
+    `).run(chatId, telegramUserId, now);
+    return result.changes === 1;
   }
 
   getActiveGoal(telegramUserId: string): GoalRecord | null {

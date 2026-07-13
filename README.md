@@ -97,6 +97,7 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 
 - Provides complete, naturally adapted interfaces in English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
 - Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.
+- Welcomes each newly joined human member in the language selected by the person who added the bot, with a direct mention and the single `/goal` setup instruction.
 - Confirms active-goal replacement with Yes/No buttons, accepts the new starting photo by mention or prompt reply, accepts its weight in the caption or a follow-up reply, and archives the old goal only after the new one is created.
 - Lets users request goal status, progress charts, weekly plans, help, and language settings in private chat.
 - Optionally notifies configured admin Telegram users about each new registration with platform user and goal-owner totals.
@@ -156,7 +157,7 @@ In BotFather:
 
 1. Allow the bot to join groups.
 2. Keep Group Privacy enabled. Mentioned commands, mentioned photo captions, and replies to the bot remain available.
-3. Add the bot to the desired group.
+3. Add the bot to the desired group. To also receive the admin-only `chat_member` join-event fallback, make it a group administrator with permission to post messages.
 
 The application sets its webhook and commands at startup when `PUBLIC_BASE_URL` uses HTTPS. Telegram calls:
 
