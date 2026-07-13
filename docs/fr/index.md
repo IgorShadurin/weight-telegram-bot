@@ -35,7 +35,7 @@ Envoie une nouvelle photo, mentionne le bot dans la légende et indique ton poid
 
 Dans le groupe, mentionne le bot avec la commande ou utilise `/command@my_weight_goal_bot`.
 
-Si un objectif est déjà actif, `/goal` demande d’abord de confirmer son remplacement avec des boutons. Ensuite, envoie une nouvelle photo de départ avec ton poids en mentionnant le bot ou en répondant à son message. L’ancien objectif n’est archivé qu’après la création du nouveau.
+Si un objectif est déjà actif, `/goal` demande d’abord de confirmer son remplacement avec des boutons. Ensuite, envoie une nouvelle photo de départ en mentionnant le bot ou en répondant à son message. Indique le poids dans la légende ou envoie-le séparément lorsque le bot le demande. L’ancien objectif n’est archivé qu’après la création du nouveau.
 
 ## Plan, graphiques et succès
 

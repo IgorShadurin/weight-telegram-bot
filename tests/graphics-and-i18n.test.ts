@@ -83,6 +83,7 @@ describe('graphics and fixed catalogs', () => {
       const prompt = t(language, 'replacementPhotoPrompt', { bot: 'my_weight_goal_bot' });
       expect(prompt).toContain('@my_weight_goal_bot');
       expect(prompt).not.toContain('{{');
+      expect(t(language, 'needCurrentWeight')).not.toContain('{{');
     }
   });
 

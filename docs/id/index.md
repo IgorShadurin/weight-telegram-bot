@@ -35,7 +35,7 @@ Kirim foto baru, mention bot di caption, lalu tulis berat saat ini: `@my_weight_
 
 Di grup, mention bot bersama perintah atau gunakan `/command@my_weight_goal_bot`.
 
-Jika sudah ada target aktif, `/goal` akan meminta konfirmasi lewat tombol terlebih dahulu. Setelah dikonfirmasi, kirim foto awal baru beserta beratnya dengan mention bot atau membalas pesannya. Target lama baru diarsipkan setelah target baru selesai dibuat.
+Jika sudah ada target aktif, `/goal` akan meminta konfirmasi lewat tombol terlebih dahulu. Setelah dikonfirmasi, kirim foto awal baru dengan mention bot atau membalas pesannya. Tulis berat di caption atau kirim terpisah saat bot memintanya. Target lama baru diarsipkan setelah target baru selesai dibuat.
 
 ## Rencana, grafik, dan pencapaian
 

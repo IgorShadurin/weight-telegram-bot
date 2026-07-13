@@ -41,6 +41,17 @@ const copy: Record<string, Copy> = {
     ja: '写真と数字をセットでお願いします。キャプションに @{{bot}} と体重を書いてください。例：<code>@{{bot}} 92.3 kg</code>',
     id: 'Harus ada foto dan angkanya: mention @{{bot}} di caption lalu tulis beratmu. Contoh: <code>@{{bot}} 92,3 kg</code>.',
   },
+  needCurrentWeight: {
+    ru: 'Фото принято. Теперь ответь текущим весом одним числом, например <code>93.25 кг</code>.',
+    en: 'Photo received. Now reply with your current weight as one number, for example <code>93.25 kg</code>.',
+    zh: '照片收到。现在请回复一个当前体重，例如 <code>93.25 公斤</code>。',
+    es: 'Foto recibida. Ahora responde solo con tu peso actual, por ejemplo <code>93,25 kg</code>.',
+    pt: 'Foto recebida. Agora responda apenas com seu peso atual, por exemplo <code>93,25 kg</code>.',
+    de: 'Foto erhalten. Antworte jetzt nur mit deinem aktuellen Gewicht, zum Beispiel <code>93,25 kg</code>.',
+    fr: 'Photo reçue. Réponds maintenant uniquement avec ton poids actuel, par exemple <code>93,25 kg</code>.',
+    ja: '写真を受け取りました。現在の体重だけを返信してください。例：<code>93.25 kg</code>',
+    id: 'Foto diterima. Sekarang balas dengan satu angka beratmu saat ini, misalnya <code>93,25 kg</code>.',
+  },
   needTarget: {
     ru: 'Старт: <b>{{weight}} кг</b>. Ответь на это сообщение целевым весом, например <code>80 кг</code>.',
     en: 'Start: <b>{{weight}} kg</b>. Reply to this message with the target weight, for example <code>80 kg</code>.',

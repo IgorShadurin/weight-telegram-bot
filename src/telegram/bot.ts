@@ -52,7 +52,9 @@ function threadId(ctx: Context): number | undefined {
 
 function draftStage(draft: GoalDraft): NonNullable<GoalDraft['stage']> {
   if (draft.stage) return draft.stage;
-  if (draft.initialWeightGrams === null) return 'await-start-photo';
+  if (draft.initialWeightGrams === null) {
+    return draft.initialPhotoUniqueId ? 'await-start-weight' : 'await-start-photo';
+  }
   if (draft.targetWeightGrams === null) return 'await-target';
   if (draft.targetDate === null) return 'await-date';
   return 'confirm-goal';
@@ -76,6 +78,36 @@ async function editOrReply(ctx: Context, draft: GoalDraft, text: string, markup:
   }
   const result = await ctx.reply(text, { parse_mode: 'HTML', reply_markup: markup });
   return result.message_id;
+}
+
+async function askCurrentWeight(ctx: Context, language: Language): Promise<number> {
+  const prompt = await ctx.reply(t(language, 'needCurrentWeight'), {
+    parse_mode: 'HTML',
+    reply_markup: {
+      force_reply: true,
+      selective: true,
+      input_field_placeholder: localized(language, {
+        ru: '93.25 кг', en: '93.25 kg', zh: '93.25 公斤', es: '93,25 kg', pt: '93,25 kg',
+        de: '93,25 kg', fr: '93,25 kg', ja: '93.25 kg', id: '93,25 kg',
+      }),
+    },
+  });
+  return prompt.message_id;
+}
+
+async function askTargetWeight(ctx: Context, language: Language, weight: number): Promise<number> {
+  const prompt = await ctx.reply(t(language, 'needTarget', { weight: formatKg(weight) }), {
+    parse_mode: 'HTML',
+    reply_markup: {
+      force_reply: true,
+      selective: true,
+      input_field_placeholder: localized(language, {
+        ru: '80 кг', en: '80 kg', zh: '80 公斤', es: '80 kg', pt: '80 kg', de: '80 kg',
+        fr: '80 kg', ja: '80 kg', id: '80 kg',
+      }),
+    },
+  });
+  return prompt.message_id;
 }
 
 export function configureBot(service: TelegramService, store: Store, config: AppConfig): void {
@@ -355,6 +387,24 @@ export function configureBot(service: TelegramService, store: Store, config: App
       draft.promptMessageId === ctx.message.reply_to_message?.message_id &&
       draft.threadId === (currentThreadId === undefined ? null : String(currentThreadId)),
     );
+    if (isDraftReply && draft && draftStage(draft) === 'await-start-weight') {
+      if (!draft.initialPhotoUniqueId) {
+        store.deleteDraft(userId);
+        await ctx.reply(t(user.language, 'draftExpired'));
+        return;
+      }
+      const currentWeight = parseWeightGrams(text);
+      if (!currentWeight) {
+        draft.promptMessageId = await askCurrentWeight(ctx, user.language);
+        store.saveDraft(draft);
+        return;
+      }
+      draft.initialWeightGrams = currentWeight;
+      draft.stage = 'await-target';
+      draft.promptMessageId = await askTargetWeight(ctx, user.language, currentWeight);
+      store.saveDraft(draft);
+      return;
+    }
     if (isDraftReply && draft && draft.initialWeightGrams !== null) {
       if (draftStage(draft) === 'await-target') {
         const target = parseWeightGrams(text);
@@ -505,38 +555,47 @@ export function configureBot(service: TelegramService, store: Store, config: App
       activeGoal && draft?.intent === 'replace' && draftStage(draft) === 'await-start-photo' &&
       draft.chatId === String(ctx.chat.id) &&
       draft.threadId === (currentThreadId === undefined ? null : String(currentThreadId)) &&
-      (isMentioned || isDraftReply),
+      (isMentioned || isReply),
     );
     if (!photo || (!isMentioned && !isAddressedCommand && !isReplacementPhoto)) {
       await ctx.reply(t(user.language, 'needPhotoWeight', { bot: ctx.me.username }), { parse_mode: 'HTML' });
       return;
     }
     const weight = parseWeightGrams(text.replace(new RegExp(`@${ctx.me.username}`, 'igu'), ''));
+    const isStartingPhoto = !activeGoal || isReplacementPhoto;
+    if (!weight && isStartingPhoto) {
+      const expiresAt = now.plus({ minutes: 20 }).toISO()!;
+      const promptMessageId = await askCurrentWeight(ctx, user.language);
+      store.saveDraft({
+        telegramUserId: userId,
+        intent: activeGoal ? 'replace' : 'create',
+        stage: 'await-start-weight',
+        chatId: String(ctx.chat.id),
+        threadId: currentThreadId === undefined ? null : String(currentThreadId),
+        promptMessageId,
+        initialWeightGrams: null,
+        initialPhotoUniqueId: photo.file_unique_id,
+        targetWeightGrams: null,
+        targetDate: null,
+        expiresAt,
+      });
+      return;
+    }
     if (!weight) {
       await ctx.reply(t(user.language, 'needPhotoWeight', { bot: ctx.me.username }), { parse_mode: 'HTML' });
       return;
     }
 
-    if (!activeGoal || isReplacementPhoto) {
+    if (isStartingPhoto) {
       const expiresAt = now.plus({ minutes: 20 }).toISO()!;
-      const message = await ctx.reply(t(user.language, 'needTarget', { weight: formatKg(weight) }), {
-        parse_mode: 'HTML',
-        reply_markup: {
-          force_reply: true,
-          selective: true,
-          input_field_placeholder: localized(user.language, {
-            ru: '80 кг', en: '80 kg', zh: '80 公斤', es: '80 kg', pt: '80 kg', de: '80 kg',
-            fr: '80 kg', ja: '80 kg', id: '80 kg',
-          }),
-        },
-      });
+      const promptMessageId = await askTargetWeight(ctx, user.language, weight);
       store.saveDraft({
         telegramUserId: userId,
         intent: activeGoal ? 'replace' : 'create',
         stage: 'await-target',
         chatId: String(ctx.chat.id),
         threadId: threadId(ctx) ? String(threadId(ctx)) : null,
-        promptMessageId: message.message_id,
+        promptMessageId,
         initialWeightGrams: weight,
         initialPhotoUniqueId: photo.file_unique_id,
         targetWeightGrams: null,

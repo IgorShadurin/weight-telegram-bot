@@ -35,7 +35,7 @@ Envie uma foto nova, marque o bot na legenda e informe o peso atual: `@my_weight
 
 No grupo, marque o bot junto com o comando ou use `/command@my_weight_goal_bot`.
 
-Se já houver uma meta ativa, `/goal` primeiro pedirá a confirmação da troca por botões. Depois, envie uma nova foto inicial com o peso, marcando o bot ou respondendo à mensagem dele. A meta anterior só será arquivada quando a nova for criada.
+Se já houver uma meta ativa, `/goal` primeiro pedirá a confirmação da troca por botões. Depois, envie uma nova foto inicial, marcando o bot ou respondendo à mensagem dele. Coloque o peso na legenda ou envie separadamente quando o bot perguntar. A meta anterior só será arquivada quando a nova for criada.
 
 ## Plano, gráficos e conquistas
 

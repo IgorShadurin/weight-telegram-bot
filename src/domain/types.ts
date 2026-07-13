@@ -54,7 +54,7 @@ export interface WeighInRecord {
 export interface GoalDraft {
   telegramUserId: string;
   intent: 'create' | 'replace';
-  stage?: 'confirm-replace' | 'await-start-photo' | 'await-target' | 'await-date' | 'confirm-goal';
+  stage?: 'confirm-replace' | 'await-start-photo' | 'await-start-weight' | 'await-target' | 'await-date' | 'confirm-goal';
   chatId: string;
   threadId: string | null;
   promptMessageId: number | null;

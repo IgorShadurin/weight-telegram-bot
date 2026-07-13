@@ -320,7 +320,7 @@ describe('Telegram group behavior', () => {
     expect(calls.at(-1)?.payload.text).toContain('Черновик цели истёк');
   });
 
-  it('starts replacement from a photo reply and archives the old goal only after final confirmation', async () => {
+  it('accepts a photo first, then its weight, and archives the old goal only after final confirmation', async () => {
     const existing = await seedActiveGoal(100, 'replace-reply-existing');
     calls.length = 0;
     await update(101, { text: '/goal@my_weight_goal_bot' });
@@ -334,7 +334,6 @@ describe('Telegram group behavior', () => {
     expect(store.getGoal(existing.id)?.status).toBe('active');
 
     await update(103, {
-      caption: '93.25',
       photo: [{ file_id: 'replacement', file_unique_id: 'replace-reply-start', width: 1000, height: 1000 }],
       reply_to_message: {
         message_id: draft.promptMessageId,
@@ -344,11 +343,41 @@ describe('Telegram group behavior', () => {
       },
     });
     draft = store.getDraft('1', new Date().toISOString())!;
+    expect(draft.stage).toBe('await-start-weight');
+    expect(draft.initialWeightGrams).toBeNull();
+    expect(draft.initialPhotoUniqueId).toBe('replace-reply-start');
+    expect(calls.at(-1)?.payload.text).toContain('Фото принято');
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+
+    await update(104, {
+      text: 'не вес',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    expect(draft.stage).toBe('await-start-weight');
+    expect(calls.at(-1)?.payload.text).toContain('Фото принято');
+
+    await update(105, {
+      text: '93.25',
+      reply_to_message: {
+        message_id: draft.promptMessageId,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+    draft = store.getDraft('1', new Date().toISOString())!;
+    expect(draft.stage).toBe('await-target');
     expect(draft.initialWeightGrams).toBe(93_250);
     expect(draft.initialPhotoUniqueId).toBe('replace-reply-start');
     expect(store.getGoal(existing.id)?.status).toBe('active');
 
-    await update(104, {
+    await update(106, {
       text: '82 kg',
       reply_to_message: {
         message_id: draft.promptMessageId,
@@ -358,7 +387,7 @@ describe('Telegram group behavior', () => {
       },
     });
     draft = store.getDraft('1', new Date().toISOString())!;
-    await update(105, {
+    await update(107, {
       text: '31 Dec 2027',
       reply_to_message: {
         message_id: draft.promptMessageId,
@@ -370,7 +399,7 @@ describe('Telegram group behavior', () => {
     draft = store.getDraft('1', new Date().toISOString())!;
     expect(store.getGoal(existing.id)?.status).toBe('active');
 
-    await callback(106, 'goal:confirm:1', draft.promptMessageId!);
+    await callback(108, 'goal:confirm:1', draft.promptMessageId!);
 
     const replacement = store.getActiveGoal('1')!;
     expect(replacement.id).not.toBe(existing.id);
@@ -398,6 +427,33 @@ describe('Telegram group behavior', () => {
       intent: 'replace',
       initialWeightGrams: 93_100,
       initialPhotoUniqueId: 'replace-mention-start',
+    });
+    expect(store.getGoal(existing.id)?.status).toBe('active');
+  });
+
+  it('accepts a replacement photo replied to a newer bot instruction', async () => {
+    const existing = await seedActiveGoal(120, 'replace-later-reply-existing');
+    calls.length = 0;
+    await update(121, { text: '/goal@my_weight_goal_bot' });
+    const confirmation = store.getDraft('1', new Date().toISOString())!;
+    await callback(122, 'goal:replace:1', confirmation.promptMessageId!);
+    const originalPrompt = store.getDraft('1', new Date().toISOString())!;
+
+    await update(123, {
+      caption: '93.2',
+      photo: [{ file_id: 'replacement', file_unique_id: 'replace-later-reply-start', width: 1000, height: 1000 }],
+      reply_to_message: {
+        message_id: originalPrompt.promptMessageId! + 500,
+        date: 1_783_700_000,
+        chat: { id: -100, type: 'supergroup', title: 'Test' },
+        from: telegram.bot.botInfo,
+      },
+    });
+
+    expect(store.getDraft('1', new Date().toISOString())).toMatchObject({
+      stage: 'await-target',
+      initialWeightGrams: 93_200,
+      initialPhotoUniqueId: 'replace-later-reply-start',
     });
     expect(store.getGoal(existing.id)?.status).toBe('active');
   });
