@@ -663,7 +663,7 @@ export function configureBot(service: TelegramService, store: Store, config: App
       draft.threadId === (currentThreadId === undefined ? null : String(currentThreadId)) &&
       (isMentioned || isReply),
     );
-    if (!photo || (!isMentioned && !isAddressedCommand && !isReplacementPhoto)) {
+    if (!photo || (!isMentioned && !isAddressedCommand && !isReply)) {
       await ctx.reply(t(user.language, 'needPhotoWeight', { bot: ctx.me.username }), { parse_mode: 'HTML' });
       return;
     }

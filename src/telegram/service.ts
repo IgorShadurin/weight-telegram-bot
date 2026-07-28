@@ -104,15 +104,16 @@ export class TelegramService {
     const achievementPath = achievement ? path.resolve(achievement.optimizedPath) : '';
     const extra = input.threadId ? { message_thread_id: input.threadId } : {};
     if (achievement && fs.existsSync(achievementPath)) {
-      await this.bot.api.sendMediaGroup(input.chatId, [
-        { type: 'photo', media: new InputFile(chart, 'progress.jpg'), caption, parse_mode: 'HTML' },
-        {
-          type: 'photo',
-          media: new InputFile(achievementPath),
-          caption: `🏅 <b>${achievement.title[input.language]}</b>`,
-          parse_mode: 'HTML',
-        },
-      ], extra);
+      await this.bot.api.sendPhoto(input.chatId, new InputFile(chart, 'progress.jpg'), {
+        caption,
+        parse_mode: 'HTML',
+        ...extra,
+      });
+      await this.bot.api.sendPhoto(input.chatId, new InputFile(achievementPath), {
+        caption: `🏅 <b>${achievement.title[input.language]}</b>`,
+        parse_mode: 'HTML',
+        ...extra,
+      });
       this.store.markBadgeSent(input.period.id, now);
     } else {
       await this.bot.api.sendPhoto(input.chatId, new InputFile(chart, 'progress.jpg'), {

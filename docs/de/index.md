@@ -21,7 +21,7 @@ Der Bot sendet einen Wochenplan mit Terminen, Zielgewichten und den Gramm pro Et
 
 ## Wöchentlicher Check-in
 
-Sende ein neues Foto, erwähne den Bot in der Bildunterschrift und ergänze dein aktuelles Gewicht: `@my_weight_goal_bot 88,3 kg`. Der Bot speichert den Wert, bewertet die Wochenetappe und sendet die Fortschrittskurve. Check-ins sind jederzeit möglich, empfohlen ist mindestens einmal pro Woche.
+Sende ein neues Foto mit deinem aktuellen Gewicht, indem du den Bot erwähnst (`@my_weight_goal_bot 88,3 kg`) oder auf eine beliebige Bot-Nachricht antwortest. Der Bot speichert den Wert, bewertet die Wochenetappe und sendet die Fortschrittskurve. Check-ins sind jederzeit möglich, empfohlen ist mindestens einmal pro Woche.
 
 ## Befehle
 
@@ -33,7 +33,7 @@ Sende ein neues Foto, erwähne den Bot in der Bildunterschrift und ergänze dein
 | `/settings` | Sprache auswählen. |
 | `/help` | Kurze Befehlsübersicht anzeigen. |
 
-Erwähne den Bot in der Gruppe zusammen mit dem Befehl oder nutze `/command@my_weight_goal_bot`.
+Erwähne den Bot in der Gruppe, nutze `/command@my_weight_goal_bot` oder antworte mit der Aktion auf eine beliebige Bot-Nachricht.
 
 Wenn bereits ein Ziel aktiv ist, fragt `/goal` zuerst per Schaltflächen nach einer Bestätigung. Sende danach ein neues Startfoto, indem du den Bot erwähnst oder auf seine Nachricht antwortest. Schreib das Gewicht in die Bildunterschrift oder sende es separat, sobald der Bot danach fragt. Das alte Ziel wird erst archiviert, wenn das neue erstellt wurde.
 

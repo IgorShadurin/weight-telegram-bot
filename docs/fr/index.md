@@ -21,7 +21,7 @@ Le bot enverra un plan semaine par semaine avec les dates, les poids cibles et l
 
 ## Relevé hebdomadaire
 
-Envoie une nouvelle photo, mentionne le bot dans la légende et indique ton poids actuel : `@my_weight_goal_bot 88,3 kg`. Le bot enregistre le résultat, évalue le palier de la semaine et envoie la courbe. Tu peux te peser à tout moment, mais au moins une fois par semaine est recommandé.
+Envoie une nouvelle photo avec ton poids actuel, en mentionnant le bot (`@my_weight_goal_bot 88,3 kg`) ou en répondant à n’importe lequel de ses messages. Le bot enregistre le résultat, évalue le palier de la semaine et envoie la courbe. Tu peux te peser à tout moment, mais au moins une fois par semaine est recommandé.
 
 ## Commandes
 
@@ -33,7 +33,7 @@ Envoie une nouvelle photo, mentionne le bot dans la légende et indique ton poid
 | `/settings` | Choisir la langue. |
 | `/help` | Afficher la liste courte des commandes. |
 
-Dans le groupe, mentionne le bot avec la commande ou utilise `/command@my_weight_goal_bot`.
+Dans le groupe, mentionne le bot, utilise `/command@my_weight_goal_bot` ou réponds à n’importe lequel de ses messages avec l’action.
 
 Si un objectif est déjà actif, `/goal` demande d’abord de confirmer son remplacement avec des boutons. Ensuite, envoie une nouvelle photo de départ en mentionnant le bot ou en répondant à son message. Indique le poids dans la légende ou envoie-le séparément lorsque le bot le demande. L’ancien objectif n’est archivé qu’après la création du nouveau.
 

@@ -21,7 +21,7 @@ Bot akan mengirim rencana mingguan berisi tanggal, target berat, dan jumlah gram
 
 ## Check-in mingguan
 
-Kirim foto baru, mention bot di caption, lalu tulis berat saat ini: `@my_weight_goal_bot 88,3 kg`. Bot menyimpan hasilnya, menilai target minggu ini, dan mengirim grafik progres. Check-in bisa kapan saja, tetapi disarankan setidaknya sekali seminggu.
+Kirim foto baru dengan berat saat ini, lalu mention bot (`@my_weight_goal_bot 88,3 kg`) atau balas pesan bot mana pun dengan foto tersebut. Bot menyimpan hasilnya, menilai target minggu ini, dan mengirim grafik progres. Check-in bisa kapan saja, tetapi disarankan setidaknya sekali seminggu.
 
 ## Perintah
 
@@ -33,7 +33,7 @@ Kirim foto baru, mention bot di caption, lalu tulis berat saat ini: `@my_weight_
 | `/settings` | Pilih bahasa. |
 | `/help` | Tampilkan daftar perintah singkat. |
 
-Di grup, mention bot bersama perintah atau gunakan `/command@my_weight_goal_bot`.
+Di grup, mention bot, gunakan `/command@my_weight_goal_bot`, atau balas pesan bot mana pun dengan tindakan yang diinginkan.
 
 Jika sudah ada target aktif, `/goal` akan meminta konfirmasi lewat tombol terlebih dahulu. Setelah dikonfirmasi, kirim foto awal baru dengan mention bot atau membalas pesannya. Tulis berat di caption atau kirim terpisah saat bot memintanya. Target lama baru diarsipkan setelah target baru selesai dibuat.
 

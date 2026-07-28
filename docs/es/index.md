@@ -21,7 +21,7 @@ El bot enviará un plan semana a semana con fechas, pesos objetivo y los gramos 
 
 ## Registro semanal
 
-Envía una foto nueva, menciona al bot en el pie de foto y añade el peso actual: `@my_weight_goal_bot 88,3 kg`. El bot guardará el resultado, comprobará el objetivo semanal y enviará la gráfica. Puedes registrar el peso cuando quieras, aunque se recomienda hacerlo al menos una vez por semana.
+Envía una foto nueva con el peso actual, mencionando al bot (`@my_weight_goal_bot 88,3 kg`) o respondiendo a cualquier mensaje suyo. El bot guardará el resultado, comprobará el objetivo semanal y enviará la gráfica. Puedes registrar el peso cuando quieras, aunque se recomienda hacerlo al menos una vez por semana.
 
 ## Comandos
 
@@ -33,7 +33,7 @@ Envía una foto nueva, menciona al bot en el pie de foto y añade el peso actual
 | `/settings` | Elegir idioma. |
 | `/help` | Mostrar la lista breve de comandos. |
 
-En el grupo, menciona al bot junto al comando o usa `/command@my_weight_goal_bot`.
+En el grupo, menciona al bot, usa `/command@my_weight_goal_bot` o responde a cualquier mensaje suyo con la acción.
 
 Si ya hay una meta activa, `/goal` primero pedirá confirmar el cambio con botones. Después, envía una nueva foto inicial mencionando al bot o respondiendo a su mensaje. Puedes poner el peso en el pie de foto o enviarlo aparte cuando el bot lo pida. La meta anterior se archivará solo cuando se cree la nueva.
 

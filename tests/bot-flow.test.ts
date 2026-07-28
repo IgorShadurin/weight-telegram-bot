@@ -74,6 +74,15 @@ describe('Telegram group behavior', () => {
     } as any);
   }
 
+  function replyToBot(messageId = 777) {
+    return {
+      message_id: messageId,
+      date: 1_783_700_000,
+      chat: { id: -100, type: 'supergroup', title: 'Test' },
+      from: telegram.bot.botInfo,
+    };
+  }
+
   async function seedActiveGoal(updateId: number, photoUniqueId: string) {
     await update(updateId, { text: '@my_weight_goal_bot настройки' });
     return store.createGoal({
@@ -88,6 +97,81 @@ describe('Telegram group behavior', () => {
     await update(1, { text: '88.3 kg' });
     expect(calls).toHaveLength(0);
     expect(store.getUser('1')).toBeNull();
+  });
+
+  it.each([
+    ['settings', 'Выбери язык'],
+    ['help', 'Доступные команды'],
+    ['status', 'Активной цели пока нет'],
+    ['weekly plan', 'Активной цели пока нет'],
+  ])('accepts the %s action when it replies to a bot message', async (action, expected) => {
+    await update(1, { text: action, reply_to_message: replyToBot() });
+    expect(calls.at(-1)?.payload.text).toContain(expected);
+  });
+
+  it('accepts a new-goal action when it replies to a bot message', async () => {
+    await seedActiveGoal(1, 'reply-action-existing');
+    calls.length = 0;
+
+    await update(2, { text: 'new goal', reply_to_message: replyToBot() });
+
+    expect(calls.at(-1)?.payload.text).toContain('Точно заменить её новой?');
+    expect(store.getDraft('1', new Date().toISOString())?.stage).toBe('confirm-replace');
+  });
+
+  it('accepts a first-goal photo with weight when it replies to any bot message', async () => {
+    await update(1, {
+      caption: '92 kg',
+      photo: [{ file_id: 'reply', file_unique_id: 'reply-first-goal', width: 1000, height: 1000 }],
+      reply_to_message: replyToBot(),
+    });
+
+    expect(store.getDraft('1', new Date().toISOString())).toMatchObject({
+      stage: 'await-target',
+      initialWeightGrams: 92_000,
+      initialPhotoUniqueId: 'reply-first-goal',
+    });
+    expect(calls.at(-1)?.payload.text).toContain('Ответь на это сообщение целевым весом');
+  });
+
+  it('accepts a photo check-in with weight when it replies to any bot message', async () => {
+    const goal = await seedActiveGoal(1, 'reply-check-in-existing');
+    calls.length = 0;
+
+    await update(2, {
+      caption: '93.9 kg',
+      photo: [{ file_id: 'reply', file_unique_id: 'reply-check-in', width: 1000, height: 1000 }],
+      reply_to_message: replyToBot(),
+    });
+
+    expect(store.getWeighIns(goal.id)).toHaveLength(2);
+    expect(store.getWeighIns(goal.id).at(-1)).toMatchObject({
+      weightGrams: 93_900,
+      photoUniqueId: 'reply-check-in',
+    });
+    expect(calls.at(-1)?.method).toBe('sendPhoto');
+  });
+
+  it('sends the trajectory and weekly character as two separate messages', async () => {
+    const goal = await seedActiveGoal(1, 'separate-achievement-existing');
+    calls.length = 0;
+    const period = store.getPeriods(goal.id)[0]!;
+
+    await telegram.sendStatus({
+      telegramUserId: '1',
+      chatId: '-100',
+      language: 'ru',
+      goal,
+      period,
+      captionPrefix: 'Рубеж пройден',
+      badgeWeek: 1,
+    });
+
+    expect(calls.map((call) => call.method)).toEqual(['sendPhoto', 'sendPhoto']);
+    expect(calls[0]?.payload.caption).toContain('Рубеж пройден');
+    expect(calls[0]?.payload.caption).toContain('94 → 80 кг');
+    expect(calls[1]?.payload.caption).toContain('Операция «Меньше дивана»');
+    expect(store.getPeriods(goal.id)[0]?.badgeSentAt).not.toBeNull();
   });
 
   it('welcomes new members in the language selected by the admin who added the bot', async () => {

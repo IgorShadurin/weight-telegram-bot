@@ -23,7 +23,7 @@ The same original teal capybara becomes fitter across 53 fixed weekly achievemen
 1. Add [@my_weight_goal_bot](https://t.me/my_weight_goal_bot) to a group.
 2. Attach a current photo with the caption `@my_weight_goal_bot 92 kg`.
 3. Reply to the bot with the target weight, then the target date, and confirm.
-4. For each check-in, attach a new photo with the bot mention and current weight. Mention it with `status` at any time for the current checkpoint and chart.
+4. For each check-in, attach a new photo with the current weight and either mention the bot or reply to one of its messages. Mention it or reply with `status` at any time for the current checkpoint and chart.
 
 ## Progress chart
 
@@ -96,17 +96,17 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 ## Behavior
 
 - Provides complete, naturally adapted interfaces in English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese, and Indonesian.
-- Works in group chats and reacts to a mention, a reply in an active wizard, or one of its buttons.
+- Works in group chats and accepts every action through either a mention or a reply to any bot message, as well as through its buttons.
 - Welcomes each newly joined human member in the language selected by the person who added the bot, with a direct mention and the single `/goal` setup instruction.
 - Confirms active-goal replacement with Yes/No buttons, accepts the new starting photo by mention or prompt reply, accepts its weight in the caption or a follow-up reply, and archives the old goal only after the new one is created.
 - Lets users request goal status, progress charts, weekly plans, help, and language settings in private chat.
 - Optionally notifies configured admin Telegram users about each new registration with platform user and goal-owner totals.
 - Stores one active goal per Telegram user and preserves replaced/completed goal history.
-- Requires each recorded weight to be attached to a new Telegram photo whose caption mentions the bot.
+- Requires each recorded weight to be attached to a new Telegram photo, addressed through either a bot mention or a reply to a bot message.
 - Never downloads user photos; only Telegram's non-reusable `file_unique_id` is retained for duplicate detection.
 - Calculates linearly interpolated checkpoints ending Sunday, with the final partial week ending on the exact goal date.
 - Sends Thursday checkpoint reminders and a Sunday 10:00 reminder when the current week has no weight check-in.
-- Generates progress charts in memory and rate-limits graphic responses to one album per user per minute.
+- Generates progress charts in memory and rate-limits graphic responses per user; weekly achievements send the trajectory and character as separate messages.
 - Uses 53 fixed, original bitmap achievements. Goals longer than 53 periods continue without additional badges.
 
 ## Local development

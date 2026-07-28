@@ -21,7 +21,7 @@ The bot sends a weekly plan with dates, target weights, and the grams to lose at
 
 ## Weekly check-in
 
-Send a new photo that mentions the bot and includes your current weight: `@my_weight_goal_bot 88.3 kg`. The bot records it, evaluates the weekly checkpoint, and sends a progress chart. You can check in at any time, but at least once a week is recommended.
+Send a new photo with your current weight, either by mentioning the bot (`@my_weight_goal_bot 88.3 kg`) or by replying to any bot message. The bot records it, evaluates the weekly checkpoint, and sends a progress chart. You can check in at any time, but at least once a week is recommended.
 
 ## Commands
 
@@ -33,7 +33,7 @@ Send a new photo that mentions the bot and includes your current weight: `@my_we
 | `/settings` | Choose a language. |
 | `/help` | Show the short command list. |
 
-In a group, mention the bot with the command or use `/command@my_weight_goal_bot`.
+In a group, mention the bot, use `/command@my_weight_goal_bot`, or reply to any bot message with the action.
 
 If a goal is already active, `/goal` first asks you to confirm the replacement with buttons. After confirming, send a new starting photo by mentioning the bot or replying to its prompt. Put the weight in the caption or send it separately when the bot asks. The old goal is archived only after the new one is created.
 

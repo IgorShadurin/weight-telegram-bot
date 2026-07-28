@@ -21,7 +21,7 @@ O bot enviará um plano semana a semana com datas, pesos-alvo e a quantidade de 
 
 ## Check-in semanal
 
-Envie uma foto nova, marque o bot na legenda e informe o peso atual: `@my_weight_goal_bot 88,3 kg`. O bot salva o resultado, avalia o checkpoint da semana e envia o gráfico. Você pode fazer check-in quando quiser, mas o ideal é pelo menos uma vez por semana.
+Envie uma foto nova com o peso atual, marcando o bot (`@my_weight_goal_bot 88,3 kg`) ou respondendo a qualquer mensagem dele. O bot salva o resultado, avalia o checkpoint da semana e envia o gráfico. Você pode fazer check-in quando quiser, mas o ideal é pelo menos uma vez por semana.
 
 ## Comandos
 
@@ -33,7 +33,7 @@ Envie uma foto nova, marque o bot na legenda e informe o peso atual: `@my_weight
 | `/settings` | Escolher o idioma. |
 | `/help` | Mostrar a lista curta de comandos. |
 
-No grupo, marque o bot junto com o comando ou use `/command@my_weight_goal_bot`.
+No grupo, marque o bot, use `/command@my_weight_goal_bot` ou responda a qualquer mensagem dele com a ação.
 
 Se já houver uma meta ativa, `/goal` primeiro pedirá a confirmação da troca por botões. Depois, envie uma nova foto inicial, marcando o bot ou respondendo à mensagem dele. Coloque o peso na legenda ou envie separadamente quando o bot perguntar. A meta anterior só será arquivada quando a nova for criada.
 
