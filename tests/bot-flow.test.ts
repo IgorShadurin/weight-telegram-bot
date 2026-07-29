@@ -152,10 +152,12 @@ describe('Telegram group behavior', () => {
     expect(calls.at(-1)?.method).toBe('sendPhoto');
   });
 
-  it('sends the trajectory and weekly character as two separate messages', async () => {
+  it('sends the trajectory, weekly character, and next target as separate messages', async () => {
     const goal = await seedActiveGoal(1, 'separate-achievement-existing');
     calls.length = 0;
-    const period = store.getPeriods(goal.id)[0]!;
+    const periods = store.getPeriods(goal.id);
+    const period = periods[0]!;
+    const nextPeriod = periods[1]!;
 
     await telegram.sendStatus({
       telegramUserId: '1',
@@ -167,11 +169,32 @@ describe('Telegram group behavior', () => {
       badgeWeek: 1,
     });
 
-    expect(calls.map((call) => call.method)).toEqual(['sendPhoto', 'sendPhoto']);
+    expect(calls.map((call) => call.method)).toEqual(['sendPhoto', 'sendPhoto', 'sendMessage']);
     expect(calls[0]?.payload.caption).toContain('Рубеж пройден');
     expect(calls[0]?.payload.caption).toContain('94 → 80 кг');
     expect(calls[1]?.payload.caption).toContain('Операция «Меньше дивана»');
+    expect(calls[2]?.payload.text).toContain('Цель на следующую неделю');
+    expect(calls[2]?.payload.text).toContain(String(nextPeriod.targetWeightGrams / 1000));
+    expect(calls[2]?.payload.text).toContain(nextPeriod.endDate);
     expect(store.getPeriods(goal.id)[0]?.badgeSentAt).not.toBeNull();
+  });
+
+  it('does not invent a next-week target after the final checkpoint', async () => {
+    const goal = await seedActiveGoal(1, 'final-achievement-existing');
+    calls.length = 0;
+    const finalPeriod = store.getPeriods(goal.id).at(-1)!;
+
+    await telegram.sendStatus({
+      telegramUserId: '1',
+      chatId: '-100',
+      language: 'en',
+      goal,
+      period: finalPeriod,
+      badgeWeek: 53,
+    });
+
+    expect(calls.map((call) => call.method)).toEqual(['sendPhoto', 'sendPhoto', 'sendMessage']);
+    expect(calls[2]?.payload.text).toContain('final goal is complete');
   });
 
   it('welcomes new members in the language selected by the admin who added the bot', async () => {

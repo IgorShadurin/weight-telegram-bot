@@ -106,7 +106,7 @@ Immediately after confirmation, the bot sends every weekly checkpoint with its d
 - Never downloads user photos; only Telegram's non-reusable `file_unique_id` is retained for duplicate detection.
 - Calculates linearly interpolated checkpoints ending Sunday, with the final partial week ending on the exact goal date.
 - Sends Thursday checkpoint reminders and a Sunday 10:00 reminder when the current week has no weight check-in.
-- Generates progress charts in memory and rate-limits graphic responses per user; weekly achievements send the trajectory and character as separate messages.
+- Generates progress charts in memory and rate-limits graphic responses per user; weekly achievements send the trajectory, character, and next-week target as three separate messages.
 - Uses 53 fixed, original bitmap achievements. Goals longer than 53 periods continue without additional badges.
 
 ## Local development

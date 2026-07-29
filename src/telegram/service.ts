@@ -102,6 +102,7 @@ export class TelegramService {
 
     const achievement = input.badgeWeek ? achievementForWeek(input.badgeWeek) : null;
     const achievementPath = achievement ? path.resolve(achievement.optimizedPath) : '';
+    const nextPeriod = periods.find((period) => period.periodIndex === input.period.periodIndex + 1);
     const extra = input.threadId ? { message_thread_id: input.threadId } : {};
     if (achievement && fs.existsSync(achievementPath)) {
       await this.bot.api.sendPhoto(input.chatId, new InputFile(chart, 'progress.jpg'), {
@@ -111,6 +112,15 @@ export class TelegramService {
       });
       await this.bot.api.sendPhoto(input.chatId, new InputFile(achievementPath), {
         caption: `🏅 <b>${achievement.title[input.language]}</b>`,
+        parse_mode: 'HTML',
+        ...extra,
+      });
+      await this.bot.api.sendMessage(input.chatId, nextPeriod
+        ? t(input.language, 'nextWeekTarget', {
+          target: formatKg(nextPeriod.targetWeightGrams),
+          date: nextPeriod.endDate,
+        })
+        : t(input.language, 'noNextWeekTarget'), {
         parse_mode: 'HTML',
         ...extra,
       });
