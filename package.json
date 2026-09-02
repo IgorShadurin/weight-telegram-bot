@@ -26,7 +26,7 @@
     "@grammyjs/types": "^3.28.0",
     "@napi-rs/canvas": "^1.0.2",
     "better-sqlite3": "^12.11.1",
-    "fastify": "^5.10.0",
+    "fastify": "^5.12.1",
     "grammy": "^1.44.0",
     "luxon": "^3.7.2",
     "sharp": "^0.35.3"
